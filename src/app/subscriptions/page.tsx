@@ -52,7 +52,7 @@ const faqs = [
 export default function SubscriptionsPage() {
   const [openFaq, setOpenFaq] = React.useState<number | null>(null);
   return (
-    <div className="min-h-screen bg-[#f8f5f2] flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       <AnnouncementBar message="New collection revealed monthly!" />
       <Navbar />
       {/* Hero Section */}
@@ -74,46 +74,46 @@ export default function SubscriptionsPage() {
       {/* Compare Plans */}
       <div className="max-w-6xl mx-auto w-full py-16 px-2">
         <h2 className="text-center text-2xl font-serif mb-8 text-[#a0001e]">COMPARE PLANS</h2>
-        <div className="bg-white rounded-xl shadow p-0 overflow-x-auto text-black">
-          <table className="w-full text-left border-separate border-spacing-0">
+        <div className="bg-white border border-gray-100 rounded-lg p-0 overflow-x-auto text-black">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr>
+              <tr className="border-b border-gray-200">
                 <th className="w-1/4 p-6"></th>
-                <th className="w-1/4 p-6 text-center text-xl font-serif font-semibold">Prime Subscription</th>
-                <th className="w-1/4 p-6 text-center text-xl font-serif font-semibold">Premium Subscription</th>
+                <th className="w-1/4 p-6 text-center text-xl font-serif font-semibold border-l border-gray-200">Prime Subscription</th>
+                <th className="w-1/4 p-6 text-center text-xl font-serif font-semibold border-l border-gray-200">Premium Subscription</th>
               </tr>
-              <tr>
+              <tr className="border-b border-gray-200">
                 <td className="p-6 text-lg font-serif">Compare plans</td>
-                <td className="p-6 text-center align-top">
+                <td className="p-6 text-center align-top border-l border-gray-200">
                   <div className="text-4xl font-bold mb-1">₦17,500<span className="text-base font-normal">/Month</span></div>
                   <button className="bg-[#a0001e] text-white px-6 py-3 rounded-lg mt-4 w-full max-w-xs mx-auto">Subscribe to Prime – ₦17,500/mo</button>
                 </td>
-                <td className="p-6 text-center align-top">
+                <td className="p-6 text-center align-top border-l border-gray-200">
                   <div className="text-4xl font-bold mb-1">₦55,000<span className="text-base font-normal">/Month</span></div>
                   <button className="bg-[#a0001e] text-white px-6 py-3 rounded-lg mt-4 w-full max-w-xs mx-auto">Subscribe to Premium – ₦55,000/mo</button>
                 </td>
               </tr>
             </thead>
             <tbody>
-              <tr className="border-t">
+              <tr className="border-b border-gray-200">
                 <td className="py-6 px-4 font-serif text-lg flex items-center">🔥<span className="ml-2">Type of Scents</span></td>
-                <td className="py-6 px-4 text-center text-lg">Accessible niche + designer</td>
-                <td className="py-6 px-4 text-center text-lg">Rare niche & ultra-luxury</td>
+                <td className="py-6 px-4 text-center text-lg border-l border-gray-200">Accessible niche + designer</td>
+                <td className="py-6 px-4 text-center text-lg border-l border-gray-200">Rare niche & ultra-luxury</td>
               </tr>
-              <tr className="border-t">
+              <tr className="border-b border-gray-200">
                 <td className="py-6 px-4 font-serif text-lg">Free Travel Case</td>
-                <td className="py-6 px-4 text-center text-lg">Yes (First month)</td>
-                <td className="py-6 px-4 text-center text-lg">Yes (First month)</td>
+                <td className="py-6 px-4 text-center text-lg border-l border-gray-200">Yes (First month)</td>
+                <td className="py-6 px-4 text-center text-lg border-l border-gray-200">Yes (First month)</td>
               </tr>
-              <tr className="border-t">
+              <tr className="border-b border-gray-200">
                 <td className="py-6 px-4 font-serif text-lg">Great For</td>
-                <td className="py-6 px-4 text-center text-lg">Everyday luxury</td>
-                <td className="py-6 px-4 text-center text-lg">Bold, signature scents</td>
+                <td className="py-6 px-4 text-center text-lg border-l border-gray-200">Everyday luxury</td>
+                <td className="py-6 px-4 text-center text-lg border-l border-gray-200">Bold, signature scents</td>
               </tr>
-              <tr className="border-t">
+              <tr>
                 <td className="py-6 px-4 font-serif text-lg">Exclusive Perk</td>
-                <td className="py-6 px-4 text-center text-lg">-</td>
-                <td className="py-6 px-4 text-center text-lg">Early access to new scents & exclusive drops</td>
+                <td className="py-6 px-4 text-center text-lg border-l border-gray-200">-</td>
+                <td className="py-6 px-4 text-center text-lg border-l border-gray-200">Early access to new scents & exclusive drops</td>
               </tr>
             </tbody>
           </table>
@@ -122,58 +122,69 @@ export default function SubscriptionsPage() {
             <button className="border border-[#a0001e] text-[#a0001e] px-8 py-3 rounded-lg font-serif text-lg hover:bg-[#a0001e] hover:text-white transition-colors">Take the Scent Quiz</button>
           </div>
         </div>
-      </div>
-      {/* How it Works Section */}
-      <div className="max-w-4xl mx-auto w-full py-12 px-2">
-        <h2 className="text-center text-2xl font-serif mb-8 text-[#a0001e]">HOW IT WORKS SECTION</h2>
-        <div className="bg-[#f7ede1] rounded-xl p-8 flex flex-col md:flex-row gap-8 justify-between items-center">
-          <div className="flex-1 text-center">
-            <div className="text-3xl font-serif text-[#a0001e] mb-2">1</div>
-            <div className="text-lg font-serif font-semibold mb-2">Tell Us What You Love</div>
-            <div className="text-gray-700">Take our scent quiz and share your preferences.</div>
-          </div>
-          <div className="flex-1 text-center">
-            <div className="text-3xl font-serif text-[#a0001e] mb-2">2</div>
-            <div className="text-lg font-serif font-semibold mb-2">We Curate, You Discover</div>
-            <div className="text-gray-700">Based on your quiz, we select a scent each month just for you.</div>
-          </div>
-          <div className="flex-1 text-center">
-            <div className="text-3xl font-serif text-[#a0001e] mb-2">3</div>
-            <div className="text-lg font-serif font-semibold mb-2">Delivered with Love</div>
-            <div className="text-gray-700">Your final fragrance arrives in luxe packaging—ready to spritz, layer, and obsess over.</div>
+        {/* Image under table */}
+        <div className="flex justify-center my-12">
+          <div className="rounded-2xl overflow-hidden shadow-lg max-w-4xl w-full">
+            <img src="/images/subscriptions/image.png" alt="Subscription Visual" className="w-full h-auto object-cover" />
           </div>
         </div>
       </div>
-      {/* Quiz CTA */}
-      <div className="text-center my-12">
-        <h3 className="text-xl font-serif text-[#a0001e] mb-4">NOT SURE WHERE TO START?</h3>
-        <div className="text-lg font-serif mb-4">Our scent quiz helps match you with your perfect Forvr Murr fragrance tier and monthly picks.</div>
-        <button className="bg-[#a0001e] text-white px-6 py-2 rounded">Take the Quiz</button>
+      {/* How it Works Section */}
+      <div className="max-w-6xl mx-auto w-full my-12">
+        <div className="bg-[#f7ede1] rounded-xl p-8 md:p-12 flex flex-col items-center">
+          <h2 className="text-center text-[#a0001e] text-xl md:text-2xl font-serif mb-8 tracking-widest font-semibold">HOW IT WORKS SECTION</h2>
+          <div className="w-full flex flex-col md:flex-row justify-between items-stretch gap-8">
+            <div className="flex-1 flex flex-col items-center text-center px-4">
+              <div className="text-2xl md:text-3xl font-serif text-[#a0001e] mb-2 font-semibold">1</div>
+              <div className="text-lg md:text-xl font-serif font-bold mb-2 text-[#a0001e]">Tell Us What You Love</div>
+              <div className="text-gray-700 text-base">Take our scent quiz and share your preferences.</div>
+            </div>
+            <div className="flex-1 flex flex-col items-center text-center px-4">
+              <div className="text-2xl md:text-3xl font-serif text-[#a0001e] mb-2 font-semibold">2</div>
+              <div className="text-lg md:text-xl font-serif font-bold mb-2 text-[#a0001e]">We Curate, You Discover</div>
+              <div className="text-gray-700 text-base">Based on your quiz, we select a scent each month just for you.</div>
+            </div>
+            <div className="flex-1 flex flex-col items-center text-center px-4">
+              <div className="text-2xl md:text-3xl font-serif text-[#a0001e] mb-2 font-semibold">3</div>
+              <div className="text-lg md:text-xl font-serif font-bold mb-2 text-[#a0001e]">Delivered with Love</div>
+              <div className="text-gray-700 text-base">Your final fragrance arrives in luxe packaging—ready to spritz, layer, and obsess over.</div>
+            </div>
+          </div>
+        </div>
       </div>
-      {/* FAQ Section */}
-      <div className="max-w-6xl mx-auto w-full py-12 px-2 flex flex-col md:flex-row gap-8">
-        <div className="flex-1">
-          <h4 className="text-lg font-serif mb-4">SUBSCRIPTION FAQS</h4>
-          <div className="text-gray-700 mb-4">Still have questions? We've answered them here!</div>
-          <div className="bg-white rounded-xl p-4">
-            <div className="flex items-center gap-2 mb-2">
+      {/* Not Sure Where to Start Section */}
+      <div className="max-w-4xl mx-auto w-full text-center my-16">
+        <h3 className="text-xl md:text-2xl font-serif text-[#a0001e] mb-2 tracking-widest font-semibold uppercase">Not Sure Where to Start?</h3>
+        <div className="text-2xl md:text-3xl font-serif text-black mb-6">Our scent quiz helps match you with your perfect Forvr Murr fragrance tier and monthly picks.</div>
+        <button className="border border-[#a0001e] text-[#a0001e] px-8 py-2 rounded-lg font-serif text-lg hover:bg-[#a0001e] hover:text-white transition-colors">Take the Quiz</button>
+      </div>
+      {/* Subscription FAQ Section */}
+      <div className="w-full bg-[#f7ede1] py-12">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-12 px-4">
+          {/* Left: FAQ heading and help */}
+          <div className="flex-1 flex flex-col justify-start">
+            <h4 className="text-lg font-serif mb-2 uppercase tracking-widest">SUBSCRIPTION FAQS</h4>
+            <div className="text-gray-700 mb-2">Still have questions? We've answered them here!</div>
+            <div className="bg-white rounded-xl p-4 flex items-center gap-2 mb-2 w-full max-w-md border border-gray-200">
               <input type="checkbox" className="accent-[#a0001e]" />
               <span>Still need help?</span>
             </div>
-            <div className="text-sm text-gray-500">Visit our contact page for more details Contact Us</div>
+            <div className="text-sm text-gray-500">Visit our contact page for more details <a href="#" className="underline">Contact Us</a></div>
           </div>
-        </div>
-        <div className="flex-1">
-          <h4 className="text-lg font-serif mb-4 text-[#a0001e]">STILL HAVE QUESTIONS? WE'VE ANSWERED THEM HERE</h4>
-          <div className="bg-[#f7ede1] rounded-xl p-4">
-            {faqs.map((faq, idx) => (
-              <div key={faq.q} className="mb-2">
-                <button className="w-full text-left font-serif font-semibold text-[#a0001e]" onClick={() => setOpenFaq(openFaq === idx ? null : idx)}>
-                  {faq.q}
-                </button>
-                {openFaq === idx && <div className="text-gray-700 mt-2 text-sm">{faq.a}</div>}
-              </div>
-            ))}
+          {/* Right: Accordion */}
+          <div className="flex-1">
+            <h4 className="text-lg font-serif mb-2 text-[#a0001e] uppercase tracking-widest">STILL HAVE QUESTIONS? WE'VE ANSWERED THEM HERE</h4>
+            <div className="rounded-xl p-0">
+              {faqs.map((faq, idx) => (
+                <div key={faq.q} className="mb-2 border border-gray-200 rounded overflow-hidden bg-white">
+                  <button className="w-full text-left font-serif font-semibold text-[#a0001e] px-4 py-3 focus:outline-none flex justify-between items-center" onClick={() => setOpenFaq(openFaq === idx ? null : idx)}>
+                    <span>{faq.q}</span>
+                    <span className="ml-2">{openFaq === idx ? '-' : '+'}</span>
+                  </button>
+                  {openFaq === idx && <div className="text-gray-700 mt-0 px-4 pb-3 text-sm">{faq.a}</div>}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
