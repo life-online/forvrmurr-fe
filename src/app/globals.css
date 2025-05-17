@@ -3,9 +3,14 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary: #8b0000;
+  --primary-dark: #6b0000;
+  --secondary: #e6c789;
+  --accent: #faf5eb;
 }
 
-@theme inline {
+/* Custom CSS Variables */
+:root {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -22,5 +27,77 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Playfair Display', Arial, Helvetica, serif;
 }
+
+/* Horizontal scrolling styles */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Scrollbar appears on hover */
+.scroll-container:hover::-webkit-scrollbar {
+  display: block;
+  height: 8px;
+}
+
+.scroll-container:hover {
+  scrollbar-width: thin;
+  -ms-overflow-style: auto;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Transitions */
+.transition-transform {
+  transition: transform 0.3s ease;
+}
+
+/* Product Card Hover Effect */
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+}
+

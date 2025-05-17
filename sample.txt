@@ -1,0 +1,17 @@
+<div className="p-6 md:w-1/2 space-y-6 mb-10 md:mb-0 z-10 flex flex-col justify-center">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-medium tracking-wide text-[#e6c789]">
+            MEET YOUR NEXT OBSESSION
+          </h1>
+          <p className="text-lg md:text-xl font-light max-w-lg text-[#e6c789]">
+            Explore coveted fragrance like Delina, Khamrah & Oud Satin - in 8ml
+            portions.
+          </p>
+          <p className="text-lg md:text-xl font-light max-w-lg text-[#e6c789]">
+            Smell rich. Explore more. No full bottle pressure.
+          </p>
+          <Link href="/shop">
+            <button className="bg-[#800000] text-white py-3 px-8 rounded transition-all hover:bg-[#000000] hover:cursor-pointer font-medium self-start">
+              Shop Now
+            </button>
+          </Link>
+        </div>
