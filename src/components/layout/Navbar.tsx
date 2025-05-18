@@ -1,22 +1,22 @@
 "use client";
 
-import React from 'react';
+import React from "react";
 // Image import removed (not used)
-import Link from 'next/link';
-import { FiSearch, FiUser, FiShoppingBag } from 'react-icons/fi';
-import CartOverlay from '@/components/cart/CartOverlay';
-import { useCart } from '@/context/CartContext';
+import Link from "next/link";
+import { FiSearch, FiUser, FiShoppingBag } from "react-icons/fi";
+import CartOverlay from "@/components/cart/CartOverlay";
+import { useCart } from "@/context/CartContext";
 
 const Navbar: React.FC = () => {
-  const { 
-    isCartOpen, 
-    toggleCart, 
-    closeCart, 
-    cartItems, 
-    removeFromCart, 
-    updateItemQuantity, 
+  const {
+    isCartOpen,
+    toggleCart,
+    closeCart,
+    cartItems,
+    removeFromCart,
+    updateItemQuantity,
     addToCart,
-    itemCount
+    itemCount,
   } = useCart();
 
   return (
@@ -28,21 +28,30 @@ const Navbar: React.FC = () => {
             <span className="text-xs">▼</span>
           </div>
         </div>
-        
+
         <Link href="/" className="flex justify-center">
           <div className="text-2xl font-serif tracking-wider">ForvrMurr</div>
         </Link>
-        
+
         <div className="flex items-center space-x-6">
-          <button aria-label="Search" className="hover:opacity-80">
+          <button
+            aria-label="Search"
+            className="hover:opacity-80 cursor-pointer"
+          >
             <FiSearch size={20} />
           </button>
-          <button aria-label="Account" className="hover:opacity-80">
-            <FiUser size={20} />
-          </button>
-          <button 
-            aria-label="Cart" 
-            className="hover:opacity-80 relative"
+
+          <Link href={"/profile"}>
+            <button
+              aria-label="Account"
+              className="hover:opacity-80 cursor-pointer"
+            >
+              <FiUser size={20} />
+            </button>
+          </Link>
+          <button
+            aria-label="Cart"
+            className="hover:opacity-80 cursor-pointer relative"
             onClick={toggleCart}
           >
             <FiShoppingBag size={20} />
@@ -52,7 +61,7 @@ const Navbar: React.FC = () => {
           </button>
         </div>
       </div>
-      
+
       <div className="max-w-7xl mx-auto flex justify-center mt-4">
         <div className="uppercase tracking-wider text-sm font-medium">
           Catalogue
@@ -60,7 +69,7 @@ const Navbar: React.FC = () => {
       </div>
 
       {/* Cart Overlay */}
-      <CartOverlay 
+      <CartOverlay
         isOpen={isCartOpen}
         onClose={closeCart}
         cartItems={cartItems}
