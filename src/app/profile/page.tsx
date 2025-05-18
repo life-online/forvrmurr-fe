@@ -8,7 +8,8 @@ import OptionalAddons from "@/components/profile/OptionalAddons";
 import Plan from "@/components/profile/Plan";
 import Preferences from "@/components/profile/Preferences";
 import UpcomingDeliveryCard from "@/components/profile/UpcomingDelivery";
-import React, { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import { RiMenu5Fill } from "react-icons/ri";
 const dirs = [
   "My Upcoming Delivery",
@@ -22,7 +23,19 @@ export default function ProfilePage() {
   const [view, setView] = useState<string>(dirs[0]);
   const [hoveredDir, setHoveredDir] = useState<string>();
   const [isSideBar, setisSideBar] = useState<boolean>(false);
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
   const onCloseSideBar = () => setisSideBar(false);
+  useEffect(() => {
+    const q = params.get("view");
+    if (q && q !== view) setView(q);
+  }, [params, view]);
+  const onClickMenu = (dir: string) => {
+    setView(dir);
+    // no options here, just push the new search param
+    router.push(`${pathname}?view=${encodeURIComponent(dir)}`);
+  };
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <AnnouncementBar message="New collection revealed monthly!" />
@@ -54,7 +67,7 @@ export default function ProfilePage() {
                 <div
                   className="flex items-center gap-1  cursor-pointer"
                   key={index}
-                  onClick={() => setView(item)}
+                  onClick={() => onClickMenu(item)}
                   onMouseEnter={() => setHoveredDir(item)}
                   onMouseLeave={() => setHoveredDir(undefined)}
                 >
