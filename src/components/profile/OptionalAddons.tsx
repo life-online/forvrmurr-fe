@@ -11,13 +11,13 @@ export default function OptionalAddons() {
 
   const [products, setProducts] = useState<any>();
 
+  async function fetchProducts() {
+    const fetchedProducts = await profileMgtService.getAllProduct('Luxury Perfume Travel Case');
+    setProducts(fetchedProducts?.data);
+  }
   useEffect(() => {
-    async function fetchProducts() {
-      const fetchedProducts = await profileMgtService.getAllProduct('Luxury Perfume Travel Case');
-      setProducts(fetchedProducts?.data);
-    }
     fetchProducts();
-  }, [products]);
+  }, []);
   return (
     <div className="flex flex-col gap-5 w-full lg:max-h-[80vh] lg:overflow-y-scroll bg-white rounded-xl p-3">
       <p className="text-xl lg:text-2xl text-black ">
@@ -43,7 +43,7 @@ export default function OptionalAddons() {
             </div>
             <div className="">
               <p className="text-sm text-[#343339]">{addon.name}</p>
-              <p className="text-sm text-[#8B0000]">{addon.price}</p>
+              <p className="text-sm text-[#8B0000]">{addon.nairaPrice}</p>
             </div>
           </div>
           <button className="px-5 py-2 md:min-w-[202px] font-medium rounded-xl cursor-pointer hover:bg-[#8B0000] hover:text-white ease-in-out duration-500 border border-[#8B000060] text-[#8B0000] ">
