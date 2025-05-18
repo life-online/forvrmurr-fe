@@ -7,7 +7,7 @@ import React, { Dispatch, SetStateAction } from "react";
 interface SideBarrops {
   isOpen: boolean;
   onClose: () => void;
-  setView: Dispatch<SetStateAction<string>>;
+  onClickView: (dir: string) => void;
   view: string;
   setHoveredDir: Dispatch<SetStateAction<string | undefined>>;
   hoveredDir: string | undefined;
@@ -17,7 +17,7 @@ interface SideBarrops {
 const ProfileMobileSideBar: React.FC<SideBarrops> = ({
   isOpen,
   onClose,
-  setView,
+  onClickView,
   view,
   setHoveredDir,
   hoveredDir,
@@ -42,7 +42,7 @@ const ProfileMobileSideBar: React.FC<SideBarrops> = ({
               <div
                 className="flex items-center gap-1  cursor-pointer"
                 key={index}
-                onClick={() => setView(item)}
+                onClick={() => onClickView(item)}
                 onMouseEnter={() => setHoveredDir(item)}
                 onMouseLeave={() => setHoveredDir(undefined)}
               >
