@@ -29,16 +29,20 @@ export default function PerfumeQuizLanding() {
 
       {/* Why Choose Decants Section */}
       <section className="bg-white py-16 px-6 text-black">
-        <div className="max-w-3xl mx-auto mb-10">
+        <div className=" mx-auto mb-10">
           <h2 className="text-[#A71916] text-[32px] text-sm font-bold uppercase mb-4 cinzel">
             Why Choose Decants?
           </h2>
-          <p className="text-[32px] cinzel">
+          <p className="text-[32px]">
             The niche perfume world was built on exclusivity. We break that barrier—without watering anything down. Our decants offer a luxurious way to sample the best perfumes on the market, without the risk of regret. Whether you’re exploring scent layering, building your wardrobe, or searching for THE ONE—this is the smarter, sexier way to shop.
           </p>
         </div>
-
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-8 items-center justify-center">
+        <img
+            src="/section-img.svg"
+            alt="Perfume bottle"
+            className="mx-auto"
+          />
+        {/* <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-8 items-center justify-center">
           <img
             src="/path-to-bottle-image.jpg"
             alt="Perfume bottle"
@@ -53,10 +57,10 @@ export default function PerfumeQuizLanding() {
               <li><strong>Perfect for Layering</strong>: Mix and match to create something uniquely yours.</li>
             </ul>
           </div>
-        </div>
+        </div> */}
 
         <div className="mt-10">
-          <button className="bg-[#A71916] hover:bg-[#8e1413] text-white py-2 px-8 rounded-md text-sm font-medium transition duration-300">
+          <button className="bg-[#A71916] hover:bg-[#8e1413] text-white py-3 px-8 rounded-md text-sm font-medium transition duration-300">
             Shop All Scents
           </button>
         </div>
