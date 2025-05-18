@@ -1,7 +1,7 @@
 {
   "apps": [
     {
-      "name": "forvrmurr-frontend",
+      "name": "forvrmurr.prod.web",
       "script": "npm",
       "args": "run start -- -p 4000"
     }

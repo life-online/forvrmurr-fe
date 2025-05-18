@@ -61,7 +61,7 @@ jobs:
         run: |
           echo "Deploying application with PM2..."
           # First gracefully reload if already running
-          pm2 describe forvrmurr-frontend > /dev/null && pm2 reload forvrmurr-frontend || pm2 start pm2.config.json
+          pm2 describe forvrmurr.prod.web > /dev/null && pm2 reload forvrmurr.prod.web || pm2 start pm2.config.json
           # Save PM2 configuration to survive system reboots
           pm2 save
           
