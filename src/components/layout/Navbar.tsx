@@ -3,9 +3,11 @@
 import React from 'react';
 // Image import removed (not used)
 import Link from 'next/link';
-import { FiSearch, FiUser, FiShoppingBag } from 'react-icons/fi';
+import { FiSearch, FiUser, FiShoppingBag, FiLogOut } from 'react-icons/fi';
 import CartOverlay from '@/components/cart/CartOverlay';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 
 const Navbar: React.FC = () => {
   const { 
@@ -18,6 +20,14 @@ const Navbar: React.FC = () => {
     addToCart,
     itemCount
   } = useCart();
+  const { isAuthenticated, logout } = useAuth();
+  const { success } = useToast();
+  const handleLogout = async () => {
+    await logout();
+    success('Logged out successfully');
+    window.location.href = '/auth/login';
+  };
+
 
   return (
     <nav className="w-full bg-black text-white py-4 px-6">
@@ -50,6 +60,16 @@ const Navbar: React.FC = () => {
               {itemCount}
             </span>
           </button>
+          {isAuthenticated && (
+            <button
+              aria-label="Logout"
+              className="hover:opacity-80 flex items-center ml-2"
+              onClick={handleLogout}
+            >
+              <FiLogOut size={20} />
+              <span className="ml-1 text-sm">Logout</span>
+            </button>
+          )}
         </div>
       </div>
       

@@ -41,16 +41,13 @@ export const authService = {
   /**
    * Login a user with email and password
    */
-  async login(credentials: LoginCredentials): Promise<User> {
-    // Convert to compatible type using destructuring and rest to create a new object
+  async login(credentials: LoginCredentials): Promise<{ access_token: string; user: User }> {
     const data = { ...credentials };
-    const response = await api.post<{ user: User; tokens: AuthTokens }>('/auth/login', data);
-    
-    // Store tokens and user data
-    this.setTokens(response.tokens);
+    const response = await api.post<{ access_token: string; user: User }>('/auth/login', data);
+    // Store access token and user data
+    this.setTokens({ accessToken: response.access_token });
     this.setUser(response.user);
-    
-    return response.user;
+    return response;
   },
   
   /**
@@ -178,14 +175,11 @@ export const authService = {
    * Request password reset
    */
   async requestPasswordReset(email: string): Promise<void> {
-    await api.post('/auth/request-password-reset', { email });
+    await api.post('/auth/forgot-password', { email });
   },
-  
-  /**
-   * Reset password with token
-   */
-  async resetPassword(token: string, newPassword: string): Promise<void> {
-    await api.post('/auth/reset-password', { token, newPassword });
+
+  async resetPassword(token: string, email: string, newPassword: string): Promise<void> {
+    await api.post('/auth/reset-password', { token, email, newPassword });
   },
   
   /**

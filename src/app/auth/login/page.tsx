@@ -8,6 +8,7 @@ import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { useToast } from '@/context/ToastContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface LoginFormData {
   email: string;
@@ -17,7 +18,8 @@ interface LoginFormData {
 export default function Login() {
   const router = useRouter();
   const { success, error } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
@@ -30,29 +32,16 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
+    setIsSubmitting(true);
     try {
-      // This will be replaced with actual API call
-      // const response = await api.post('/auth/login', formData);
-      
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Handle successful login
+      await login(formData);
       success('Successfully logged in');
-      
-      // Save token to localStorage or cookies (will implement proper token handling later)
-      // localStorage.setItem('authToken', response.data.token);
-      
-      // Redirect to home page or dashboard
       router.push('/');
     } catch (err) {
-      // Handle login failure
       error('Login failed. Please check your credentials.');
-      console.error('Login error:', err);
+      // Optionally log error
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -124,12 +113,12 @@ export default function Login() {
             <div>
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isSubmitting}
                 className="w-full bg-[#8b0000] hover:bg-[#6b0000] text-white py-3 px-4 rounded-md transition duration-200 flex justify-center items-center"
               >
-                {isLoading ? (
+                {isSubmitting && (
                   <span className="inline-block h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
-                ) : null}
+                )}
                 Sign In
               </button>
             </div>

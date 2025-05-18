@@ -11,6 +11,8 @@ interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<void>;
+  resetPassword: (token: string, email: string, newPassword: string) => Promise<void>;
   isAuthenticated: boolean;
   updateProfile: (data: Partial<User>) => Promise<void>;
 }
@@ -94,6 +96,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Forgot password handler
+  const requestPasswordReset = async (email: string): Promise<void> => {
+    setIsLoading(true);
+    try {
+      await authService.requestPasswordReset(email);
+      success('Password reset instructions sent. Please check your email.');
+    } catch (err: any) {
+      error(err.message || 'Failed to send reset instructions');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Reset password handler
+  const resetPassword = async (token: string, email: string, newPassword: string): Promise<void> => {
+    setIsLoading(true);
+    try {
+      await authService.resetPassword(token, email, newPassword);
+      success('Password reset successfully. You can now log in.');
+    } catch (err: any) {
+      error(err.message || 'Failed to reset password');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Update profile handler
   const updateProfile = async (data: Partial<User>): Promise<void> => {
     setIsLoading(true);
@@ -116,7 +146,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     login,
     register,
     logout,
-    isAuthenticated: !!user,
+    requestPasswordReset,
+    resetPassword,
+    isAuthenticated: Boolean(user),
     updateProfile,
   };
 
