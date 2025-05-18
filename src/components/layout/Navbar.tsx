@@ -27,12 +27,35 @@ const Navbar: React.FC = () => {
             <span className="text-sm mr-2">GB | £</span>
             <span className="text-xs">▼</span>
           </div>
+          <span className="ml-4 text-sm hidden md:inline">
+            Shipping Updates
+          </span>
         </div>
-
-        <Link href="/" className="flex justify-center">
-          <div className="text-2xl font-serif tracking-wider">ForvrMurr</div>
-        </Link>
-
+        <div className="flex flex-col items-center flex-1">
+          <Link href="/" className="flex justify-center">
+            <div className="text-2xl font-serif tracking-wider">
+              Forvr <span className="font-bold">Murr</span>
+            </div>
+          </Link>
+          <div className="flex gap-6 mt-4">
+            <Link href="/shop">
+              <span className="px-4 py-1 rounded-full bg-[#f7ede1] text-black font-serif text-base uppercase font-semibold">
+                Shop
+              </span>
+            </Link>
+            <Link href="/subscriptions">
+              <span className="font-serif text-base uppercase">
+                Subscriptions
+              </span>
+            </Link>
+            <Link href="/discover">
+              <span className="font-serif text-base uppercase">Discover</span>
+            </Link>
+            <Link href="/about">
+              <span className="font-serif text-base uppercase">About</span>
+            </Link>
+          </div>
+        </div>
         <div className="flex items-center space-x-6">
           <button
             aria-label="Search"
@@ -59,12 +82,6 @@ const Navbar: React.FC = () => {
               {itemCount}
             </span>
           </button>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto flex justify-center mt-4">
-        <div className="uppercase tracking-wider text-sm font-medium">
-          Catalogue
         </div>
       </div>
 
