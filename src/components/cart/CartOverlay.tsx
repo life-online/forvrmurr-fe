@@ -138,7 +138,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
           {cartItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <h3 className="text-xl font-medium mb-2">Your cart is looking a little too empty.</h3>
-              <p className="text-gray-600 mb-8">Don't Leave Without Your Next Obsession.</p>
+              <p className="text-gray-600 mb-8">Don&apos;t Leave Without Your Next Obsession.</p>
               <button className="bg-[#8b0000] text-white py-3 px-8 rounded text-sm font-medium hover:bg-[#6b0000]">
                 Shop All Scents
               </button>

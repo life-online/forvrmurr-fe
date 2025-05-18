@@ -3,7 +3,7 @@ import React from 'react';
 import { useParams } from 'next/navigation';
 import { featuredProducts } from '../../../data/products';
 import Image from 'next/image';
-import Link from 'next/link';
+// Link import removed (not used)
 import Navbar from '@/components/layout/Navbar';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import Footer from '@/components/layout/Footer';
@@ -158,7 +158,7 @@ export default function ScentDetailsPage() {
 
         {/* User Description Tags */}
         <div className="max-w-4xl mx-auto mt-8 mb-12">
-          <h3 className="text-3xl font-serif text-[#a0001e] text-center mb-10">HERE'S HOW OTHERS DESCRIBED THE SCENT</h3>
+          <h3 className="text-3xl font-serif text-[#a0001e] text-center mb-10">HERE&apos;S HOW OTHERS DESCRIBED THE SCENT</h3>
           <div className="flex justify-center gap-4 mb-4">
             {userTags.map((tag) => (
               <div key={tag.label} className="flex flex-col items-center">

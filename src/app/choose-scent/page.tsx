@@ -153,11 +153,11 @@ export default function ChooseScentPage() {
           <div className="flex-1 text-white">
             <h2 className="text-2xl md:text-3xl font-serif mb-4">OVER 200 CURATED FRAGRANCES. ONE SIGNATURE EXPERIENCE</h2>
             <p className="mb-6 text-base md:text-lg">
-              The luxury perfume world was built on exclusivity. We're here to break that barrier—without watering anything down.<br />
+              The luxury perfume world was built on exclusivity. We&apos;re here to break that barrier—without watering anything down.<br />
               We stock over 200 of the best designer and niche fragrances in the world. From Parfums de Marly to Lattafa, Amouage to Armaf.<br />
               <br />
               While most decants arrive in plain plastic vials, ours are a luxury experience—with premium packaging, mood-based bundles, and unforgettable scent storytelling.<br />
-              Forvr Murr is more than a perfume shop. It's a curated world of scent, desire, and indulgence.
+              Forvr Murr is more than a perfume shop. It&apos;s a curated world of scent, desire, and indulgence.
             </p>
             <button className="bg-[#e6c789] text-[#600000] px-6 py-2 rounded font-medium hover:bg-[#f8f5e2] transition-colors">Subscribe</button>
           </div>

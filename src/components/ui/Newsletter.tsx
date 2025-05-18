@@ -6,7 +6,7 @@ const Newsletter: React.FC = () => {
   return (
     <section className="w-full bg-[#faf5eb] py-12">
       <div className="max-w-4xl mx-auto px-4 text-center">
-        <h2 className="text-2xl font-serif mb-2">YOURS DON'T END</h2>
+        <h2 className="text-2xl font-serif mb-2">YOURS DON&apos;T END</h2>
         <h3 className="text-xl font-serif mb-6">Subscribe & Obsess Monthly</h3>
         
         <p className="text-gray-700 mb-8 max-w-2xl mx-auto">

@@ -17,7 +17,7 @@ interface ApiOptions extends RequestInit {
  * @param options - Request options
  * @returns Promise with response data
  */
-export async function apiRequest<T = any>(
+export async function apiRequest<T = Record<string, unknown>>(
   endpoint: string,
   options: ApiOptions = {}
 ): Promise<T> {
@@ -70,30 +70,30 @@ export async function apiRequest<T = any>(
  * API utility methods for common operations
  */
 export const api = {
-  get: <T = any>(endpoint: string, options?: ApiOptions) => 
+  get: <T = Record<string, unknown>>(endpoint: string, options?: ApiOptions) => 
     apiRequest<T>(endpoint, { method: 'GET', ...options }),
     
-  post: <T = any>(endpoint: string, data?: any, options?: ApiOptions) =>
+  post: <T = Record<string, unknown>>(endpoint: string, data?: Record<string, unknown>, options?: ApiOptions) =>
     apiRequest<T>(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
       ...options,
     }),
     
-  put: <T = any>(endpoint: string, data?: any, options?: ApiOptions) =>
+  put: <T = Record<string, unknown>>(endpoint: string, data?: Record<string, unknown>, options?: ApiOptions) =>
     apiRequest<T>(endpoint, {
       method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,
       ...options,
     }),
     
-  patch: <T = any>(endpoint: string, data?: any, options?: ApiOptions) =>
+  patch: <T = Record<string, unknown>>(endpoint: string, data?: Record<string, unknown>, options?: ApiOptions) =>
     apiRequest<T>(endpoint, {
       method: 'PATCH',
       body: data ? JSON.stringify(data) : undefined,
       ...options,
     }),
     
-  delete: <T = any>(endpoint: string, options?: ApiOptions) =>
+  delete: <T = Record<string, unknown>>(endpoint: string, options?: ApiOptions) =>
     apiRequest<T>(endpoint, { method: 'DELETE', ...options }),
 };

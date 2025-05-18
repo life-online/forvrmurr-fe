@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import Image from 'next/image';
+// Image import removed (not used)
 import Link from 'next/link';
 import { FiSearch, FiUser, FiShoppingBag } from 'react-icons/fi';
 import CartOverlay from '@/components/cart/CartOverlay';

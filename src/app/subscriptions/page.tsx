@@ -5,6 +5,8 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import Image from 'next/image';
 
+// Plans data is defined within the component
+/*
 const plans = [
   {
     name: 'Prime Subscription',
@@ -25,6 +27,7 @@ const plans = [
     perk: 'Early access to new scents & exclusive drops',
   },
 ];
+*/
 
 const faqs = [
   {
@@ -164,7 +167,7 @@ export default function SubscriptionsPage() {
           {/* Left: FAQ heading and help */}
           <div className="flex-1 flex flex-col justify-start">
             <h4 className="text-lg font-serif mb-2 uppercase tracking-widest">SUBSCRIPTION FAQS</h4>
-            <div className="text-gray-700 mb-2">Still have questions? We've answered them here!</div>
+            <div className="text-gray-700 mb-2">Still have questions? We&apos;ve answered them here!</div>
             <div className="bg-white rounded-xl p-4 flex items-center gap-2 mb-2 w-full max-w-md border border-gray-200">
               <input type="checkbox" className="accent-[#a0001e]" />
               <span>Still need help?</span>
@@ -173,7 +176,7 @@ export default function SubscriptionsPage() {
           </div>
           {/* Right: Accordion */}
           <div className="flex-1">
-            <h4 className="text-lg font-serif mb-2 text-[#a0001e] uppercase tracking-widest">STILL HAVE QUESTIONS? WE'VE ANSWERED THEM HERE</h4>
+            <h4 className="text-lg font-serif mb-2 text-[#a0001e] uppercase tracking-widest">STILL HAVE QUESTIONS? WE&apos;VE ANSWERED THEM HERE</h4>
             <div className="rounded-xl p-0">
               {faqs.map((faq, idx) => (
                 <div key={faq.q} className="mb-2 border border-gray-200 rounded overflow-hidden bg-white">
