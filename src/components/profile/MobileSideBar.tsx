@@ -1,6 +1,7 @@
 "use client";
 
 import React, { Dispatch, SetStateAction } from "react";
+import { RxCross2 } from "react-icons/rx";
 
 // Types
 
@@ -36,7 +37,13 @@ const ProfileMobileSideBar: React.FC<SideBarrops> = ({
       {/* Cart Panel */}
       <div className="fixed inset-y-0 left-0 max-w-md w-full bg-white shadow-xl flex flex-col">
         <div className="flex flex-col gap-5 p-5 ">
-          <p className="text-xl  text-black font-semibold">Hello,</p>
+          <div className="flex w-full items-center justify-between">
+            <p className="text-xl  text-black font-semibold">Hello,</p>
+            <RxCross2
+              className="cursor-pointer text-[#C8102E]"
+              onClick={onClose}
+            />
+          </div>
           <div className="flex flex-col gap-4">
             {dirs.map((item, index) => (
               <div

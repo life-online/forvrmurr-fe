@@ -12,7 +12,7 @@ export default function Faq() {
     <div className="min-h-screen bg-white flex flex-col ">
       <AnnouncementBar message="New collection revealed monthly!" />
       <Navbar />
-      <div className="h-[60vh]">
+      <div className="h-[30vh] md:h-[50%] w-full lg:h-[60vh]">
         <Image
           src={"/images/category_selection/faqBanner.png"}
           alt="banner"
@@ -28,10 +28,10 @@ export default function Faq() {
             Explore our FAQ section for all your burning questions answered.
           </p>
         </div>
-        <div className="flex w-full items-center justify-between">
+        <div className="flex w-full items-center justify-center">
           <p className="text-sm text-[#C8102E]">Showing 26 questions</p>
         </div>
-        <div className="flex flex-col items-center gap-3 w-[80%] lg:w-[50%]">
+        <div className="flex flex-col items-center gap-3 w-[90%] lg:w-[50%]">
           {GeneralFaq.map((item, index) => (
             <div
               className="flex flex-col items-center gap-3 w-full"
