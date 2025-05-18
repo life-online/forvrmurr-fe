@@ -69,6 +69,21 @@ export const profileMgtService = {
 
     return null;
   },
+  async getScentTypesAttributesMoods(): Promise<ProductAttributeFetchResponse | null> {
+    try {
+      const response = await api.get<ProductAttributeFetchResponse>(
+        "products/scent-types"
+      );
+
+      return response;
+    } catch (error) {
+      // Token might be invalid
+      //   this.clearTokens();
+      return null;
+    }
+
+    return null;
+  },
   async getProductAttributesFragranceFamily(): Promise<ProductAttributeFetchResponse | null> {
     try {
       const response = await api.get<ProductAttributeFetchResponse>(
