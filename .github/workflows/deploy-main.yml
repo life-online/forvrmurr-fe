@@ -1,0 +1,76 @@
+name: Production Deployment
+
+on:
+  push:
+    branches:
+      - main  # Deploy when pushing to main branch
+  workflow_dispatch:  # Allow manual triggering from GitHub UI
+
+env:
+  NODE_VERSION: '22.14.0'  # Match the API deployment Node version
+  # The rest of the environment variables come from secrets
+
+jobs:
+  deploy:
+    name: Production Deployment
+    runs-on: forvrmurr-prod  # Using self-hosted runner
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'  # Cache npm dependencies for faster installation
+          
+      - name: Install global dependencies
+        run: npm install -g pm2
+        
+      - name: Environment debug
+        run: |
+          echo "Debugging environment..."
+          which node
+          node -v
+          which npm
+          npm -v
+          echo "PATH: $PATH"
+          echo "Checking npm config..."
+          npm config list
+          
+      - name: Install application dependencies
+        run: |
+          echo "Installing dependencies..."
+          npm install --no-audit --prefer-offline
+          
+      - name: Lint application
+        run: |
+          echo "Linting application..."
+          npm run lint
+          
+      - name: Build application
+        run: |
+          echo "Building Next.js application..."
+          npm run build
+          
+      - name: Deploy with PM2
+        run: |
+          echo "Deploying application with PM2..."
+          # First gracefully reload if already running
+          pm2 describe forvrmurr-frontend > /dev/null && pm2 reload forvrmurr-frontend || pm2 start pm2.config.json
+          # Save PM2 configuration to survive system reboots
+          pm2 save
+          
+      - name: Verify deployment
+        run: |
+          echo "Verifying deployment..."
+          # Wait for the application to start
+          sleep 5
+          # Check if process is running
+          pm2 status
+          # Verify the app is responding by checking the homepage
+          # For frontend, we check if the server responds with HTML content
+          curl -s -o /dev/null -w "%{http_code}" http://localhost:${{ secrets.NEXT_PORT }}/ | grep -q 200 && \
+            echo "✅ Frontend is running properly" || \
+            echo "⚠️ Warning: Frontend may not be running properly"

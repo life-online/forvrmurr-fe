@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack -p ${NEXT_PORT:-4000}",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p ${NEXT_PORT:-4000}",
     "lint": "next lint"
   },
   "dependencies": {
@@ -14,6 +14,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
+    "react-toastify": "^11.0.5",
     "swiper": "^11.2.6"
   },
   "devDependencies": {
