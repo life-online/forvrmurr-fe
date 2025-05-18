@@ -1,13 +1,14 @@
 "use client";
 
 import React, { Dispatch, SetStateAction } from "react";
+import { RxCross2 } from "react-icons/rx";
 
 // Types
 
 interface SideBarrops {
   isOpen: boolean;
   onClose: () => void;
-  setView: Dispatch<SetStateAction<string>>;
+  onClickView: (dir: string) => void;
   view: string;
   setHoveredDir: Dispatch<SetStateAction<string | undefined>>;
   hoveredDir: string | undefined;
@@ -17,7 +18,7 @@ interface SideBarrops {
 const ProfileMobileSideBar: React.FC<SideBarrops> = ({
   isOpen,
   onClose,
-  setView,
+  onClickView,
   view,
   setHoveredDir,
   hoveredDir,
@@ -36,13 +37,19 @@ const ProfileMobileSideBar: React.FC<SideBarrops> = ({
       {/* Cart Panel */}
       <div className="fixed inset-y-0 left-0 max-w-md w-full bg-white shadow-xl flex flex-col">
         <div className="flex flex-col gap-5 p-5 ">
-          <p className="text-xl  text-black font-semibold">Hello,</p>
+          <div className="flex w-full items-center justify-between">
+            <p className="text-xl  text-black font-semibold">Hello,</p>
+            <RxCross2
+              className="cursor-pointer text-[#C8102E]"
+              onClick={onClose}
+            />
+          </div>
           <div className="flex flex-col gap-4">
             {dirs.map((item, index) => (
               <div
                 className="flex items-center gap-1  cursor-pointer"
                 key={index}
-                onClick={() => setView(item)}
+                onClick={() => onClickView(item)}
                 onMouseEnter={() => setHoveredDir(item)}
                 onMouseLeave={() => setHoveredDir(undefined)}
               >

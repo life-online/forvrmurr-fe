@@ -52,7 +52,7 @@ export default function ProfilePage() {
             onClose={onCloseSideBar}
             dirs={dirs}
             view={view}
-            setView={setView}
+            onClickView={onClickMenu}
             hoveredDir={hoveredDir}
             setHoveredDir={setHoveredDir}
           />

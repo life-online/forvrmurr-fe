@@ -1,9 +1,9 @@
 export default function Plan() {
   return (
     <div className="flex flex-col gap-5 w-full  bg-white rounded-xl p-3">
-      <div className="flex items-center w-full justify-between">
-        <div className="flex flex-col gap-1">
-          <p className="text-2xl lg:text-3xl text-black ">Prime Monthly</p>
+      <div className="flex flex-col md:flex-row gap-3 items-center w-full justify-between">
+        <div className="flex items-center md:items-start flex-col gap-1">
+          <p className="text-2xl lg:text-3xl  text-black ">Prime Monthly</p>
           <p className="text-sm bg-[#F7EDE1] text-[#C8102E] px-4 py-1 rounded-lg  ">
             Your Subscription ends in 11 days
           </p>

@@ -1,5 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap");
 @import "tailwindcss";
-
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -27,13 +27,37 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Playfair Display', Arial, Helvetica, serif;
+  font-family: "Playfair Display", Arial, Helvetica, serif;
+}
+
+.cinzel-font {
+  font-family: "Cinzel", serif;
+  font-optical-sizing: auto;
+  /* font-weight: 400; */
+  font-style: normal;
+}
+.libre-baskerville-regular {
+  font-family: "Libre Baskerville", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.libre-baskerville-bold {
+  font-family: "Libre Baskerville", serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.libre-baskerville-regular-italic {
+  font-family: "Libre Baskerville", serif;
+  font-weight: 400;
+  font-style: italic;
 }
 
 /* Horizontal scrolling styles */
 .hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 .hide-scrollbar::-webkit-scrollbar {
@@ -97,7 +121,11 @@ body {
 }
 
 /* Typography */
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Playfair Display', serif;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Playfair Display", serif;
 }
-

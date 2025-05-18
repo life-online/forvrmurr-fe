@@ -14,7 +14,7 @@ export default function Preferences() {
           <div className="flex flex-wrap items-center gap-3">
             {item.variants.map((vary, ind) => (
               <div className="flex flex-col gap-3 items-center " key={ind}>
-                <div className="max-w-[173px] h-[80px] rounded-lg bg-[#F2F4F7] overflow-hidden">
+                <div className="max-w-[150px] lg:max-w-[173px] h-[80px] rounded-lg bg-[#F2F4F7] overflow-hidden">
                   <Image
                     src={vary.img}
                     alt="pic"
