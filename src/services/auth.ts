@@ -25,6 +25,8 @@ export interface RegisterData {
   lastName: string;
   email: string;
   password: string;
+  phoneNumber: string;
+  role?: string; // default to 'customer'
 }
 
 // Token storage keys
@@ -54,18 +56,16 @@ export const authService = {
   /**
    * Register a new user
    */
-  async register(userData: RegisterData): Promise<User> {
-    // Convert to compatible type using destructuring and rest to create a new object
-    const data = { ...userData };
-    const response = await api.post<{ user: User; tokens: AuthTokens }>('/auth/register', data);
-    
-    // Store tokens and user data if auto-login is enabled
-    if (response.tokens) {
-      this.setTokens(response.tokens);
-      this.setUser(response.user);
-    }
-    
-    return response.user;
+  async register(userData: RegisterData): Promise<{ access_token: string; user: User }> {
+    const data = {
+      ...userData,
+      role: userData.role || 'customer',
+    };
+    const response = await api.post<{ access_token: string; user: User }>('/auth/register', data);
+    // Store access token and user data
+    this.setTokens({ accessToken: response.access_token });
+    this.setUser(response.user);
+    return response;
   },
   
   /**
