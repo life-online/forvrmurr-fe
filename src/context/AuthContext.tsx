@@ -13,6 +13,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   requestPasswordReset: (email: string) => Promise<void>;
   resetPassword: (token: string, email: string, newPassword: string) => Promise<void>;
+  verifyEmail: (email: string, token: string) => Promise<void>;
   isAuthenticated: boolean;
   updateProfile: (data: Partial<User>) => Promise<void>;
 }
@@ -124,6 +125,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Verify email handler
+  const verifyEmail = async (email: string, token: string): Promise<void> => {
+    setIsLoading(true);
+    try {
+      await authService.verifyEmail(email, token);
+      success('Your email has been verified!');
+      router.push('/');
+    } catch (err: any) {
+      error(err.message || 'Failed to verify email');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Update profile handler
   const updateProfile = async (data: Partial<User>): Promise<void> => {
     setIsLoading(true);
@@ -148,6 +164,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     logout,
     requestPasswordReset,
     resetPassword,
+    verifyEmail,
     isAuthenticated: Boolean(user),
     updateProfile,
   };

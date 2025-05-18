@@ -181,6 +181,10 @@ export const authService = {
   async resetPassword(token: string, email: string, newPassword: string): Promise<void> {
     await api.post('/auth/reset-password', { token, email, newPassword });
   },
+
+  async verifyEmail(email: string, token: string): Promise<void> {
+    await api.post('/auth/verify-email', { email, token });
+  },
   
   /**
    * Update user profile

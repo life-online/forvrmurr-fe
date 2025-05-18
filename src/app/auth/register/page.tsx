@@ -3,12 +3,9 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
-import AnnouncementBar from '@/components/layout/AnnouncementBar';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-import { useToast } from '@/context/ToastContext';
 import { useAuth } from '@/context/AuthContext';
+import AuthLayout from '@/components/auth/AuthLayout';
+import { useToast } from '@/context/ToastContext';
 
 interface RegisterFormData {
   firstName: string;
@@ -124,204 +121,198 @@ export default function Register() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <AnnouncementBar message="Join our fragrance community today!" />
-      <Navbar />
+    <AuthLayout 
+      title="Create Account" 
+      subtitle="Join ForvrMurr"
+    >
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-serif text-[#8b0000] mb-2">Create Your Account</h1>
+        <p className="text-zinc-400">Join the ForvrMurr community and discover your signature scent</p>
+      </div>
       
-      <main className="flex-grow bg-[#f8f5f2] py-12">
-        <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-md">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-serif text-[#8b0000] mb-2">Create Your Account</h1>
-            <p className="text-gray-600">Join the ForvrMurr community and discover your signature scent</p>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="firstName" className="block text-sm font-medium text-zinc-300 mb-1">
+              First Name
+            </label>
+            <input
+              id="firstName"
+              name="firstName"
+              type="text"
+              required
+              className={`w-full px-4 py-3 bg-zinc-800 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent text-white ${
+                errors.firstName ? 'border-red-500' : 'border-zinc-700'
+              }`}
+              value={formData.firstName}
+              onChange={handleChange}
+            />
+            {errors.firstName && (
+              <p className="mt-1 text-xs text-red-500">{errors.firstName}</p>
+            )}
           </div>
           
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-                  First Name
-                </label>
-                <input
-                  id="firstName"
-                  name="firstName"
-                  type="text"
-                  required
-                  className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
-                    errors.firstName ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  value={formData.firstName}
-                  onChange={handleChange}
-                />
-                {errors.firstName && (
-                  <p className="mt-1 text-xs text-red-500">{errors.firstName}</p>
-                )}
-              </div>
-              
-              <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Last Name
-                </label>
-                <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  required
-                  className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
-                    errors.lastName ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  value={formData.lastName}
-                  onChange={handleChange}
-                />
-                {errors.lastName && (
-                  <p className="mt-1 text-xs text-red-500">{errors.lastName}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Phone Number Field */}
-            <div>
-              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number
-              </label>
-              <input
-                id="phoneNumber"
-                name="phoneNumber"
-                type="tel"
-                required
-                className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
-                  errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="e.g. +2347054273302"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-              />
-              {errors.phoneNumber && (
-                <p className="mt-1 text-xs text-red-500">{errors.phoneNumber}</p>
-              )}
-            </div>
-            
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="your@email.com"
-                value={formData.email}
-                onChange={handleChange}
-              />
-              {errors.email && (
-                <p className="mt-1 text-xs text-red-500">{errors.email}</p>
-              )}
-            </div>
-            
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={handleChange}
-              />
-              {errors.password && (
-                <p className="mt-1 text-xs text-red-500">{errors.password}</p>
-              )}
-              <p className="mt-1 text-xs text-gray-500">
-                Password must be at least 8 characters
-              </p>
-            </div>
-            
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                required
-                className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
-                  errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="••••••••"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-              />
-              {errors.confirmPassword && (
-                <p className="mt-1 text-xs text-red-500">{errors.confirmPassword}</p>
-              )}
-            </div>
-            
-            <div className="flex items-start">
-              <div className="flex items-center h-5">
-                <input
-                  id="acceptTerms"
-                  name="acceptTerms"
-                  type="checkbox"
-                  className={`h-4 w-4 accent-[#8b0000] ${
-                    errors.acceptTerms ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  checked={formData.acceptTerms}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="ml-3 text-sm">
-                <label htmlFor="acceptTerms" className="text-gray-700">
-                  I agree to the{' '}
-                  <Link href="/terms" className="text-[#8b0000] hover:underline">
-                    Terms of Service
-                  </Link>{' '}
-                  and{' '}
-                  <Link href="/privacy" className="text-[#8b0000] hover:underline">
-                    Privacy Policy
-                  </Link>
-                </label>
-                {errors.acceptTerms && (
-                  <p className="mt-1 text-xs text-red-500">{errors.acceptTerms}</p>
-                )}
-              </div>
-            </div>
-            
-            <div>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-[#8b0000] hover:bg-[#6b0000] text-white py-3 px-4 rounded-md transition duration-200 flex justify-center items-center"
-              >
-                {isSubmitting && (
-                  <span className="inline-block h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
-                )}
-                Create Account
-              </button>
-            </div>
-          </form>
-          
-          <div className="mt-8 text-center">
-            <p className="text-gray-600">
-              Already have an account?{' '}
-              <Link href="/auth/login" className="text-[#8b0000] hover:underline font-medium">
-                Sign in
-              </Link>
-            </p>
+          <div>
+            <label htmlFor="lastName" className="block text-sm font-medium text-zinc-300 mb-1">
+              Last Name
+            </label>
+            <input
+              id="lastName"
+              name="lastName"
+              type="text"
+              required
+              className={`w-full px-4 py-3 bg-zinc-800 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent text-white ${
+                errors.lastName ? 'border-red-500' : 'border-zinc-700'
+              }`}
+              value={formData.lastName}
+              onChange={handleChange}
+            />
+            {errors.lastName && (
+              <p className="mt-1 text-xs text-red-500">{errors.lastName}</p>
+            )}
           </div>
         </div>
-      </main>
+
+        {/* Phone Number Field */}
+        <div>
+          <label htmlFor="phoneNumber" className="block text-sm font-medium text-zinc-300 mb-1">
+            Phone Number
+          </label>
+          <input
+            id="phoneNumber"
+            name="phoneNumber"
+            type="tel"
+            required
+            className={`w-full px-4 py-3 bg-zinc-800 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent text-white ${
+              errors.phoneNumber ? 'border-red-500' : 'border-zinc-700'
+            }`}
+            placeholder="e.g. +2347054273302"
+            value={formData.phoneNumber}
+            onChange={handleChange}
+          />
+          {errors.phoneNumber && (
+            <p className="mt-1 text-xs text-red-500">{errors.phoneNumber}</p>
+          )}
+        </div>
+        
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-zinc-300 mb-1">
+            Email
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            className={`w-full px-4 py-3 bg-zinc-800 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent text-white ${
+              errors.email ? 'border-red-500' : 'border-zinc-700'
+            }`}
+            placeholder="your@email.com"
+            value={formData.email}
+            onChange={handleChange}
+          />
+          {errors.email && (
+            <p className="mt-1 text-xs text-red-500">{errors.email}</p>
+          )}
+        </div>
+        
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-zinc-300 mb-1">
+            Password
+          </label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            className={`w-full px-4 py-3 bg-zinc-800 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent text-white ${
+              errors.password ? 'border-red-500' : 'border-zinc-700'
+            }`}
+            placeholder="••••••••"
+            value={formData.password}
+            onChange={handleChange}
+          />
+          {errors.password && (
+            <p className="mt-1 text-xs text-red-500">{errors.password}</p>
+          )}
+          <p className="mt-1 text-xs text-zinc-500">
+            Password must be at least 8 characters
+          </p>
+        </div>
+        
+        <div>
+          <label htmlFor="confirmPassword" className="block text-sm font-medium text-zinc-300 mb-1">
+            Confirm Password
+          </label>
+          <input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            required
+            className={`w-full px-4 py-3 bg-zinc-800 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent text-white ${
+              errors.confirmPassword ? 'border-red-500' : 'border-zinc-700'
+            }`}
+            placeholder="••••••••"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+          />
+          {errors.confirmPassword && (
+            <p className="mt-1 text-xs text-red-500">{errors.confirmPassword}</p>
+          )}
+        </div>
+        
+        <div className="flex items-start">
+          <div className="flex items-center h-5">
+            <input
+              id="acceptTerms"
+              name="acceptTerms"
+              type="checkbox"
+              className={`h-4 w-4 accent-[#8b0000] ${
+                errors.acceptTerms ? 'border-red-500' : 'border-gray-300'
+              }`}
+              checked={formData.acceptTerms}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="ml-3 text-sm">
+            <label htmlFor="acceptTerms" className="text-zinc-300">
+              I agree to the{' '}
+              <Link href="/terms" className="text-[#8b0000] hover:text-[#cf0000] hover:underline">
+                Terms of Service
+              </Link>{' '}
+              and{' '}
+              <Link href="/privacy" className="text-[#8b0000] hover:text-[#cf0000] hover:underline">
+                Privacy Policy
+              </Link>
+            </label>
+            {errors.acceptTerms && (
+              <p className="mt-1 text-xs text-red-500">{errors.acceptTerms}</p>
+            )}
+          </div>
+        </div>
+        
+        <div>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-[#8b0000] hover:bg-[#6b0000] text-white py-3 px-4 rounded-md transition duration-200 flex justify-center items-center"
+          >
+            {isSubmitting && (
+              <span className="inline-block h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+            )}
+            Create Account
+          </button>
+        </div>
+      </form>
       
-      <Footer />
-    </div>
+      <div className="mt-8 text-center">
+        <p className="text-zinc-400">
+          Already have an account?{' '}
+          <Link href="/auth/login" className="text-[#8b0000] hover:text-[#cf0000] hover:underline font-medium">
+            Sign in
+          </Link>
+        </p>
+      </div>
+    </AuthLayout>
   );
 }
