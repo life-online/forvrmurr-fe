@@ -39,7 +39,7 @@ export async function apiRequest<T = Record<string, unknown>>(
   
   // Add auth token if required
   if (requiresAuth) {
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('forvrmurr_access_token');
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
     }
