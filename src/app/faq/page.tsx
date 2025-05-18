@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function Faq() {
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col gap-5">
       <AnnouncementBar message="New collection revealed monthly!" />
       <Navbar />
       <div className="h-[30vh]">
@@ -16,6 +16,7 @@ export default function Faq() {
           height={1000}
         />
       </div>
+      <div className="flex flex-col gap-2">p.text-xl.</div>
     </div>
   );
 }
