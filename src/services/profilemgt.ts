@@ -114,7 +114,21 @@ export const profileMgtService = {
 
     return null;
   },
+  async getAllProduct(searchQuery?: string): Promise<ProductAttributeFetchResponse | null> {
+    try {
+      const endpoint = searchQuery ? `products?search=${encodeURIComponent(searchQuery)}` : "products";
+      const response = await api.get<ProductAttributeFetchResponse>(endpoint);
+      return response;
+    } catch (error) {
+      // Token might be invalid
+      //   this.clearTokens();
+      return null;
+    }
+
+    return null;
+  },
 };
+
 
 // Add interceptor to automatically include auth token in requests
 // This should be implemented in your API service

@@ -1,9 +1,23 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { MockAddons } from "@/data/preference";
+// import { MockAddons } from "@/data/preference";
+import { profileMgtService } from "@/services/profilemgt";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export default function OptionalAddons() {
+
+
+  const [products, setProducts] = useState<any>();
+
+  useEffect(() => {
+    async function fetchProducts() {
+      const fetchedProducts = await profileMgtService.getAllProduct('Luxury Perfume Travel Case');
+      setProducts(fetchedProducts?.data);
+    }
+    fetchProducts();
+  }, [products]);
   return (
     <div className="flex flex-col gap-5 w-full lg:max-h-[80vh] lg:overflow-y-scroll bg-white rounded-xl p-3">
       <p className="text-xl lg:text-2xl text-black ">
@@ -11,7 +25,7 @@ export default function OptionalAddons() {
       </p>
 
       <p className="text-[#343339]">Optional Add-On</p>
-      {MockAddons.map((addon, index) => (
+      {products?.map((addon:any, index:number) => (
         <div
           className="flex md:flex-row  w-full gap-3 items-center justify-between"
           key={index}

@@ -1,5 +1,5 @@
 import { api } from './api';
-import { clientConfig } from '@/config';
+// import { clientConfig } from '@/config';
 
 // Types
 export interface User {
