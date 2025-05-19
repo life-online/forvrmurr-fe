@@ -1,5 +1,5 @@
-import { api } from './api';
-import { clientConfig } from '@/config';
+import { api } from "./api";
+import { clientConfig } from "@/config";
 
 // Types
 export interface User {
@@ -30,9 +30,9 @@ export interface RegisterData {
 }
 
 // Token storage keys
-const ACCESS_TOKEN_KEY = 'forvrmurr_access_token';
-const REFRESH_TOKEN_KEY = 'forvrmurr_refresh_token';
-const USER_DATA_KEY = 'forvrmurr_user';
+const ACCESS_TOKEN_KEY = "forvrmurr_access_token";
+const REFRESH_TOKEN_KEY = "forvrmurr_refresh_token";
+const USER_DATA_KEY = "forvrmurr_user";
 
 /**
  * Authentication service for managing user login, registration, and auth state
@@ -41,19 +41,26 @@ export const authService = {
   /**
    * Login a user with email and password
    */
-  async login(credentials: LoginCredentials): Promise<{ access_token: string; user: User }> {
+  async login(
+    credentials: LoginCredentials
+  ): Promise<{ access_token: string; user: User }> {
     const data = { ...credentials };
-    const response = await api.post<{ access_token: string; user: User }>('/auth/login', data);
+    const response = await api.post<{ access_token: string; user: User }>(
+      "auth/login",
+      data
+    );
     // Store access token and user data
     this.setTokens({ accessToken: response.access_token });
     this.setUser(response.user);
     return response;
   },
-  
+
   /**
    * Register a new user
    */
-  async register(userData: RegisterData): Promise<{ access_token: string; user: User }> {
+  async register(
+    userData: RegisterData
+  ): Promise<{ access_token: string; user: User }> {
     // Format exactly as the successful curl request
     const payload = {
       email: String(userData.email).trim(),
@@ -61,20 +68,23 @@ export const authService = {
       firstName: String(userData.firstName).trim(),
       lastName: String(userData.lastName).trim(),
       phoneNumber: String(userData.phoneNumber).trim(),
-      role: String(userData.role || 'customer')
+      role: String(userData.role || "customer"),
     };
-    
-    console.log('Registration payload:', JSON.stringify(payload)); // For debugging
-    
+
+    console.log("Registration payload:", JSON.stringify(payload)); // For debugging
+
     // Make a direct fetch request to ensure exact format
-    const response = await api.post<{ access_token: string; user: User }>('/auth/register', payload);
-    
+    const response = await api.post<{ access_token: string; user: User }>(
+      "/auth/register",
+      payload
+    );
+
     // Store access token and user data
     this.setTokens({ accessToken: response.access_token });
     this.setUser(response.user);
     return response;
   },
-  
+
   /**
    * Logout the current user
    */
@@ -82,17 +92,17 @@ export const authService = {
     try {
       // Notify backend about logout to invalidate tokens
       if (this.isAuthenticated()) {
-        await api.post('/auth/logout', {}, { requiresAuth: true });
+        await api.post("auth/logout", {}, { requiresAuth: true });
       }
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     } finally {
       // Clear local storage regardless of API success
       this.clearTokens();
       this.clearUser();
     }
   },
-  
+
   /**
    * Get the current authenticated user
    */
@@ -102,11 +112,11 @@ export const authService = {
     if (cachedUser) {
       return cachedUser;
     }
-    
+
     // User not in cache but we have a token - fetch user data
     if (this.getAccessToken()) {
       try {
-        const user = await api.get<User>('/auth/me', { requiresAuth: true });
+        const user = await api.get<User>("auth/me", { requiresAuth: true });
         this.setUser(user);
         return user;
       } catch (error) {
@@ -115,42 +125,42 @@ export const authService = {
         return null;
       }
     }
-    
+
     return null;
   },
-  
+
   /**
    * Check if the user is authenticated (has a valid token)
    */
   isAuthenticated(): boolean {
     return Boolean(this.getAccessToken());
   },
-  
+
   /**
    * Store authentication tokens
    */
   setTokens(tokens: AuthTokens): void {
     localStorage.setItem(ACCESS_TOKEN_KEY, tokens.accessToken);
-    
+
     if (tokens.refreshToken) {
       localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
     }
   },
-  
+
   /**
    * Get the current access token
    */
   getAccessToken(): string | null {
     return localStorage.getItem(ACCESS_TOKEN_KEY);
   },
-  
+
   /**
    * Get the current refresh token
    */
   getRefreshToken(): string | null {
     return localStorage.getItem(REFRESH_TOKEN_KEY);
   },
-  
+
   /**
    * Clear authentication tokens
    */
@@ -158,14 +168,14 @@ export const authService = {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
   },
-  
+
   /**
    * Store user data
    */
   setUser(user: User): void {
     localStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
   },
-  
+
   /**
    * Get stored user data
    */
@@ -173,34 +183,44 @@ export const authService = {
     const userData = localStorage.getItem(USER_DATA_KEY);
     return userData ? JSON.parse(userData) : null;
   },
-  
+
   /**
    * Clear stored user data
    */
   clearUser(): void {
     localStorage.removeItem(USER_DATA_KEY);
   },
-  
+
   /**
    * Request password reset
    */
   async requestPasswordReset(email: string): Promise<void> {
-    await api.post('/auth/forgot-password', { email });
+    await api.post("auth/forgot-password", { email });
   },
 
-  async resetPassword(token: string, email: string, newPassword: string): Promise<void> {
-    await api.post('/auth/reset-password', { token, email, newPassword });
+  async resetPassword(
+    token: string,
+    email: string,
+    newPassword: string
+  ): Promise<void> {
+    await api.post("auth/reset-password", { token, email, newPassword });
   },
 
   async verifyEmail(email: string, token: string): Promise<void> {
-    await api.post('/auth/verify-email', { email, token });
+    await api.post("/auth/verify-email", { email, token });
   },
-  
+
+  async verifyEmail(email: string, token: string): Promise<void> {
+    await api.post("/auth/verify-email", { email, token });
+  },
+
   /**
    * Update user profile
    */
   async updateProfile(profileData: Partial<User>): Promise<User> {
-    const updatedUser = await api.patch<User>('/auth/profile', profileData, { requiresAuth: true });
+    const updatedUser = await api.patch<User>("auth/profile", profileData, {
+      requiresAuth: true,
+    });
     this.setUser(updatedUser);
     return updatedUser;
   },
