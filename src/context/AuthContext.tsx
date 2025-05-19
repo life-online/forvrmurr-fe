@@ -13,6 +13,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   requestPasswordReset: (email: string) => Promise<void>;
   resetPassword: (token: string, email: string, newPassword: string) => Promise<void>;
+  verifyEmail: (email: string, token: string) => Promise<void>;
   isAuthenticated: boolean;
   updateProfile: (data: Partial<User>) => Promise<void>;
 }
@@ -30,8 +31,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const currentUser = await authService.getCurrentUser();
-        setUser(currentUser);
+        const response = await authService.getCurrentUser();
+        // Type assertion to handle the response type safely
+        const typedResponse = response as User | { user: User; access_token: string };
+        
+        // Handle response with either User or {access_token, user} structure
+        if ('user' in typedResponse) {
+          setUser(typedResponse.user);
+        } else {
+          setUser(typedResponse);
+        }
       } catch (err) {
         console.error('Failed to initialize auth state', err);
       } finally {
@@ -46,8 +55,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (credentials: LoginCredentials): Promise<void> => {
     setIsLoading(true);
     try {
-      const loggedInUser = await authService.login(credentials);
-      setUser(loggedInUser);
+      const response = await authService.login(credentials);
+      // Type assertion to handle the response type safely
+      const typedResponse = response as User | { user: User; access_token: string };
+      
+      // Handle response with either User or {access_token, user} structure
+      if ('user' in typedResponse) {
+        setUser(typedResponse.user);
+      } else {
+        setUser(typedResponse);
+      }
       success('Welcome back!');
       router.push('/');
     } catch (err) {
@@ -63,13 +80,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = async (data: RegisterData): Promise<void> => {
     setIsLoading(true);
     try {
-      const registeredUser = await authService.register(data);
-      setUser(registeredUser);
+      console.log('Registering with data:', JSON.stringify(data, null, 2));
+      const response = await authService.register(data);
+      console.log('Registration successful:', response);
+      
+      // Type assertion to handle the response type safely
+      const typedResponse = response as User | { user: User; access_token: string };
+      
+      // Handle response with either User or {access_token, user} structure
+      if ('user' in typedResponse) {
+        setUser(typedResponse.user);
+      } else {
+        setUser(typedResponse);
+      }
       success('Account created successfully!');
       router.push('/');
-    } catch (err) {
-      error('Registration failed. Please try again.');
-      console.error('Register error:', err);
+    } catch (err: any) {
+      console.error('Registration failed with error:', err);
+      console.error('Error details:', err.data || err.message || err);
+      // Show more specific error from API if available
+      if (err.data && err.data.message) {
+        if (Array.isArray(err.data.message)) {
+          // Join multiple error messages
+          error(err.data.message.join('\n'));
+        } else {
+          error(err.data.message);
+        }
+      } else {
+        error('Registration failed. Please try again.');
+      }
       throw err;
     } finally {
       setIsLoading(false);
@@ -124,12 +163,36 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Verify email handler
+  const verifyEmail = async (email: string, token: string): Promise<void> => {
+    setIsLoading(true);
+    try {
+      await authService.verifyEmail(email, token);
+      success('Your email has been verified!');
+      router.push('/');
+    } catch (err: any) {
+      error(err.message || 'Failed to verify email');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Update profile handler
   const updateProfile = async (data: Partial<User>): Promise<void> => {
     setIsLoading(true);
     try {
-      const updatedUser = await authService.updateProfile(data);
-      setUser(updatedUser);
+      const response = await authService.updateProfile(data);
+      
+      // Type assertion to handle the response type safely
+      const typedResponse = response as User | { user: User; access_token: string };
+      
+      // Handle response with either User or {access_token, user} structure
+      if ('user' in typedResponse) {
+        setUser(typedResponse.user);
+      } else {
+        setUser(typedResponse);
+      }
       success('Profile updated successfully');
     } catch (err) {
       error('Failed to update profile');
@@ -148,6 +211,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     logout,
     requestPasswordReset,
     resetPassword,
+    verifyEmail,
     isAuthenticated: Boolean(user),
     updateProfile,
   };
