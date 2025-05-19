@@ -31,8 +31,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const currentUser = await authService.getCurrentUser();
-        setUser(currentUser);
+        const response = await authService.getCurrentUser();
+        // Type assertion to handle the response type safely
+        const typedResponse = response as User | { user: User; access_token: string };
+        
+        // Handle response with either User or {access_token, user} structure
+        if ('user' in typedResponse) {
+          setUser(typedResponse.user);
+        } else {
+          setUser(typedResponse);
+        }
       } catch (err) {
         console.error('Failed to initialize auth state', err);
       } finally {
@@ -47,8 +55,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (credentials: LoginCredentials): Promise<void> => {
     setIsLoading(true);
     try {
-      const loggedInUser = await authService.login(credentials);
-      setUser(loggedInUser);
+      const response = await authService.login(credentials);
+      // Type assertion to handle the response type safely
+      const typedResponse = response as User | { user: User; access_token: string };
+      
+      // Handle response with either User or {access_token, user} structure
+      if ('user' in typedResponse) {
+        setUser(typedResponse.user);
+      } else {
+        setUser(typedResponse);
+      }
       success('Welcome back!');
       router.push('/');
     } catch (err) {
@@ -65,9 +81,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(true);
     try {
       console.log('Registering with data:', JSON.stringify(data, null, 2));
-      const registeredUser = await authService.register(data);
-      console.log('Registration successful:', registeredUser);
-      setUser(registeredUser);
+      const response = await authService.register(data);
+      console.log('Registration successful:', response);
+      
+      // Type assertion to handle the response type safely
+      const typedResponse = response as User | { user: User; access_token: string };
+      
+      // Handle response with either User or {access_token, user} structure
+      if ('user' in typedResponse) {
+        setUser(typedResponse.user);
+      } else {
+        setUser(typedResponse);
+      }
       success('Account created successfully!');
       router.push('/');
     } catch (err: any) {
@@ -157,8 +182,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const updateProfile = async (data: Partial<User>): Promise<void> => {
     setIsLoading(true);
     try {
-      const updatedUser = await authService.updateProfile(data);
-      setUser(updatedUser);
+      const response = await authService.updateProfile(data);
+      
+      // Type assertion to handle the response type safely
+      const typedResponse = response as User | { user: User; access_token: string };
+      
+      // Handle response with either User or {access_token, user} structure
+      if ('user' in typedResponse) {
+        setUser(typedResponse.user);
+      } else {
+        setUser(typedResponse);
+      }
       success('Profile updated successfully');
     } catch (err) {
       error('Failed to update profile');
