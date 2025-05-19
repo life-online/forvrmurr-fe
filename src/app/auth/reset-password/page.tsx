@@ -3,9 +3,7 @@
 import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import AnnouncementBar from "@/components/layout/AnnouncementBar";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+import AuthLayout from "@/components/auth/AuthLayout";
 
 export default function ResetPassword() {
   const router = useRouter();
@@ -40,18 +38,13 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <AnnouncementBar message="Reset your password" />
-      <Navbar />
-      <main className="flex-grow bg-[#f8f5f2] py-12">
-        <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-serif text-[#8b0000] mb-2">Set New Password</h1>
-            <p className="text-gray-600">Enter your email and new password to reset your account.</p>
-          </div>
+    <AuthLayout
+      title="Set New Password"
+      subtitle="Enter your email and new password to reset your account"
+    >
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-zinc-300 mb-1">
                 Email
               </label>
               <input
@@ -59,7 +52,7 @@ export default function ResetPassword() {
                 name="email"
                 type="email"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent"
+                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent placeholder-zinc-500"
                 placeholder="your@email.com"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
@@ -67,7 +60,7 @@ export default function ResetPassword() {
               />
             </div>
             <div>
-              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="newPassword" className="block text-sm font-medium text-zinc-300 mb-1">
                 New Password
               </label>
               <input
@@ -76,7 +69,7 @@ export default function ResetPassword() {
                 type="password"
                 required
                 minLength={8}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent"
+                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent placeholder-zinc-500"
                 placeholder="Enter new password"
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
@@ -84,7 +77,7 @@ export default function ResetPassword() {
               />
             </div>
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-zinc-300 mb-1">
                 Confirm Password
               </label>
               <input
@@ -93,7 +86,7 @@ export default function ResetPassword() {
                 type="password"
                 required
                 minLength={8}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent"
+                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent placeholder-zinc-500"
                 placeholder="Confirm new password"
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
@@ -111,9 +104,6 @@ export default function ResetPassword() {
               Reset Password
             </button>
           </form>
-        </div>
-      </main>
-      <Footer />
-    </div>
+    </AuthLayout>
   );
 }

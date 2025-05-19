@@ -13,6 +13,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   requestPasswordReset: (email: string) => Promise<void>;
   resetPassword: (token: string, email: string, newPassword: string) => Promise<void>;
+  verifyEmail: (email: string, token: string) => Promise<void>;
   isAuthenticated: boolean;
   updateProfile: (data: Partial<User>) => Promise<void>;
 }
@@ -63,13 +64,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = async (data: RegisterData): Promise<void> => {
     setIsLoading(true);
     try {
+      console.log('Registering with data:', JSON.stringify(data, null, 2));
       const registeredUser = await authService.register(data);
+      console.log('Registration successful:', registeredUser);
       setUser(registeredUser);
       success('Account created successfully!');
       router.push('/');
-    } catch (err) {
-      error('Registration failed. Please try again.');
-      console.error('Register error:', err);
+    } catch (err: any) {
+      console.error('Registration failed with error:', err);
+      console.error('Error details:', err.data || err.message || err);
+      // Show more specific error from API if available
+      if (err.data && err.data.message) {
+        if (Array.isArray(err.data.message)) {
+          // Join multiple error messages
+          error(err.data.message.join('\n'));
+        } else {
+          error(err.data.message);
+        }
+      } else {
+        error('Registration failed. Please try again.');
+      }
       throw err;
     } finally {
       setIsLoading(false);
@@ -124,6 +138,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Verify email handler
+  const verifyEmail = async (email: string, token: string): Promise<void> => {
+    setIsLoading(true);
+    try {
+      await authService.verifyEmail(email, token);
+      success('Your email has been verified!');
+      router.push('/');
+    } catch (err: any) {
+      error(err.message || 'Failed to verify email');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Update profile handler
   const updateProfile = async (data: Partial<User>): Promise<void> => {
     setIsLoading(true);
@@ -148,6 +177,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     logout,
     requestPasswordReset,
     resetPassword,
+    verifyEmail,
     isAuthenticated: Boolean(user),
     updateProfile,
   };

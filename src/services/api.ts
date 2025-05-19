@@ -33,7 +33,8 @@ export async function apiRequest<T = Record<string, unknown>>(
 
   // Add default headers
   const headers = new Headers(fetchOptions.headers);
-  if (!headers.has('Content-Type') && !fetchOptions.body) {
+  // Always set Content-Type for JSON requests unless specifically overridden
+  if (!headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
   }
   
@@ -45,6 +46,14 @@ export async function apiRequest<T = Record<string, unknown>>(
     }
   }
 
+  // Log the request details for debugging
+  console.log('API Request:', {
+    url: url.toString(),
+    method: fetchOptions.method,
+    headers: Object.fromEntries(headers.entries()),
+    body: fetchOptions.body
+  });
+  
   // Make the request
   const response = await fetch(url.toString(), {
     ...fetchOptions,
@@ -54,8 +63,18 @@ export async function apiRequest<T = Record<string, unknown>>(
   // Handle errors
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    const errorMessage = errorData.message || `API error: ${response.status} ${response.statusText}`;
-    throw new Error(errorMessage);
+    console.error('API Error Response:', {
+      status: response.status,
+      url: response.url,
+      errorData
+    });
+    // Create a more detailed error object
+    const error = new Error(errorData.message || `API error: ${response.status} ${response.statusText}`);
+    // @ts-ignore - Add additional properties to the error
+    error.status = response.status;
+    // @ts-ignore
+    error.data = errorData;
+    throw error;
   }
 
   // Parse and return the response

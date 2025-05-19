@@ -54,11 +54,21 @@ export const authService = {
    * Register a new user
    */
   async register(userData: RegisterData): Promise<{ access_token: string; user: User }> {
-    const data = {
-      ...userData,
-      role: userData.role || 'customer',
+    // Format exactly as the successful curl request
+    const payload = {
+      email: String(userData.email).trim(),
+      password: String(userData.password),
+      firstName: String(userData.firstName).trim(),
+      lastName: String(userData.lastName).trim(),
+      phoneNumber: String(userData.phoneNumber).trim(),
+      role: String(userData.role || 'customer')
     };
-    const response = await api.post<{ access_token: string; user: User }>('/auth/register', data);
+    
+    console.log('Registration payload:', JSON.stringify(payload)); // For debugging
+    
+    // Make a direct fetch request to ensure exact format
+    const response = await api.post<{ access_token: string; user: User }>('/auth/register', payload);
+    
     // Store access token and user data
     this.setTokens({ accessToken: response.access_token });
     this.setUser(response.user);
@@ -180,6 +190,10 @@ export const authService = {
 
   async resetPassword(token: string, email: string, newPassword: string): Promise<void> {
     await api.post('/auth/reset-password', { token, email, newPassword });
+  },
+
+  async verifyEmail(email: string, token: string): Promise<void> {
+    await api.post('/auth/verify-email', { email, token });
   },
   
   /**
