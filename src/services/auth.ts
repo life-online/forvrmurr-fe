@@ -210,10 +210,6 @@ export const authService = {
     await api.post("/auth/verify-email", { email, token });
   },
 
-  async verifyEmail(email: string, token: string): Promise<void> {
-    await api.post("/auth/verify-email", { email, token });
-  },
-
   /**
    * Update user profile
    */
