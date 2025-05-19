@@ -64,13 +64,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = async (data: RegisterData): Promise<void> => {
     setIsLoading(true);
     try {
+      console.log('Registering with data:', JSON.stringify(data, null, 2));
       const registeredUser = await authService.register(data);
+      console.log('Registration successful:', registeredUser);
       setUser(registeredUser);
       success('Account created successfully!');
       router.push('/');
-    } catch (err) {
-      error('Registration failed. Please try again.');
-      console.error('Register error:', err);
+    } catch (err: any) {
+      console.error('Registration failed with error:', err);
+      console.error('Error details:', err.data || err.message || err);
+      // Show more specific error from API if available
+      if (err.data && err.data.message) {
+        if (Array.isArray(err.data.message)) {
+          // Join multiple error messages
+          error(err.data.message.join('\n'));
+        } else {
+          error(err.data.message);
+        }
+      } else {
+        error('Registration failed. Please try again.');
+      }
       throw err;
     } finally {
       setIsLoading(false);

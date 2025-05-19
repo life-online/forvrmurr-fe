@@ -72,11 +72,17 @@ export default function Register() {
       newErrors.email = 'Email is invalid';
     }
     
-    // Validate password
+    // Password validation
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
+    } else if (!/(?=.*[a-z])/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one lowercase letter';
+    } else if (!/(?=.*[A-Z])/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one uppercase letter';
+    } else if (!/(?=.*[0-9\W])/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one number or special character';
     }
     
     // Validate password confirmation
@@ -85,10 +91,10 @@ export default function Register() {
     }
 
     // Validate phone number
-    if (!formData.phoneNumber.trim()) {
+    if (!formData.phoneNumber) {
       newErrors.phoneNumber = 'Phone number is required';
-    } else if (!/^\+?[0-9]{10,15}$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = 'Phone number is invalid';
+    } else if (!/^\+[1-9]\d{1,14}$/.test(formData.phoneNumber)) {
+      newErrors.phoneNumber = 'Phone number must be in international format (e.g., +12125552368)';
     }
     
     // Validate terms acceptance
@@ -103,16 +109,30 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Perform validation
     if (!validateForm()) {
       return;
     }
     
+    // Create registration payload with the specific format required by the API
+    const registrationData = {
+      firstName: formData.firstName.trim(),
+      lastName: formData.lastName.trim(),
+      email: formData.email.trim(),
+      password: formData.password,
+      phoneNumber: formData.phoneNumber.trim(),
+    };
+    
+    // Log registration data directly from the component
+    console.log('REGISTER COMPONENT - Sending data:', JSON.stringify(registrationData));
+    
     try {
       setIsSubmitting(true);
-      await register(formData);
+      await register(registrationData);
       success('Account created successfully! Please check your email to verify your account.');
       // Redirect handled by AuthContext or here if needed
     } catch (err) {
+      console.error('Registration component error:', err);
       error('Registration failed. Please try again.');
       // Optionally log error
     } finally {
@@ -186,7 +206,7 @@ export default function Register() {
             className={`w-full px-4 py-3 bg-zinc-800 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent text-white ${
               errors.phoneNumber ? 'border-red-500' : 'border-zinc-700'
             }`}
-            placeholder="e.g. +2347054273302"
+            placeholder="+12125552368 (no spaces or dashes)"
             value={formData.phoneNumber}
             onChange={handleChange}
           />
@@ -236,7 +256,7 @@ export default function Register() {
             <p className="mt-1 text-xs text-red-500">{errors.password}</p>
           )}
           <p className="mt-1 text-xs text-zinc-500">
-            Password must be at least 8 characters
+            Password must be at least 8 characters, include 1 uppercase letter, 1 lowercase letter, and 1 number or special character
           </p>
         </div>
         
