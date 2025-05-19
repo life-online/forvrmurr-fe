@@ -147,13 +147,13 @@ export default function Register() {
     >
       <div className="text-center mb-8">
         <h1 className="text-3xl font-serif text-[#8b0000] mb-2">Create Your Account</h1>
-        <p className="text-zinc-400">Join the ForvrMurr community and discover your signature scent</p>
+        <p className="text-sm text-gray-600">Join the ForvrMurr community and discover your signature scent</p>
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-zinc-300 mb-1">
+            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
               First Name
             </label>
             <input
@@ -161,8 +161,8 @@ export default function Register() {
               name="firstName"
               type="text"
               required
-              className={`w-full px-4 py-3 bg-zinc-800 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent text-white ${
-                errors.firstName ? 'border-red-500' : 'border-zinc-700'
+              className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
+                errors.firstName ? 'border-red-500' : ''
               }`}
               value={formData.firstName}
               onChange={handleChange}
@@ -173,7 +173,7 @@ export default function Register() {
           </div>
           
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-zinc-300 mb-1">
+            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
               Last Name
             </label>
             <input
@@ -181,8 +181,8 @@ export default function Register() {
               name="lastName"
               type="text"
               required
-              className={`w-full px-4 py-3 bg-zinc-800 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent text-white ${
-                errors.lastName ? 'border-red-500' : 'border-zinc-700'
+              className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
+                errors.lastName ? 'border-red-500' : ''
               }`}
               value={formData.lastName}
               onChange={handleChange}
@@ -195,7 +195,7 @@ export default function Register() {
 
         {/* Phone Number Field */}
         <div>
-          <label htmlFor="phoneNumber" className="block text-sm font-medium text-zinc-300 mb-1">
+          <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
             Phone Number
           </label>
           <input
@@ -203,8 +203,8 @@ export default function Register() {
             name="phoneNumber"
             type="tel"
             required
-            className={`w-full px-4 py-3 bg-zinc-800 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent text-white ${
-              errors.phoneNumber ? 'border-red-500' : 'border-zinc-700'
+            className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
+              errors.phoneNumber ? 'border-red-500' : ''
             }`}
             placeholder="+12125552368 (no spaces or dashes)"
             value={formData.phoneNumber}
@@ -216,7 +216,7 @@ export default function Register() {
         </div>
         
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-zinc-300 mb-1">
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
             Email
           </label>
           <input
@@ -224,8 +224,8 @@ export default function Register() {
             name="email"
             type="email"
             required
-            className={`w-full px-4 py-3 bg-zinc-800 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent text-white ${
-              errors.email ? 'border-red-500' : 'border-zinc-700'
+            className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
+              errors.email ? 'border-red-500' : ''
             }`}
             placeholder="your@email.com"
             value={formData.email}
@@ -237,7 +237,7 @@ export default function Register() {
         </div>
         
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-zinc-300 mb-1">
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
             Password
           </label>
           <input
@@ -245,8 +245,8 @@ export default function Register() {
             name="password"
             type="password"
             required
-            className={`w-full px-4 py-3 bg-zinc-800 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent text-white ${
-              errors.password ? 'border-red-500' : 'border-zinc-700'
+            className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
+              errors.password ? 'border-red-500' : ''
             }`}
             placeholder="••••••••"
             value={formData.password}
@@ -255,13 +255,13 @@ export default function Register() {
           {errors.password && (
             <p className="mt-1 text-xs text-red-500">{errors.password}</p>
           )}
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-6 text-center text-sm text-gray-600">
             Password must be at least 8 characters, include 1 uppercase letter, 1 lowercase letter, and 1 number or special character
           </p>
         </div>
         
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-zinc-300 mb-1">
+          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
             Confirm Password
           </label>
           <input
@@ -269,8 +269,8 @@ export default function Register() {
             name="confirmPassword"
             type="password"
             required
-            className={`w-full px-4 py-3 bg-zinc-800 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent text-white ${
-              errors.confirmPassword ? 'border-red-500' : 'border-zinc-700'
+            className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
+              errors.confirmPassword ? 'border-red-500' : ''
             }`}
             placeholder="••••••••"
             value={formData.confirmPassword}
@@ -295,7 +295,7 @@ export default function Register() {
             />
           </div>
           <div className="ml-3 text-sm">
-            <label htmlFor="acceptTerms" className="text-zinc-300">
+            <label htmlFor="acceptTerms" className="text-gray-700">
               I agree to the{' '}
               <Link href="/terms" className="text-[#8b0000] hover:text-[#cf0000] hover:underline">
                 Terms of Service
@@ -326,7 +326,7 @@ export default function Register() {
       </form>
       
       <div className="mt-8 text-center">
-        <p className="text-zinc-400">
+        <p className="text-sm text-gray-600">
           Already have an account?{' '}
           <Link href="/auth/login" className="text-[#8b0000] hover:text-[#cf0000] hover:underline font-medium">
             Sign in

@@ -53,7 +53,7 @@ export default function Login() {
             name="email"
             type="email"
             required
-            className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent placeholder-zinc-500"
+            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent"
             placeholder="your@email.com"
             value={formData.email}
             onChange={handleChange}
@@ -69,7 +69,7 @@ export default function Login() {
             name="password"
             type="password"
             required
-            className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent placeholder-zinc-500"
+            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent"
             placeholder="••••••••"
             value={formData.password}
             onChange={handleChange}
@@ -82,9 +82,9 @@ export default function Login() {
               id="remember-me"
               name="remember-me"
               type="checkbox"
-              className="h-4 w-4 accent-[#8b0000] bg-zinc-800 border-zinc-700"
+              className="h-4 w-4 accent-[#8b0000]"
             />
-            <label htmlFor="remember-me" className="ml-2 block text-sm text-zinc-400">
+            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
               Remember me
             </label>
           </div>
@@ -110,7 +110,7 @@ export default function Login() {
         </div>
       </form>
       
-      <p className="mt-6 text-center text-sm text-zinc-400">
+      <p className="mt-6 text-center text-sm text-gray-600">
         Or{' '}
         <Link href="/auth/register" className="font-medium text-[#8b0000] hover:text-[#cf0000]">
           create a new account

@@ -40,7 +40,7 @@ export default function ForgotPassword() {
                 name="email"
                 type="email"
                 required
-                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent placeholder-zinc-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent"
                 placeholder="your@email.com"
                 value={email}
                 onChange={e => setEmail(e.target.value)}

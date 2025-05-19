@@ -44,7 +44,7 @@ export default function ResetPassword() {
     >
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-zinc-300 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email
               </label>
               <input
@@ -52,7 +52,7 @@ export default function ResetPassword() {
                 name="email"
                 type="email"
                 required
-                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent placeholder-zinc-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent"
                 placeholder="your@email.com"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
@@ -60,7 +60,7 @@ export default function ResetPassword() {
               />
             </div>
             <div>
-              <label htmlFor="newPassword" className="block text-sm font-medium text-zinc-300 mb-1">
+              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
                 New Password
               </label>
               <input
@@ -69,7 +69,7 @@ export default function ResetPassword() {
                 type="password"
                 required
                 minLength={8}
-                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent placeholder-zinc-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent"
                 placeholder="Enter new password"
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
@@ -77,7 +77,7 @@ export default function ResetPassword() {
               />
             </div>
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-zinc-300 mb-1">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
                 Confirm Password
               </label>
               <input
@@ -86,7 +86,7 @@ export default function ResetPassword() {
                 type="password"
                 required
                 minLength={8}
-                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent placeholder-zinc-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent"
                 placeholder="Confirm new password"
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
