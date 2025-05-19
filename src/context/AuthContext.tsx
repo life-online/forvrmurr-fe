@@ -48,7 +48,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(true);
     try {
       const loggedInUser = await authService.login(credentials);
-      setUser(loggedInUser);
+      setUser(loggedInUser.user);
       success('Welcome back!');
       router.push('/');
     } catch (err) {
@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.log('Registering with data:', JSON.stringify(data, null, 2));
       const registeredUser = await authService.register(data);
       console.log('Registration successful:', registeredUser);
-      setUser(registeredUser);
+      setUser(registeredUser.user);
       success('Account created successfully!');
       router.push('/');
     } catch (err: any) {
