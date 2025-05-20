@@ -8,9 +8,9 @@ import Navbar from '@/components/layout/Navbar';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import Footer from '@/components/layout/Footer';
 import productService, { Product } from '@/services/product';
-import ProductCard from '@/components/ui/ProductCard';
 import ProductBadge from '@/components/ui/ProductBadge';
 import AddToCartButton from '@/components/cart/AddToCartButton';
+import ProductCard from '@/components/ui/ProductCard';
 
 // Type assertion function to help with type comparisons
 const isPremiumType = (type: any): boolean => {

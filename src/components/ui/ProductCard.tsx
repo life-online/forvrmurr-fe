@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/services/product';
 import ProductBadge from './ProductBadge';
+import HoverAddToCartButton from './HoverAddToCartButton';
 
 interface ProductCardProps {
   product: Product;
@@ -43,7 +44,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priorityLoading = fa
         </div>
         
         {/* Hover overlay with blur effect */}
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-6 text-white z-50 rounded-lg">
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-6 text-white z-40 rounded-lg">
           <div className="pt-8">
             <h4 className="text-lg font-medium text-center text-white">{product.name}</h4>
             
@@ -75,9 +76,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priorityLoading = fa
                 Full Bottle Price <span className="text-[#e6c789]">₦{parseInt(product.priceFullBottle).toLocaleString()}</span>
               </p>
             )}
-            <button className="w-full bg-[#a00000] hover:bg-[#b30000] text-white py-2 rounded-lg transition-colors">
-              Add to cart
-            </button>
+            <HoverAddToCartButton product={product} />
           </div>
         </div>
       </div>

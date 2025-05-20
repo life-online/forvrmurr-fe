@@ -5,8 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import productService, { Product, ProductFilterParams, ProductType } from '@/services/product';
 import { useToast } from '@/context/ToastContext';
-import ProductCard from '@/components/ui/ProductCard';
 import FilterModal from '@/components/ui/FilterModal'; // Assuming FilterModal is used or will be
+import ProductCard from '@/components/ui/ProductCard';
 
 const scentCategories = [
   { label: 'Elegant', value: 'elegant' },
@@ -206,7 +206,7 @@ export default function ShopContent() {
 
       {/* No Products Found */}
       {!loading && products.length === 0 && (
-        <div className="text-center py-10">
+        <div className="text-center py-10 min-h-[70vh]">
           <p>No products found matching your criteria.</p>
         </div>
       )}

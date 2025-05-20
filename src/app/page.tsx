@@ -18,7 +18,7 @@ export default function Home() {
         <CategorySelection />
         <ProductShowcase 
           title="GET YOUR HANDS ON HIGHLY RATED HITS + FRESH PICKS." 
-          products={featuredProducts} 
+          limit={6}
         />
         <div className="bg-white py-16 px-4 text-center">
           <div className="max-w-4xl mx-auto">

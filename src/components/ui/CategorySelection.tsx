@@ -119,14 +119,14 @@ const CategorySelection: React.FC = () => {
         </div>
         
         {/* Quiz Section */}
-        <div className="mt-12 text-center">
+        {/* <div className="mt-12 text-center">
           <p className="text-lg font-serif mb-4">NOT SURE WHERE TO START?</p>
           <Link href="/quiz">
             <Button variant="outline">
               Take Our Scent Quiz
             </Button>
           </Link>
-        </div>
+        </div> */}
       </div>
     </section>
   );

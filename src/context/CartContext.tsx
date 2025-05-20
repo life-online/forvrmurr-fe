@@ -65,12 +65,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return;
         }
 
+        // Log raw items from API response
+        console.log('Raw cart items from API:', JSON.stringify(cartResponse.items, null, 2));
+
         // Map backend cart items to frontend CartItem format
         const mappedItems: CartItem[] = cartResponse.items.map((item: CartItemDto) => ({
           id: item.id,
           name: item.product.name,
           brand: item.product.name.split(' ')[0], // Just a guess, adjust based on your data
-          price: item.priceAtAddition,
+          price: parseFloat(item.price),
           imageUrl: item.product.imageUrl || `/images/products/${item.product.slug}.png`,
           quantity: item.quantity
         }));
@@ -119,12 +122,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('Guest ID received from backend:', response.guestId);
       }
       
+      // Log raw items from API response after adding item
+      console.log('Raw cart items from API (after add):', JSON.stringify(response.items, null, 2));
+      
       // Map backend cart items to frontend CartItem format
       const mappedItems: CartItem[] = response.items.map((item: CartItemDto) => ({
         id: item.id,
         name: item.product.name,
         brand: item.product.name.split(' ')[0], // Adjust based on actual data
-        price: item.priceAtAddition,
+        price: parseFloat(item.price),
         imageUrl: item.product.imageUrl || `/images/products/${item.product.slug}.png`,
         quantity: item.quantity
       }));
@@ -155,12 +161,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setGuestId(response.guestId);
       }
       
+      // Log raw items from API response after removing item
+      console.log('Raw cart items from API (after remove):', JSON.stringify(response.items, null, 2));
+
       // Map backend cart items to frontend CartItem format
       const mappedItems: CartItem[] = response.items.map((item: CartItemDto) => ({
         id: item.id,
         name: item.product.name,
         brand: item.product.name.split(' ')[0], // Adjust based on actual data
-        price: item.priceAtAddition,
+        price: parseFloat(item.price),
         imageUrl: item.product.imageUrl || `/images/products/${item.product.slug}.png`,
         quantity: item.quantity
       }));
@@ -191,12 +200,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setGuestId(response.guestId);
       }
       
+      // Log raw items from API response after updating quantity
+      console.log('Raw cart items from API (after update quantity):', JSON.stringify(response.items, null, 2));
+
       // Map backend cart items to frontend CartItem format
       const mappedItems: CartItem[] = response.items.map((item: CartItemDto) => ({
         id: item.id,
         name: item.product.name,
         brand: item.product.name.split(' ')[0], // Adjust based on actual data
-        price: item.priceAtAddition,
+        price: parseFloat(item.price),
         imageUrl: item.product.imageUrl || `/images/products/${item.product.slug}.png`,
         quantity: item.quantity
       }));

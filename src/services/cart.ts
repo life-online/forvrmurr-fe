@@ -10,8 +10,8 @@ export interface CartItemDto {
     nairaPrice: number;
     imageUrl?: string;
   };
-  priceAtAddition: number;
-  totalPrice: number;
+  price: string;
+  subtotal: number;
 }
 
 export interface CartResponseDto {
@@ -154,6 +154,14 @@ const cartService = {
     return apiRequest<CartResponseDto>('/cart', {
       method: 'DELETE',
       requiresAuth: false
+    });
+  },
+
+  // Initiate checkout process (marks cart as checked out)
+  initiateCheckout: async (): Promise<CartResponseDto> => {
+    return apiRequest<CartResponseDto>('/cart/initiate-checkout', {
+      method: 'POST',
+      requiresAuth: true
     });
   },
 };

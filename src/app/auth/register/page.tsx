@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import AuthLayout from '@/components/auth/AuthLayout';
@@ -20,6 +20,7 @@ interface RegisterFormData {
 
 export default function Register() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { register } = useAuth();
   const { success, error } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,6 +35,14 @@ export default function Register() {
     role: 'customer',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [displayMessage, setDisplayMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const message = searchParams.get('message');
+    if (message) {
+      setDisplayMessage(decodeURIComponent(message));
+    }
+  }, [searchParams]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -130,7 +139,13 @@ export default function Register() {
       setIsSubmitting(true);
       await register(registrationData);
       success('Account created successfully! Please check your email to verify your account.');
-      // Redirect handled by AuthContext or here if needed
+      
+      const redirectUrl = searchParams.get('redirect');
+      if (redirectUrl) {
+        router.push(decodeURIComponent(redirectUrl));
+      } else {
+        router.push('/auth/login');
+      }
     } catch (err) {
       console.error('Registration component error:', err);
       error('Registration failed. Please try again.');
@@ -149,6 +164,14 @@ export default function Register() {
         <h1 className="text-3xl font-serif text-[#8b0000] mb-2">Create Your Account</h1>
         <p className="text-sm text-gray-600">Join the ForvrMurr community and discover your signature scent</p>
       </div>
+
+      {/* Display message from query param */}
+      {displayMessage && (
+        <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6" role="alert">
+          <p className="font-bold">Heads up!</p>
+          <p>{displayMessage}</p>
+        </div>
+      )}
       
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

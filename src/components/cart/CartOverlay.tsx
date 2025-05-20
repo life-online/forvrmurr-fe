@@ -4,7 +4,10 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FiMinus, FiPlus, FiX } from 'react-icons/fi';
+import { FiMinus, FiPlus, FiX, FiShoppingBag } from 'react-icons/fi';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+import cartService from '../../services/cart';
 
 // Types
 export interface CartItem {
@@ -54,7 +57,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
       id: 'travel-case',
       name: 'Perfume Travel Case',
       description: 'Add our perfume travel case',
-      price: 24900, // ₦24,900
+      price: 12900, // ₦24,900
       imageUrl: '/images/products/TVC_1.png',
       type: 'travel_case'
     },
@@ -92,12 +95,40 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
   ];
 
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
+  const { info, success, error: showError } = useToast();
 
   if (!isOpen) return null;
 
   const navigateToShop = () => {
     router.push('/shop');
     onClose();
+  };
+  
+  const navigateToCheckout = async () => {
+    if (!isAuthenticated) {
+      // Store the intended redirect path and message for the registration page
+      const redirectUrl = '/shop/checkout';
+      const message = 'Please create an account or log in to complete your checkout.';
+      router.push(`/register?redirect=${encodeURIComponent(redirectUrl)}&message=${encodeURIComponent(message)}`);
+      onClose();
+      return;
+    }
+
+    try {
+      info('Processing your cart...');
+      await cartService.initiateCheckout();
+      success('Proceeding to checkout!');
+      router.push('/shop/checkout');
+      onClose();
+    } catch (error) {
+      console.error('Error initiating checkout:', error);
+      let errorMessage = 'Failed to initiate checkout. Please try again.';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      showError(errorMessage);
+    }
   };
 
   return (
@@ -213,7 +244,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
                     <div className="flex-1">
                       <h4 className="font-medium">{item.brand}</h4>
                       <p className="text-sm text-gray-600">{item.name}</p>
-                      <p className="text-sm font-medium mt-1">$ {item.price/100}.00 USD</p>
+                      <p className="text-sm font-medium mt-1">₦ {item.price.toLocaleString()}</p>
                     </div>
                     <div className="flex items-center border border-gray-300 rounded-full">
                       <button 
@@ -246,7 +277,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
               </div>
               
               {/* Add to your order section */}
-              <div className="mt-6 mb-4">
+              {/* <div className="mt-6 mb-4">
                 <h3 className="text-lg font-medium mb-4">Add to your order</h3>
                 <div className="space-y-4">
                   {addOns.map(addon => (
@@ -259,11 +290,11 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
                       
                       <div className="flex items-center">
                         <div className="w-6 h-6 border border-gray-300 rounded-full flex items-center justify-center mr-4">
-                          {/* This would be a checkbox in a real implementation */}
+                         
                         </div>
                         <div className="flex-1">
                           <p className="font-medium">{addon.description}</p>
-                          <p className="text-[#8b0000] font-medium">$ {addon.price/100}.00 USD</p>
+                          <p className="text-[#8b0000] font-medium">₦ {addon.price.toLocaleString()}</p>
                         </div>
                         <div className="ml-4 relative h-16 w-16">
                           <Image
@@ -277,27 +308,34 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
                     </div>
                   ))}
                 </div>
-              </div>
+              </div> */}
+
+
             </>
           )}
         </div>
         
-        {/* Footer */}
+        {/* Footer with totals and checkout button */}
         {cartItems.length > 0 && (
-          <div className="border-t border-gray-200 p-4">
-            <div className="flex justify-between mb-4">
-              <span className="font-medium">Subtotal</span>
-              <span className="font-medium">$ {subtotal/100}.00 USD</span>
+          <div className="border-t border-gray-200 p-4 bg-white">
+            <div className="flex justify-between text-base font-medium text-gray-900 mb-4">
+              <p>Subtotal</p>
+              <p>₦{subtotal.toLocaleString()}</p>
             </div>
-            
-            <div className="space-y-2">
-              <button className="w-full bg-[#8b0000] text-white py-3 rounded font-medium hover:bg-[#6b0000]">
-                Proceed to checkout
-              </button>
-              <button className="w-full border border-gray-300 text-gray-700 py-3 rounded font-medium hover:bg-gray-50">
-                No thanks
-              </button>
-            </div>
+            <p className="text-sm text-gray-500 mb-4">Shipping and taxes calculated at checkout.</p>
+            <button
+              className="w-full bg-[#8b0000] text-white py-3 rounded text-sm font-medium hover:bg-[#6b0000] flex items-center justify-center gap-2 mb-3"
+              onClick={navigateToCheckout}
+            >
+              <FiShoppingBag size={18} />
+              Proceed to Checkout
+            </button>
+            <button
+              className="w-full border border-[#8b0000] text-[#8b0000] py-3 rounded text-sm font-medium hover:bg-[#fff8f8] transition-colors"
+              onClick={navigateToShop}
+            >
+              Continue Shopping
+            </button>
           </div>
         )}
       </div>

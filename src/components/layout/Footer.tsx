@@ -65,10 +65,10 @@ const Footer: React.FC = () => {
             © {new Date().getFullYear()} ForvrMurr. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <img src="/payment-visa.svg" alt="Visa" className="h-6" />
+            {/* <img src="/payment-visa.svg" alt="Visa" className="h-6" />
             <img src="/payment-mastercard.svg" alt="Mastercard" className="h-6" />
             <img src="/payment-paypal.svg" alt="PayPal" className="h-6" />
-            <img src="/payment-apple.svg" alt="Apple Pay" className="h-6" />
+            <img src="/payment-apple.svg" alt="Apple Pay" className="h-6" /> */}
           </div>
         </div>
       </div>
