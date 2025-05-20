@@ -2,6 +2,8 @@
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { FiMinus, FiPlus, FiX } from 'react-icons/fi';
 
 // Types
@@ -53,25 +55,25 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
       name: 'Perfume Travel Case',
       description: 'Add our perfume travel case',
       price: 24900, // ₦24,900
-      imageUrl: '/images/products/travel-case.png',
+      imageUrl: '/images/products/TVC_1.png',
       type: 'travel_case'
     },
-    {
-      id: 'subscription',
-      name: 'Monthly Fragrance Subscription',
-      description: 'Would you like to add a monthly fragrance subscription? Free travel case with your first order.',
-      price: 24900, // ₦24,900
-      imageUrl: '/images/products/subscription-bottle.png',
-      type: 'subscription'
-    },
-    {
-      id: 'gift',
-      name: 'Gift Love Ones',
-      description: 'Is this a gift? We\'ll wrap it with love and add a personal message too.',
-      price: 24900, // ₦24,900
-      imageUrl: '/images/products/gift-wrap.png',
-      type: 'gift'
-    },
+    // {
+    //   id: 'subscription',
+    //   name: 'Monthly Fragrance Subscription',
+    //   description: 'Would you like to add a monthly fragrance subscription? Free travel case with your first order.',
+    //   price: 24900, // ₦24,900
+    //   imageUrl: '/images/products/subscription-bottle.png',
+    //   type: 'subscription'
+    // },
+    // {
+    //   id: 'gift',
+    //   name: 'Gift Love Ones',
+    //   description: 'Is this a gift? We\'ll wrap it with love and add a personal message too.',
+    //   price: 24900, // ₦24,900
+    //   imageUrl: '/images/products/gift-wrap.png',
+    //   type: 'gift'
+    // },
   ];
 
   // For empty cart state
@@ -89,7 +91,14 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
     }
   ];
 
+  const router = useRouter();
+
   if (!isOpen) return null;
+
+  const navigateToShop = () => {
+    router.push('/shop');
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -104,9 +113,9 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 p-4">
           <h2 className="text-xl font-serif">Your Next Obsession Awaits... 
-            <span className="inline-flex items-center justify-center ml-2 w-6 h-6 rounded-full border border-[#8b0000] text-[#8b0000] text-sm">
+            {/* <span className="inline-flex items-center justify-center ml-2 w-6 h-6 rounded-full border border-[#8b0000] text-[#8b0000] text-sm">
               {cartItems.reduce((total, item) => total + item.quantity, 0)}
-            </span>
+            </span> */}
           </h2>
           <button 
             onClick={onClose}
@@ -119,11 +128,11 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
 
         {/* Delivery Progress */}
         <div className="bg-[#faf0e2] p-4">
-          <p className="text-[#8b0000] font-medium mb-1">Almost there...</p>
+          <p className="text-[#8b0000] font-medium mb-1">{amountToFreeDelivery > 0 ? 'Almost there...' : 'Congratulations'}</p>
           <p className="text-[#8b0000] text-sm mb-2">
             {amountToFreeDelivery > 0 
               ? `You are ₦${(amountToFreeDelivery/100).toLocaleString()} away from free delivery*` 
-              : 'You qualify for free delivery!*'}
+              : 'You qualify for free delivery!'}
           </p>
           <div className="h-2 bg-[#f8e2c8] rounded-full overflow-hidden">
             <div 
@@ -139,7 +148,10 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <h3 className="text-xl font-medium mb-2">Your cart is looking a little too empty.</h3>
               <p className="text-gray-600 mb-8">Don&apos;t Leave Without Your Next Obsession.</p>
-              <button className="bg-[#8b0000] text-white py-3 px-8 rounded text-sm font-medium hover:bg-[#6b0000]">
+              <button 
+                onClick={navigateToShop}
+                className="bg-[#8b0000] text-white py-3 px-8 rounded text-sm font-medium hover:bg-[#6b0000]"
+              >
                 Shop All Scents
               </button>
               
