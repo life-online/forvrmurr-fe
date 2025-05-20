@@ -158,12 +158,9 @@ export default function Register() {
   return (
     <AuthLayout 
       title="Create Account" 
-      subtitle="Join ForvrMurr"
+      subtitle="Join the ForvrMurr community and discover your signature scent"
     >
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-serif text-[#8b0000] mb-2">Create Your Account</h1>
-        <p className="text-sm text-gray-600">Join the ForvrMurr community and discover your signature scent</p>
-      </div>
+
 
       {/* Display message from query param */}
       {displayMessage && (
