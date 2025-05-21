@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Image from "next/image";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FiSearch, FiUser, FiShoppingBag, FiLogOut } from 'react-icons/fi';
+import { FiSearch, FiUser, FiShoppingBag, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
 import CartOverlay from '@/components/cart/CartOverlay';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -23,27 +23,52 @@ const navItems: NavItem[] = [
 ];
 
 const Navbar: React.FC = () => {
+  // Mobile menu state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
   // Currency selector state
   const [selectedCurrency, setSelectedCurrency] = useState<'GBP' | 'NGN'>('NGN');
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
   const currencyDropdownRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
+  // Close dropdowns on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
+      // Close currency dropdown when clicking outside
       if (currencyDropdownRef.current && !currencyDropdownRef.current.contains(event.target as Node)) {
         setShowCurrencyDropdown(false);
       }
+      
+      // Close mobile menu when clicking outside
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        setIsMobileMenuOpen(false);
+      }
     }
-    if (showCurrencyDropdown) {
+    
+    if (showCurrencyDropdown || isMobileMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     } else {
       document.removeEventListener('mousedown', handleClickOutside);
     }
+    
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showCurrencyDropdown]);
+  }, [showCurrencyDropdown, isMobileMenuOpen]);
+  
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
 
   const pathname = usePathname();
   const {
@@ -69,10 +94,10 @@ const Navbar: React.FC = () => {
   return (
     <>
       {/* Main Navigation */}
-      <nav className="w-full bg-black text-white pt-4 pb-6 px-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          {/* Currency Selector */}
-          <div className="relative flex items-center">
+      <nav className="w-full bg-black text-white pt-4 pb-6 px-4 md:px-6 relative">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between">
+          {/* Currency Selector - Hidden on mobile, visible on desktop */}
+          <div className="relative hidden md:flex items-center" ref={currencyDropdownRef}>
             <button
               className="flex items-center cursor-pointer hover:opacity-80 focus:outline-none"
               onClick={() => setShowCurrencyDropdown((prev) => !prev)}
@@ -91,14 +116,6 @@ const Navbar: React.FC = () => {
                 className="absolute left-0 mt-2 w-32 bg-white border border-gray-200 rounded shadow-lg z-50 text-black"
                 role="listbox"
               >
-                {/* <li
-                  className={`flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100 ${selectedCurrency === 'GBP' ? 'font-bold' : ''}`}
-                  onClick={() => { setSelectedCurrency('GBP'); setShowCurrencyDropdown(false); }}
-                  role="option"
-                  aria-selected={selectedCurrency === 'GBP'}
-                >
-                  <span className="text-lg mr-2">🇬🇧</span> GB | £
-                </li> */}
                 <li
                   className={`flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100 ${selectedCurrency === 'NGN' ? 'font-bold' : ''}`}
                   onClick={() => { setSelectedCurrency('NGN'); setShowCurrencyDropdown(false); }}
@@ -111,8 +128,17 @@ const Navbar: React.FC = () => {
             )}
           </div>
           
-          {/* Logo & Navigation */}
-          <div className="flex flex-col items-center">
+          {/* Mobile hamburger menu button */}
+          <button
+            className="md:hidden flex items-center p-1 text-white focus:outline-none"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle mobile menu"
+          >
+            {isMobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+          </button>
+          
+          {/* Logo - Centered on desktop, left-aligned on mobile */}
+          <div className="mx-auto md:mx-0 md:flex md:flex-col md:items-center order-2 md:order-none">
             {/* Logo */}
             <Link href="/" className="mb-4">
               <Image 
@@ -124,8 +150,8 @@ const Navbar: React.FC = () => {
               />
             </Link>
             
-            {/* Navigation Links */}
-            <div className="flex gap-8">
+            {/* Desktop Navigation Links - Hidden on mobile */}
+            <div className="hidden md:flex gap-8">
               {navItems.map((item) => {
                 const isActive = pathname === item.path || 
                   (item.path !== '/' && pathname?.startsWith(item.path));
@@ -144,8 +170,8 @@ const Navbar: React.FC = () => {
             </div>
           </div>
           
-          {/* Icons */}
-          <div className="flex items-center space-x-5">
+          {/* Icons - Right aligned */}
+          <div className="flex items-center space-x-5 order-3">
             <button
               aria-label="Search"
               className="hover:opacity-70 transition-opacity"
@@ -174,18 +200,66 @@ const Navbar: React.FC = () => {
                 </span>
               )}
             </button>
-            
-            {/* {isAuthenticated && (
-              <button
-                aria-label="Logout"
-                className="hover:opacity-70 transition-opacity"
-                onClick={handleLogout}
-              >
-                <FiLogOut size={18} />
-              </button>
-            )} */}
           </div>
         </div>
+        
+        {/* Mobile Navigation Menu - Slide down when open */}
+        {isMobileMenuOpen && (
+          <div 
+            className="md:hidden absolute top-full left-0 right-0 bg-black z-50 border-t border-gray-800 shadow-lg"
+            ref={mobileMenuRef}
+          >
+            <div className="px-4 py-6 space-y-8">
+              {/* Mobile Currency Selector */}
+              <div className="border-b border-gray-800 pb-4">
+                <p className="text-sm text-gray-400 mb-2">Select Currency</p>
+                <div className="flex gap-4">
+                  <button 
+                    className={`flex items-center px-3 py-2 rounded ${selectedCurrency === 'NGN' ? 'bg-gray-800' : ''}`}
+                    onClick={() => setSelectedCurrency('NGN')}
+                  >
+                    <span className="text-lg mr-2">🇳🇬</span> NG | ₦
+                  </button>
+                </div>
+              </div>
+              
+              {/* Mobile Navigation Links */}
+              <div className="space-y-2">
+                {navItems.map((item) => {
+                  const isActive = pathname === item.path || 
+                    (item.path !== '/' && pathname?.startsWith(item.path));
+                    
+                  return (
+                    <Link 
+                      key={item.path} 
+                      href={item.path}
+                      className={`block py-3 px-4 ${isActive 
+                        ? 'bg-gray-800 rounded font-medium' 
+                        : 'hover:bg-gray-900'
+                      }`}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  );
+                })}
+              </div>
+              
+              {/* Conditionally show logout on mobile */}
+              {isAuthenticated && (
+                <div className="pt-4 border-t border-gray-800">
+                  <button
+                    className="flex items-center gap-2 text-red-400 py-2"
+                    onClick={handleLogout}
+                  >
+                    <FiLogOut size={18} />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Cart Overlay */}
