@@ -66,7 +66,7 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
   return (
     <section className="w-full bg-white py-24">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-12">
           <div>
             <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
               <Link href="/new" className="hover:underline">New Release</Link>

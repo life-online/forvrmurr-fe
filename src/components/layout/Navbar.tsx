@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useRef, useEffect } from 'react';
 import Image from "next/image";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -23,6 +23,28 @@ const navItems: NavItem[] = [
 ];
 
 const Navbar: React.FC = () => {
+  // Currency selector state
+  const [selectedCurrency, setSelectedCurrency] = useState<'GBP' | 'NGN'>('NGN');
+  const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
+  const currencyDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (currencyDropdownRef.current && !currencyDropdownRef.current.contains(event.target as Node)) {
+        setShowCurrencyDropdown(false);
+      }
+    }
+    if (showCurrencyDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showCurrencyDropdown]);
+
   const pathname = usePathname();
   const {
     isCartOpen,
@@ -47,14 +69,46 @@ const Navbar: React.FC = () => {
   return (
     <>
       {/* Main Navigation */}
-      <nav className="w-full bg-black text-white py-4 px-6">
+      <nav className="w-full bg-black text-white pt-4 pb-6 px-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Currency Selector */}
-          <div className="flex items-center">
-            <div className="flex items-center cursor-pointer hover:opacity-80">
-              <span className="text-xs mr-1">GB | £</span>
-              <span className="text-xs">▼</span>
-            </div>
+          <div className="relative flex items-center">
+            <button
+              className="flex items-center cursor-pointer hover:opacity-80 focus:outline-none"
+              onClick={() => setShowCurrencyDropdown((prev) => !prev)}
+              aria-haspopup="listbox"
+              aria-expanded={showCurrencyDropdown}
+              type="button"
+            >
+              <span className="text-xl mr-1">{selectedCurrency === 'NGN' ? '🇳🇬' : '🇬🇧'}</span>
+              <span className="text-base mr-1">
+                {selectedCurrency === 'NGN' ? 'NG | ₦' : 'GB | £'}
+              </span>
+              <span className="text-base">▼</span>
+            </button>
+            {showCurrencyDropdown && (
+              <ul
+                className="absolute left-0 mt-2 w-32 bg-white border border-gray-200 rounded shadow-lg z-50 text-black"
+                role="listbox"
+              >
+                {/* <li
+                  className={`flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100 ${selectedCurrency === 'GBP' ? 'font-bold' : ''}`}
+                  onClick={() => { setSelectedCurrency('GBP'); setShowCurrencyDropdown(false); }}
+                  role="option"
+                  aria-selected={selectedCurrency === 'GBP'}
+                >
+                  <span className="text-lg mr-2">🇬🇧</span> GB | £
+                </li> */}
+                <li
+                  className={`flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100 ${selectedCurrency === 'NGN' ? 'font-bold' : ''}`}
+                  onClick={() => { setSelectedCurrency('NGN'); setShowCurrencyDropdown(false); }}
+                  role="option"
+                  aria-selected={selectedCurrency === 'NGN'}
+                >
+                  <span className="text-lg mr-2">🇳🇬</span> NG | ₦
+                </li>
+              </ul>
+            )}
           </div>
           
           {/* Logo & Navigation */}
@@ -99,14 +153,14 @@ const Navbar: React.FC = () => {
               <FiSearch size={18} />
             </button>
 
-            <Link href={isAuthenticated ? "/profile" : "/auth/login"}>
-              <button
-                aria-label="Account"
-                className="hover:opacity-70 transition-opacity"
-              >
-                <FiUser size={18} />
-              </button>
-            </Link>
+            {/* Fix hydration mismatch with client-side navigation */}
+            <button
+              aria-label="Account"
+              className="hover:opacity-70 transition-opacity"
+              onClick={() => window.location.href = isAuthenticated ? "/profile" : "/auth/login"}
+            >
+              <FiUser size={18} />
+            </button>
             
             <button
               aria-label="Cart"
@@ -121,7 +175,7 @@ const Navbar: React.FC = () => {
               )}
             </button>
             
-            {isAuthenticated && (
+            {/* {isAuthenticated && (
               <button
                 aria-label="Logout"
                 className="hover:opacity-70 transition-opacity"
@@ -129,7 +183,7 @@ const Navbar: React.FC = () => {
               >
                 <FiLogOut size={18} />
               </button>
-            )}
+            )} */}
           </div>
         </div>
       </nav>
