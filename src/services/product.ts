@@ -89,7 +89,7 @@ const productService = {
    * Get a single product by slug
    */
   async getProductBySlug(slug: string): Promise<Product> {
-    return apiRequest<Product>(`/products/${slug}`, {
+    return apiRequest<Product>(`/products/slug/${slug}`, {
       requiresAuth: false
     });
   },

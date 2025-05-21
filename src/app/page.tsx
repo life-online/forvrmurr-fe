@@ -1,7 +1,7 @@
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import HeroSection from '@/components/ui/HeroSectionCP';
+import HeroSection from '@/components/ui/HeroSection';
 import CategorySelection from '@/components/ui/CategorySelection';
 import ProductShowcase from '@/components/ui/ProductShowcase';
 import Newsletter from '@/components/ui/Newsletter';
@@ -18,7 +18,7 @@ export default function Home() {
         <CategorySelection />
         <ProductShowcase 
           title="GET YOUR HANDS ON HIGHLY RATED HITS + FRESH PICKS." 
-          products={featuredProducts} 
+          limit={6}
         />
         <div className="bg-white py-16 px-4 text-center">
           <div className="max-w-4xl mx-auto">

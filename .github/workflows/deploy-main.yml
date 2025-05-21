@@ -7,8 +7,9 @@ on:
   workflow_dispatch:  # Allow manual triggering from GitHub UI
 
 env:
-  NODE_VERSION: '22.14.0'  # Match the API deployment Node version
-  # The rest of the environment variables come from secrets
+  NODE_VERSION: ${{ secrets.NODE_VERSION }}  # Match the API deployment Node version
+  NEXT_PORT: ${{ secrets.NEXT_PORT }}
+  NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
 
 jobs:
   deploy:

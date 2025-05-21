@@ -33,6 +33,7 @@ export interface RegisterData {
 const ACCESS_TOKEN_KEY = "forvrmurr_access_token";
 const REFRESH_TOKEN_KEY = "forvrmurr_refresh_token";
 const USER_DATA_KEY = "forvrmurr_user";
+const GUEST_ID_KEY = "forvrmurr_guest_id";
 
 /**
  * Authentication service for managing user login, registration, and auth state
@@ -45,13 +46,23 @@ export const authService = {
     credentials: LoginCredentials
   ): Promise<{ access_token: string; user: User }> {
     const data = { ...credentials };
+
+    // Check if there's an existing guest ID to include
+    const guestId = this.getGuestId();
+    const options = guestId ? { params: { guestId } } : undefined;
+
     const response = await api.post<{ access_token: string; user: User }>(
-      "auth/login",
-      data
+      "/auth/login",
+      data,
+      options
     );
     // Store access token and user data
     this.setTokens({ accessToken: response.access_token });
     this.setUser(response.user);
+
+    // Clear guest ID if it was used
+    this.clearGuestId();
+
     return response;
   },
 
@@ -73,15 +84,24 @@ export const authService = {
 
     console.log("Registration payload:", JSON.stringify(payload)); // For debugging
 
+    // Check if there's an existing guest ID to include
+    const guestId = this.getGuestId();
+    const options = guestId ? { params: { guestId } } : undefined;
+
     // Make a direct fetch request to ensure exact format
     const response = await api.post<{ access_token: string; user: User }>(
       "/auth/register",
-      payload
+      payload,
+      options
     );
 
     // Store access token and user data
     this.setTokens({ accessToken: response.access_token });
     this.setUser(response.user);
+
+    // Clear guest ID if it was used
+    this.clearGuestId();
+
     return response;
   },
 
@@ -167,6 +187,14 @@ export const authService = {
   clearTokens(): void {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
+  },
+
+  getGuestId(): string | null {
+    return localStorage.getItem(GUEST_ID_KEY);
+  },
+
+  clearGuestId(): void {
+    localStorage.removeItem(GUEST_ID_KEY);
   },
 
   /**

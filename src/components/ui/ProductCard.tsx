@@ -4,6 +4,8 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/services/product';
+import ProductBadge from './ProductBadge';
+import HoverAddToCartButton from './HoverAddToCartButton';
 
 interface ProductCardProps {
   product: Product;
@@ -12,20 +14,15 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, priorityLoading = false }) => {
   return (
-    <Link href={`/product/${product.slug}`} className="block w-full group">
-      <div className="bg-[#f8f5f2] relative rounded-lg overflow-hidden p-6 transition-all duration-300 group-hover:shadow-xl pt-12 h-full">
+    <Link href={`/shop/${product.slug}`} className="block w-full group">
+      <div className="bg-[#f8f5f2] relative rounded-lg overflow-hidden p-4 transition-all duration-300 group-hover:shadow-xl pt-10 h-full">
         {/* Product badges/tags */}
-        {product.isBestSeller && (
-          <div className="absolute top-2 right-2 bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-sm font-medium z-10">
-            BEST SELLER
-          </div>
-        )}
-        {product.type === 'prime' && (
-          <div className="absolute top-2 left-2 bg-amber-100 text-red-800 text-xs px-2 py-1 rounded-full font-medium z-10 flex items-center">
-            <span className="w-2 h-2 bg-red-800 rounded-full mr-1"></span>
-            PRIME
-          </div>
-        )}
+        <div className="absolute top-3 left-3">
+        {product.type === 'premium' && <ProductBadge type="premium" />}
+        </div>
+        <div className="absolute top-3 right-3">
+        {product.isBestSeller && <ProductBadge type="bestseller" />}
+        </div>
         
         {/* Product image */}
         <div className="relative h-48 w-full overflow-hidden mt-10 mb-6">
@@ -47,7 +44,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priorityLoading = fa
         </div>
         
         {/* Hover overlay with blur effect */}
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-6 text-white z-50 rounded-lg">
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-6 text-white z-40 rounded-lg">
           <div className="pt-8">
             <h4 className="text-lg font-medium text-center text-white">{product.name}</h4>
             
@@ -79,9 +76,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priorityLoading = fa
                 Full Bottle Price <span className="text-[#e6c789]">₦{parseInt(product.priceFullBottle).toLocaleString()}</span>
               </p>
             )}
-            <button className="w-full bg-[#a00000] hover:bg-[#b30000] text-white py-2 rounded-lg transition-colors">
-              Add to cart
-            </button>
+            <HoverAddToCartButton product={product} />
           </div>
         </div>
       </div>

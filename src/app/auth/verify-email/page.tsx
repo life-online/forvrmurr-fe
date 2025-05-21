@@ -1,30 +1,24 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
-import { useToast } from "@/context/ToastContext";
+import React, { Suspense } from 'react';
+import AuthLayout from '@/components/auth/AuthLayout';
+import VerifyEmailContent from './VerifyEmailContent';
 
-export default function VerifyEmail() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const { verifyEmail } = useAuth();
-  const { error } = useToast();
+const VerifyEmailLoadingFallback = () => (
+  <div style={{ padding: '20px', textAlign: 'center', minHeight: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <p>Loading verification...</p>
+  </div>
+);
 
-  useEffect(() => {
-    const email = searchParams.get("email") || "";
-    const token = searchParams.get("token") || "";
-    if (!email || !token) {
-      error("Invalid verification link.");
-      router.push("/");
-      return;
-    }
-    verifyEmail(email, token).catch(() => {
-      // Error toast handled in context, fallback here
-      router.push("/");
-    });
-    // eslint-disable-next-line
-  }, []);
-
-  return null;
+export default function VerifyEmailPage() {
+  return (
+    <AuthLayout 
+      title="Email Verification"
+      subtitle="We are verifying your email address. Please wait a moment."
+    >
+      <Suspense fallback={<VerifyEmailLoadingFallback />}>
+        <VerifyEmailContent />
+      </Suspense>
+    </AuthLayout>
+  );
 }
