@@ -16,10 +16,18 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
+  { name: 'HOME', path: '/' },
   { name: 'SHOP', path: '/shop' },
   { name: 'SUBSCRIPTIONS', path: '/subscriptions' },
   { name: 'DISCOVER', path: '/discover' },
-  { name: 'ABOUT', path: '/about' },
+  // { name: 'ABOUT', path: '/about' },
+];
+
+// Discover subroutes
+const discoverSubroutes = [
+  { name: 'Blind Buying', path: '/discover/blind-buying' },
+  { name: 'Perfume Personal', path: '/discover/perfume-personal' },
+  { name: 'Your Scent', path: '/discover/your-scent' },
 ];
 
 const Navbar: React.FC = () => {
@@ -29,7 +37,13 @@ const Navbar: React.FC = () => {
   // Currency selector state
   const [selectedCurrency, setSelectedCurrency] = useState<'GBP' | 'NGN'>('NGN');
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
+  
+  // Discover dropdown state
+  const [showDiscoverDropdown, setShowDiscoverDropdown] = useState(false);
+  
+  // Refs for click-outside handling
   const currencyDropdownRef = useRef<HTMLDivElement>(null);
+  const discoverDropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   // Close dropdowns on outside click
@@ -40,13 +54,18 @@ const Navbar: React.FC = () => {
         setShowCurrencyDropdown(false);
       }
       
+      // Close discover dropdown when clicking outside
+      if (discoverDropdownRef.current && !discoverDropdownRef.current.contains(event.target as Node)) {
+        setShowDiscoverDropdown(false);
+      }
+      
       // Close mobile menu when clicking outside
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
         setIsMobileMenuOpen(false);
       }
     }
     
-    if (showCurrencyDropdown || isMobileMenuOpen) {
+    if (showCurrencyDropdown || showDiscoverDropdown || isMobileMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     } else {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -55,7 +74,7 @@ const Navbar: React.FC = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showCurrencyDropdown, isMobileMenuOpen]);
+  }, [showCurrencyDropdown, showDiscoverDropdown, isMobileMenuOpen]);
   
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -155,6 +174,41 @@ const Navbar: React.FC = () => {
               {navItems.map((item) => {
                 const isActive = pathname === item.path || 
                   (item.path !== '/' && pathname?.startsWith(item.path));
+                
+                // Special handling for DISCOVER dropdown
+                if (item.name === 'DISCOVER') {
+                  return (
+                    <div key={item.path} className="relative" ref={discoverDropdownRef}>
+                      <button 
+                        onClick={() => setShowDiscoverDropdown(!showDiscoverDropdown)}
+                        className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${isActive 
+                          ? 'bg-[#f7ede1] text-black font-medium' 
+                          : 'hover:opacity-70'
+                        }`}
+                        aria-expanded={showDiscoverDropdown}
+                        aria-haspopup="menu"
+                      >
+                        {item.name}
+                      </button>
+                      
+                      {/* Discover Dropdown */}
+                      {showDiscoverDropdown && (
+                        <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg z-50 text-black">
+                          {discoverSubroutes.map(subroute => (
+                            <Link 
+                              key={subroute.path} 
+                              href={subroute.path}
+                              className="block px-4 py-2 hover:bg-gray-100 text-sm"
+                              onClick={() => setShowDiscoverDropdown(false)}
+                            >
+                              {subroute.name}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
                   
                 return (
                   <Link key={item.path} href={item.path}>
@@ -172,12 +226,12 @@ const Navbar: React.FC = () => {
           
           {/* Icons - Right aligned */}
           <div className="flex items-center space-x-5 order-3">
-            <button
+            {/* <button
               aria-label="Search"
               className="hover:opacity-70 transition-opacity"
             >
               <FiSearch size={18} />
-            </button>
+            </button> */}
 
             {/* Fix hydration mismatch with client-side navigation */}
             <button
@@ -228,6 +282,43 @@ const Navbar: React.FC = () => {
                 {navItems.map((item) => {
                   const isActive = pathname === item.path || 
                     (item.path !== '/' && pathname?.startsWith(item.path));
+                  
+                  // Special handling for DISCOVER in mobile menu  
+                  if (item.name === 'DISCOVER') {
+                    return (
+                      <div key={item.path} className="space-y-1">
+                        <div 
+                          className={`flex justify-between items-center py-3 px-4 ${isActive 
+                            ? 'bg-gray-800 rounded font-medium' 
+                            : 'hover:bg-gray-900'
+                          }`}
+                        >
+                          <span>{item.name}</span>
+                        </div>
+                        
+                        {/* Mobile discover subroutes */}
+                        <div className="pl-6 border-l border-gray-700 ml-4 space-y-1">
+                          {discoverSubroutes.map(subroute => {
+                            const isSubrouteActive = pathname === subroute.path;
+                            
+                            return (
+                              <Link 
+                                key={subroute.path} 
+                                href={subroute.path}
+                                className={`block py-2 px-4 text-sm ${isSubrouteActive 
+                                  ? 'text-white font-medium' 
+                                  : 'text-gray-400 hover:text-white'
+                                }`}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                              >
+                                {subroute.name}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  }
                     
                   return (
                     <Link 

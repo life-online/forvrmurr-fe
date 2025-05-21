@@ -27,9 +27,9 @@ const HeroSection: React.FC = () => {
         />
       </div>
       {/* Gradient Overlay for text legibility */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent z-10 m-4"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent z-10 m-4"></div>
       {/* Overlay Content Container */}
-      <div className="relative z-20 max-w-7xl w-full mx-auto px-4 text-left"> 
+      <div className="relative z-20 max-w-7xl w-full mx-auto px-12 text-left"> 
         <div className="space-y-6 md:w-1/2"> 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-medium tracking-wide text-[#e6c789]">
             MEET YOUR NEXT OBSESSION

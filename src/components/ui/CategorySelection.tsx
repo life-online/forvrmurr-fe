@@ -15,7 +15,7 @@ const CategorySelection: React.FC = () => {
   };
 
   return (
-    <section className="w-full py-24">
+    <section className="w-full pt-24 md:mb-24 pb-16">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12"> 
           <p className="text-sm text-gray-600 mb-2">Start Here</p>
