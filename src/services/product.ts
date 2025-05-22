@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { apiRequest } from './api';
+import { apiRequest } from "./api";
 
 export type ProductType = "prime" | "premium";
 
@@ -71,7 +71,9 @@ const productService = {
   /**
    * Get products with optional filters
    */
-  async getProducts(filters: ProductFilterParams = {}): Promise<ProductsResponse> {
+  async getProducts(
+    filters: ProductFilterParams = {}
+  ): Promise<ProductsResponse> {
     // Convert ProductFilterParams to Record<string, string | number | boolean>
     const params: Record<string, string | number | boolean> = {};
     if (filters.page) params.page = filters.page;
@@ -85,32 +87,63 @@ const productService = {
     if (filters.isFeatured !== undefined)
       params.isFeatured = filters.isFeatured;
     if (filters.search) params.search = filters.search;
-    
-    return apiRequest<ProductsResponse>('/products', {
+
+    return apiRequest<ProductsResponse>("/products", {
       params,
       requiresAuth: false,
     });
   },
-  async getComprehensiveProducts(filters: ProductFilterParams = {}): Promise<ProductsResponse> {
+  async getComprehensiveProducts(
+    filters: ProductFilterParams = {}
+  ): Promise<ProductsResponse> {
     // Convert ProductFilterParams to Record<string, string | number | boolean>
     const params: Record<string, string | number | boolean> = {};
     if (filters.page) params.page = filters.page;
     if (filters.limit) params.limit = filters.limit;
     if (filters.brandId) params.brandId = filters.brandId;
     if (filters.categoryId) params.categoryId = filters.categoryId;
-    if (filters.noteIds) params.noteIds = filters.noteIds.join(',');
+    if (filters.noteIds) params.noteIds = filters.noteIds.join(",");
     if (filters.type) params.type = filters.type;
-    if (filters.isBestSeller !== undefined) params.isBestSeller = filters.isBestSeller;
-    if (filters.isFeatured !== undefined) params.isFeatured = filters.isFeatured;
+    if (filters.isBestSeller !== undefined)
+      params.isBestSeller = filters.isBestSeller;
+    if (filters.isFeatured !== undefined)
+      params.isFeatured = filters.isFeatured;
     if (filters.search) params.search = filters.search;
     if (filters.scentTypeSlugs) params.scentTypeSlugs = filters.scentTypeSlugs;
     if (filters.occasionSlugs) params.occasionSlugs = filters.occasionSlugs;
-    if (filters.fragranceFamilySlugs) params.fragranceFamilySlugs = filters.fragranceFamilySlugs;
+    if (filters.fragranceFamilySlugs)
+      params.fragranceFamilySlugs = filters.fragranceFamilySlugs;
     if (filters.moodSlugs) params.moodSlugs = filters.moodSlugs;
 
-    return apiRequest<ProductsResponse>('/products/filter/comprehensive', {
+    return apiRequest<ProductsResponse>("/products/filter/comprehensive", {
       params,
-      requiresAuth: false
+      requiresAuth: false,
+    });
+  },
+  async getBestSellingProducts(
+    filters: ProductFilterParams = {}
+  ): Promise<ProductsResponse> {
+    // Convert ProductFilterParams to Record<string, string | number | boolean>
+    const params: Record<string, string | number | boolean> = {};
+
+    if (filters.type) params.type = filters.type;
+
+    return apiRequest<ProductsResponse>("/products/bestsellers", {
+      params,
+      requiresAuth: false,
+    });
+  },
+  async getFeaturedProducts(
+    filters: ProductFilterParams = {}
+  ): Promise<ProductsResponse> {
+    // Convert ProductFilterParams to Record<string, string | number | boolean>
+    const params: Record<string, string | number | boolean> = {};
+
+    if (filters.type) params.type = filters.type;
+
+    return apiRequest<ProductsResponse>("/products/featured", {
+      params,
+      requiresAuth: false,
     });
   },
 
@@ -152,51 +185,67 @@ const productService = {
   /**
    * Get fragrance families with optional pagination
    */
-  async getFragranceFamilies(page: number = 1, limit: number = 20, search?: string): Promise<any> {
+  async getFragranceFamilies(
+    page: number = 1,
+    limit: number = 20,
+    search?: string
+  ): Promise<any> {
     const params: Record<string, string | number> = { page, limit };
     if (search) params.search = search;
 
-    return apiRequest<any>('/products/fragrance-families', {
+    return apiRequest<any>("/products/fragrance-families", {
       params,
-      requiresAuth: false
+      requiresAuth: false,
     });
   },
   /**
    * Get product occasions with optional pagination and search
    */
-  async getProductOccasions(page: number = 1, limit: number = 20, search?: string): Promise<any> {
+  async getProductOccasions(
+    page: number = 1,
+    limit: number = 20,
+    search?: string
+  ): Promise<any> {
     const params: Record<string, string | number> = { page, limit };
     if (search) params.search = search;
 
-    return apiRequest<any>('/products/occasions', {
+    return apiRequest<any>("/products/occasions", {
       params,
-      requiresAuth: false
+      requiresAuth: false,
     });
   },
   /**
    * Get scent types with optional pagination and search
    */
-  async getScentTypes(page: number = 1, limit: number = 20, search?: string): Promise<any> {
+  async getScentTypes(
+    page: number = 1,
+    limit: number = 20,
+    search?: string
+  ): Promise<any> {
     const params: Record<string, string | number> = { page, limit };
     if (search) params.search = search;
 
-    return apiRequest<any>('/products/scent-types', {
+    return apiRequest<any>("/products/scent-types", {
       params,
-      requiresAuth: false
+      requiresAuth: false,
     });
   },
   /**
    * Get product moods with optional pagination and search
    */
-  async getProductMoods(page: number = 1, limit: number = 20, search?: string): Promise<any> {
+  async getProductMoods(
+    page: number = 1,
+    limit: number = 20,
+    search?: string
+  ): Promise<any> {
     const params: Record<string, string | number> = { page, limit };
     if (search) params.search = search;
 
-    return apiRequest<any>('/products/moods', {
+    return apiRequest<any>("/products/moods", {
       params,
-      requiresAuth: false
+      requiresAuth: false,
     });
-  }
+  },
 };
 
 export default productService;

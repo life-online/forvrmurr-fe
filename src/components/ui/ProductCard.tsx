@@ -72,9 +72,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
               </p>
             </div>
             {/* Scent Notes */}
-            {(product.topNotes.length > 0 ||
-              product.middleNotes.length > 0 ||
-              product.baseNotes.length > 0) && (
+            {(product.topNotes?.length > 0 ||
+              product.middleNotes?.length > 0 ||
+              product.baseNotes?.length > 0) && (
               <div className="mt-4 flex flex-wrap text-nowrap justify-center items-start space-x-3">
                 {product.topNotes.slice(0, 2).map((note) => (
                   <div
