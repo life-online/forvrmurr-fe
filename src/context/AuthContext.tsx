@@ -95,7 +95,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       const registeredUser = await authService.register(data);
       console.log("Registration successful:", registeredUser);
       setUser(registeredUser.user);
-      success("Account created successfully!");
+      // success("Account created successfully!");
       router.push("/");
     } catch (err: any) {
       console.error("Registration failed with error:", err);

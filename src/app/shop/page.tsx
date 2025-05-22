@@ -1,9 +1,10 @@
 // /Users/joshuaivie/Documents/ForvMurr/frontend/src/app/shop/page.tsx
-import React, { Suspense } from 'react';
-import Footer from '../../components/layout/Footer';
-import Navbar from '@/components/layout/Navbar';
-import AnnouncementBar from '@/components/layout/AnnouncementBar';
-import ShopContent from './ShopContent'; // Import the new client component
+import React, { Suspense } from "react";
+import Footer from "../../components/layout/Footer";
+import Navbar from "@/components/layout/Navbar";
+import AnnouncementBar from "@/components/layout/AnnouncementBar";
+import ShopContent from "./ShopContent"; // Import the new client component
+import CuratedExperiences from "@/components/ui/CuratedExperiences";
 
 // Basic loading component for Suspense fallback
 const LoadingShop: React.FC = () => {
@@ -15,7 +16,9 @@ const LoadingShop: React.FC = () => {
           <span className="mr-2">›</span>
           <span>Shop All</span>
         </div>
-        <h1 className="text-2xl font-serif font-medium mb-4 text-black">CHOOSE YOUR NEXT SCENT OBSESSION</h1>
+        <h1 className="text-2xl font-serif font-medium mb-4 text-black">
+          CHOOSE YOUR NEXT SCENT OBSESSION
+        </h1>
       </div>
       <div className="text-center py-10">
         <p className="text-xl">Loading your scents...</p>
@@ -33,6 +36,7 @@ export default function ShopPage() {
       <Suspense fallback={<LoadingShop />}>
         <ShopContent />
       </Suspense>
+      <CuratedExperiences showButton />
       <Footer />
     </div>
   );

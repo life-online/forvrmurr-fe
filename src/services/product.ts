@@ -1,6 +1,6 @@
-import { apiRequest } from './api';
+import { apiRequest } from "./api";
 
-export type ProductType = 'prime' | 'premium';
+export type ProductType = "prime" | "premium";
 
 export interface ProductFilterParams {
   page?: number;
@@ -40,7 +40,7 @@ export interface Product {
   topNotes: Note[];
   middleNotes: Note[];
   baseNotes: Note[];
-  type: 'prime' | 'premium';
+  type: "prime" | "premium";
   isBestSeller: boolean;
   isFeatured: boolean;
   imageUrls: string[];
@@ -66,22 +66,52 @@ const productService = {
   /**
    * Get products with optional filters
    */
-  async getProducts(filters: ProductFilterParams = {}): Promise<ProductsResponse> {
+  async getProducts(
+    filters: ProductFilterParams = {}
+  ): Promise<ProductsResponse> {
     // Convert ProductFilterParams to Record<string, string | number | boolean>
     const params: Record<string, string | number | boolean> = {};
     if (filters.page) params.page = filters.page;
     if (filters.limit) params.limit = filters.limit;
     if (filters.brandId) params.brandId = filters.brandId;
     if (filters.categoryId) params.categoryId = filters.categoryId;
-    if (filters.noteIds) params.noteIds = filters.noteIds.join(',');
+    if (filters.noteIds) params.noteIds = filters.noteIds.join(",");
     if (filters.type) params.type = filters.type;
-    if (filters.isBestSeller !== undefined) params.isBestSeller = filters.isBestSeller;
-    if (filters.isFeatured !== undefined) params.isFeatured = filters.isFeatured;
+    if (filters.isBestSeller !== undefined)
+      params.isBestSeller = filters.isBestSeller;
+    if (filters.isFeatured !== undefined)
+      params.isFeatured = filters.isFeatured;
     if (filters.search) params.search = filters.search;
-    
-    return apiRequest<ProductsResponse>('/products', {
+
+    return apiRequest<ProductsResponse>("/products", {
       params,
-      requiresAuth: false
+      requiresAuth: false,
+    });
+  },
+  async getBestSellingProducts(
+    filters: ProductFilterParams = {}
+  ): Promise<ProductsResponse> {
+    // Convert ProductFilterParams to Record<string, string | number | boolean>
+    const params: Record<string, string | number | boolean> = {};
+
+    if (filters.type) params.type = filters.type;
+
+    return apiRequest<ProductsResponse>("/products/bestsellers", {
+      params,
+      requiresAuth: false,
+    });
+  },
+  async getFeaturedProducts(
+    filters: ProductFilterParams = {}
+  ): Promise<ProductsResponse> {
+    // Convert ProductFilterParams to Record<string, string | number | boolean>
+    const params: Record<string, string | number | boolean> = {};
+
+    if (filters.type) params.type = filters.type;
+
+    return apiRequest<ProductsResponse>("/products/featured", {
+      params,
+      requiresAuth: false,
     });
   },
 
@@ -90,7 +120,7 @@ const productService = {
    */
   async getProductBySlug(slug: string): Promise<Product> {
     return apiRequest<Product>(`/products/slug/${slug}`, {
-      requiresAuth: false
+      requiresAuth: false,
     });
   },
 
@@ -98,8 +128,8 @@ const productService = {
    * Get brands for filtering
    */
   async getBrands(): Promise<Brand[]> {
-    return apiRequest<Brand[]>('/brands', {
-      requiresAuth: false
+    return apiRequest<Brand[]>("/brands", {
+      requiresAuth: false,
     });
   },
 
@@ -107,8 +137,8 @@ const productService = {
    * Get categories for filtering
    */
   async getCategories(): Promise<Category[]> {
-    return apiRequest<Category[]>('/categories', {
-      requiresAuth: false
+    return apiRequest<Category[]>("/categories", {
+      requiresAuth: false,
     });
   },
 
@@ -116,10 +146,10 @@ const productService = {
    * Get notes for filtering
    */
   async getNotes(): Promise<Note[]> {
-    return apiRequest<Note[]>('/notes', {
-      requiresAuth: false
+    return apiRequest<Note[]>("/notes", {
+      requiresAuth: false,
     });
-  }
+  },
 };
 
 export default productService;

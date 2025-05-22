@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import Button from './Button';
-import ProductCard from './ProductCard';
-import productService, { Product, ProductType, ProductsResponse } from '@/services/product';
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import ProductCard from "./ProductCard";
+import productService, {
+  Product,
+  ProductType,
+  ProductsResponse,
+} from "@/services/product";
 
 // We're using the Product type from the API service instead of defining our own
 
@@ -17,50 +19,50 @@ interface ProductShowcaseProps {
   initialProducts?: Product[];
 }
 
-
-const ProductShowcase: React.FC<ProductShowcaseProps> = ({ 
-  title, 
-  subtitle, 
-  limit = 8, 
+const ProductShowcase: React.FC<ProductShowcaseProps> = ({
+  title,
+  subtitle,
+  limit = 8,
   filterBy,
-  initialProducts 
+  initialProducts,
 }) => {
   const [products, setProducts] = useState<Product[]>(initialProducts || []);
   const [loading, setLoading] = useState<boolean>(!initialProducts);
   const [error, setError] = useState<string | null>(null);
-  const [activeFilter, setActiveFilter] = useState<ProductType | 'all'>('all');
-  
+  const [activeFilter, setActiveFilter] = useState<ProductType | "all">("all");
+
   useEffect(() => {
     // If initial products are provided, no need to fetch
     if (initialProducts) {
       setProducts(initialProducts);
       return;
     }
-    
+
     const fetchProducts = async () => {
       setLoading(true);
       setError(null);
       try {
         const filters: Record<string, any> = { limit };
         // Apply type filter if not showing all
-        if (activeFilter !== 'all') {
+        if (activeFilter !== "all") {
           filters.type = activeFilter;
         }
-        
-        const response: ProductsResponse = await productService.getProducts(filters);
+
+        const response: ProductsResponse =
+          await productService.getBestSellingProducts(filters);
         setProducts(response.data);
       } catch (err) {
-        console.error('Error fetching products for showcase:', err);
-        setError('Failed to load products');
+        console.error("Error fetching products for showcase:", err);
+        setError("Failed to load products");
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchProducts();
   }, [activeFilter, initialProducts, limit]);
-  
-  const handleFilterChange = (filter: ProductType | 'all') => {
+
+  const handleFilterChange = (filter: ProductType | "all") => {
     setActiveFilter(filter);
   };
   return (
@@ -69,35 +71,51 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-6 md:gap-0 mb-12">
           <div>
             <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-              <Link href="/new" className="hover:underline">New Release</Link>
+              <Link href="/new" className="hover:underline">
+                New Release
+              </Link>
               <span>›</span>
-              <Link href="/shop-all" className="hover:underline">Shop All</Link>
+              <Link href="/shop-all" className="hover:underline">
+                Shop All
+              </Link>
             </div>
             <h2 className="text-2xl md:text-3xl font-serif">{title}</h2>
             {subtitle && <p className="text-gray-600 mt-1">{subtitle}</p>}
           </div>
           <div className="flex flex-wrap gap-2 self-start">
-            <button 
-              onClick={() => handleFilterChange('all')}
-              className={`border text-sm py-1 px-4 rounded-full transition-colors ${activeFilter === 'all' ? 'bg-gray-800 text-white border-gray-800' : 'bg-white border-gray-300 text-gray-800 hover:bg-gray-100'}`}
+            <button
+              onClick={() => handleFilterChange("all")}
+              className={`border text-sm py-1 px-4 rounded-full transition-colors ${
+                activeFilter === "all"
+                  ? "bg-gray-800 text-white border-gray-800"
+                  : "bg-white border-gray-300 text-gray-800 hover:bg-gray-100"
+              }`}
             >
               All
             </button>
-            <button 
-              onClick={() => handleFilterChange('prime')}
-              className={`border text-sm py-1 px-4 rounded-full transition-colors ${activeFilter === 'prime' ? 'bg-gray-800 text-white border-gray-800' : 'bg-white border-gray-300 text-gray-800 hover:bg-gray-100'}`}
+            <button
+              onClick={() => handleFilterChange("prime")}
+              className={`border text-sm py-1 px-4 rounded-full transition-colors ${
+                activeFilter === "prime"
+                  ? "bg-gray-800 text-white border-gray-800"
+                  : "bg-white border-gray-300 text-gray-800 hover:bg-gray-100"
+              }`}
             >
               Prime
             </button>
-            <button 
-              onClick={() => handleFilterChange('premium')}
-              className={`border text-sm py-1 px-4 rounded-full transition-colors ${activeFilter === 'premium' ? 'bg-gray-800 text-white border-gray-800' : 'bg-white border-gray-300 text-gray-800 hover:bg-gray-100'}`}
+            <button
+              onClick={() => handleFilterChange("premium")}
+              className={`border text-sm py-1 px-4 rounded-full transition-colors ${
+                activeFilter === "premium"
+                  ? "bg-gray-800 text-white border-gray-800"
+                  : "bg-white border-gray-300 text-gray-800 hover:bg-gray-100"
+              }`}
             >
               Premium
             </button>
           </div>
         </div>
-        
+
         {/* Custom horizontal scrolling container */}
         <div className="horizontal-scroll-container relative">
           {loading ? (
@@ -115,7 +133,10 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
           ) : (
             <div className="flex overflow-x-auto gap-4 pb-4 hide-scrollbar scroll-container scroll-smooth">
               {products.map((product, index) => (
-                <div key={`${product.id}-${index}`} className="flex-shrink-0 w-80">
+                <div
+                  key={`${product.id}-${index}`}
+                  className="flex-shrink-0 w-80"
+                >
                   <ProductCard product={product} />
                 </div>
               ))}

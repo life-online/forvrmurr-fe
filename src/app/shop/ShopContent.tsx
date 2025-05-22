@@ -1,63 +1,61 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Image from 'next/image';
-import Link from 'next/link';
-import productService, { Product, ProductFilterParams, ProductType } from '@/services/product';
-import { useToast } from '@/context/ToastContext';
-import FilterModal from '@/components/ui/FilterModal'; // Assuming FilterModal is used or will be
-import ProductCard from '@/components/ui/ProductCard';
+"use client";
+import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+// import Image from 'next/image';
+// import Link from 'next/link';
+import productService, {
+  Product,
+  ProductFilterParams,
+  ProductType,
+} from "@/services/product";
+import { useToast } from "@/context/ToastContext";
+// import FilterModal from '@/components/ui/FilterModal'; // Assuming FilterModal is used or will be
+import ProductCard from "@/components/ui/ProductCard";
 
 const scentCategories = [
-  { label: 'Elegant', value: 'elegant' },
-  { label: 'Intimate', value: 'intimate' },
-  { label: 'Sophisticated', value: 'sophisticated' },
-  { label: 'Warm', value: 'warm' },
-  { label: 'Clean', value: 'clean' },
+  { label: "Elegant", value: "elegant" },
+  { label: "Intimate", value: "intimate" },
+  { label: "Sophisticated", value: "sophisticated" },
+  { label: "Warm", value: "warm" },
+  { label: "Clean", value: "clean" },
 ];
 
-type FilterTabValue = 'all' | ProductType;
+type FilterTabValue = "all" | ProductType;
 
 const filterTabs = [
-  { label: 'All', value: 'all' as FilterTabValue },
-  { label: 'Prime', value: 'prime' as FilterTabValue },
-  { label: 'Premium', value: 'premium' as FilterTabValue },
-];
-
-const sortOptions = [
-  { label: 'Newest', value: 'newest' },
-  { label: 'Price: Low to High', value: 'price_asc' },
-  { label: 'Price: High to Low', value: 'price_desc' },
+  { label: "All", value: "all" as FilterTabValue },
+  { label: "Prime", value: "prime" as FilterTabValue },
+  { label: "Premium", value: "premium" as FilterTabValue },
 ];
 
 export default function ShopContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { error: showError } = useToast();
-  
-  const pageFromUrl = Number(searchParams.get('page')) || 1;
-  const typeFromUrl = (searchParams.get('type') as FilterTabValue) || 'all';
-  const searchFromUrl = searchParams.get('search') || '';
-  
+
+  const pageFromUrl = Number(searchParams.get("page")) || 1;
+  const typeFromUrl = (searchParams.get("type") as FilterTabValue) || "all";
+  const searchFromUrl = searchParams.get("search") || "";
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [totalProducts, setTotalProducts] = useState(0);
+  // const [totalProducts, setTotalProducts] = useState(0);
   const [currentPage, setCurrentPage] = useState(pageFromUrl);
   const [totalPages, setTotalPages] = useState(1);
-  
+
   const [activeTab, setActiveTab] = useState<FilterTabValue>(typeFromUrl);
-  const [activeCategory, setActiveCategory] = useState('');
-  const [filterModalOpen, setFilterModalOpen] = useState(false);
-  const [sortBy, setSortBy] = useState('newest');
-  const [search, setSearch] = useState(searchFromUrl);
-  
+  const [activeCategory, setActiveCategory] = useState("");
+  // const [filterModalOpen, setFilterModalOpen] = useState(false);
+  // const [sortBy, setSortBy] = useState('newest');
+  // const [search, setSearch] = useState(searchFromUrl);
+
   const initialFilters: ProductFilterParams = {
     page: pageFromUrl,
     limit: 12,
-    ...(typeFromUrl !== 'all' && { type: typeFromUrl as ProductType }),
+    ...(typeFromUrl !== "all" && { type: typeFromUrl as ProductType }),
     ...(searchFromUrl && { search: searchFromUrl }),
   };
-  
+
   const [filters, setFilters] = useState<ProductFilterParams>(initialFilters);
 
   useEffect(() => {
@@ -66,12 +64,12 @@ export default function ShopContent() {
       try {
         const response = await productService.getProducts(filters);
         setProducts(response.data);
-        setTotalProducts(response.meta.total);
+        // setTotalProducts(response.meta.total);
         setCurrentPage(response.meta.page);
         setTotalPages(response.meta.totalPages);
       } catch (err) {
-        console.error('Error fetching products:', err);
-        showError('Failed to load products. Please try again.');
+        console.error("Error fetching products:", err);
+        showError("Failed to load products. Please try again.");
         setProducts([]);
       } finally {
         setLoading(false);
@@ -83,12 +81,13 @@ export default function ShopContent() {
 
   const updateUrl = (newFilters: ProductFilterParams) => {
     const params = new URLSearchParams();
-    if (newFilters.page && newFilters.page > 1) params.set('page', newFilters.page.toString());
-    if (newFilters.type) params.set('type', newFilters.type);
-    if (newFilters.search) params.set('search', newFilters.search);
+    if (newFilters.page && newFilters.page > 1)
+      params.set("page", newFilters.page.toString());
+    if (newFilters.type) params.set("type", newFilters.type);
+    if (newFilters.search) params.set("search", newFilters.search);
     // Add other filters like sortBy, categoryId if they should be in URL
-    
-    const newUrl = `/shop${params.toString() ? `?${params.toString()}` : ''}`;
+
+    const newUrl = `/shop${params.toString() ? `?${params.toString()}` : ""}`;
     router.push(newUrl, { scroll: false });
   };
 
@@ -97,7 +96,7 @@ export default function ShopContent() {
     const newFilters: ProductFilterParams = {
       ...filters,
       page: 1,
-      type: tabValue === 'all' ? undefined : (tabValue as ProductType),
+      type: tabValue === "all" ? undefined : (tabValue as ProductType),
     };
     delete newFilters.categoryId; // Reset category on tab change for simplicity, or manage complex state
     setFilters(newFilters);
@@ -105,8 +104,8 @@ export default function ShopContent() {
   };
 
   const handleCategoryChange = (categoryId: string) => {
-    setActiveCategory(prev => (prev === categoryId ? '' : categoryId));
-    setFilters(prev => ({
+    setActiveCategory((prev) => (prev === categoryId ? "" : categoryId));
+    setFilters((prev) => ({
       ...prev,
       categoryId: activeCategory === categoryId ? undefined : categoryId,
       page: 1,
@@ -114,16 +113,16 @@ export default function ShopContent() {
     // updateUrl might be called in useEffect via filters change, or explicitly here
   };
 
-  const handleSearch = (searchTerm: string) => {
-    setSearch(searchTerm);
-    const newFilters = {
-      ...filters,
-      search: searchTerm || undefined,
-      page: 1,
-    };
-    setFilters(newFilters);
-    updateUrl(newFilters);
-  };
+  // const handleSearch = (searchTerm: string) => {
+  //   setSearch(searchTerm);
+  //   const newFilters = {
+  //     ...filters,
+  //     search: searchTerm || undefined,
+  //     page: 1,
+  //   };
+  //   setFilters(newFilters);
+  //   updateUrl(newFilters);
+  // };
 
   const handlePageChange = (page: number) => {
     const newFilters = {
@@ -132,7 +131,7 @@ export default function ShopContent() {
     };
     setFilters(newFilters);
     updateUrl(newFilters);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // TODO: Implement actual search input logic and sort by functionality
@@ -146,7 +145,9 @@ export default function ShopContent() {
           <span className="mr-2">›</span>
           <span>Shop All</span>
         </div>
-        <h1 className="text-2xl font-serif font-medium mb-4 text-black">CHOOSE YOUR NEXT SCENT OBSESSION</h1>
+        <h1 className="text-2xl font-serif font-medium mb-4 text-black">
+          CHOOSE YOUR NEXT SCENT OBSESSION
+        </h1>
       </div>
 
       {/* Tabs */}
@@ -156,8 +157,8 @@ export default function ShopContent() {
             key={tab.value}
             className={`px-4 py-1 rounded-full border text-sm font-medium transition-colors ${
               activeTab === tab.value
-                ? 'bg-[#faf0e2] border-[#e6c789] text-[#600000]'
-                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
+                ? "bg-[#faf0e2] border-[#e6c789] text-[#600000]"
+                : "bg-white border-gray-300 text-gray-700 hover:bg-gray-100"
             }`}
             onClick={() => handleTabChange(tab.value)}
           >
@@ -169,24 +170,24 @@ export default function ShopContent() {
       {/* Scent Category Filters & Search - Simplified Layout */}
       <div className="max-w-7xl mx-auto w-full px-4 flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
         <div className="flex gap-2 overflow-x-auto pb-2">
-            {scentCategories.map((cat) => (
-                <button 
-                    key={cat.value} 
-                    onClick={() => handleCategoryChange(cat.value)}
-                    className={`px-3 py-1 text-xs rounded-full border transition-colors whitespace-nowrap ${
-                        activeCategory === cat.value 
-                        ? 'bg-red-700 text-white border-red-700'
-                        : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
-                    }`}
-                >
-                    {cat.label}
-                </button>
-            ))}
+          {scentCategories.map((cat) => (
+            <button
+              key={cat.value}
+              onClick={() => handleCategoryChange(cat.value)}
+              className={`px-3 py-1 text-xs rounded-full border transition-colors whitespace-nowrap ${
+                activeCategory === cat.value
+                  ? "bg-red-700 text-white border-red-700"
+                  : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
         </div>
-        
+
         {/* <button onClick={() => setFilterModalOpen(true)} className="p-2 border rounded-md">Filters</button> */}
       </div>
-      
+
       {/* Loading State */}
       {loading && (
         <div className="text-center py-10 min-h-[70vh]">
@@ -199,7 +200,11 @@ export default function ShopContent() {
       {!loading && products.length > 0 && (
         <div className="max-w-7xl mx-auto w-full px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
           {products.map((product, index) => (
-            <ProductCard key={product.id} product={product} priorityLoading={index < 4} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              priorityLoading={index < 4}
+            />
           ))}
         </div>
       )}
@@ -214,16 +219,18 @@ export default function ShopContent() {
       {/* Pagination */}
       {!loading && totalPages > 1 && (
         <div className="max-w-7xl mx-auto w-full px-4 flex justify-center items-center gap-2 mb-12">
-          <button 
-            onClick={() => handlePageChange(currentPage - 1)} 
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
             className="px-3 py-1 border rounded-md disabled:opacity-50"
           >
             Previous
           </button>
-          <span>Page {currentPage} of {totalPages}</span>
-          <button 
-            onClick={() => handlePageChange(currentPage + 1)} 
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
             className="px-3 py-1 border rounded-md disabled:opacity-50"
           >

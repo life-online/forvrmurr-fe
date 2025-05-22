@@ -4,7 +4,6 @@ import { Suspense } from "react";
 import "./globals.css";
 
 import Providers from "@/context/Providers";
-import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
