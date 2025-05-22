@@ -1,7 +1,7 @@
 "use client";
 
-import { useCart } from '@/context/CartContext';
-import { Product } from '@/services/product';
+import { useCart } from "@/context/CartContext";
+import { Product } from "@/services/product";
 
 interface AddToCartButtonProps {
   product: Product;
@@ -9,28 +9,34 @@ interface AddToCartButtonProps {
   className?: string;
 }
 
-const AddToCartButton: React.FC<AddToCartButtonProps> = ({ product, quantity, className = '' }) => {
+const AddToCartButton: React.FC<AddToCartButtonProps> = ({
+  product,
+  quantity,
+  className = "",
+}) => {
   const { addToCart } = useCart();
 
   const handleAddToCart = () => {
     // Add the product to cart with the selected quantity
-    for (let i = 0; i < quantity; i++) {
-      addToCart({
-        id: product.id,
-        name: product.name,
-        brand: product.brand.name,
-        price: Number(product.nairaPrice),
-        imageUrl: product.imageUrls?.[0] || '/images/products/fallback.png',
-      });
-    }
+    addToCart({
+      id: product.id,
+      name: product.name,
+      brand: product.brand.name,
+      price: Number(product.nairaPrice),
+      imageUrl: product.imageUrls?.[0] || "/images/products/fallback.png",
+      productId: product.id,
+      quantity: quantity,
+    });
+    // for (let i = 0; i < quantity; i++) {
+    // }
   };
 
   return (
-    <button 
+    <button
       onClick={handleAddToCart}
       className={`border border-[#a0001e] text-[#a0001e] rounded-xl px-8 py-2 text-base font-serif font-medium hover:bg-[#a0001e] hover:text-white transition-colors ${className}`}
     >
-      Add {quantity > 1 ? `${quantity} items` : 'to cart'}
+      Add {quantity > 1 ? `${quantity} items` : "to cart"}
     </button>
   );
 };

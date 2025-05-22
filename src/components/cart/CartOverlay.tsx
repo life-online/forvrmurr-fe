@@ -203,7 +203,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
         </div>
 
         {/* Delivery Progress */}
-        <div className="bg-[#faf0e2] p-4">
+        {/* <div className="bg-[#faf0e2] p-4">
           <p className="text-[#8b0000] font-medium mb-1">
             {amountToFreeDelivery > 0 ? "Almost there..." : "Congratulations"}
           </p>
@@ -220,7 +220,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Cart Content */}
         <div className="flex-1 overflow-y-auto p-4">
