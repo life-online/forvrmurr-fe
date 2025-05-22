@@ -123,7 +123,7 @@ export default function FragranceSelector() {
             <Drawer.Root open={drawerOpen} onOpenChange={setDrawerOpen} direction="right">
                 <Drawer.Portal>
                     <Drawer.Overlay className="fixed inset-0 bg-black/30 z-40" />
-                    <Drawer.Content aria-describedby='content' className="fixed top-0 right-0 w-[400px] h-full bg-white z-50 p-4 overflow-y-auto overflow-x-hidden">
+                    <Drawer.Content className="fixed top-0 right-0 w-[400px] h-full bg-white z-50 p-4 overflow-y-auto overflow-x-hidden">
                         <div className="flex justify-between items-center mb-4">
                             <Drawer.Title className="text-lg font-semibold">PERSONALIZE</Drawer.Title>
                             <button
@@ -161,7 +161,7 @@ export default function FragranceSelector() {
                                             }`}
                                         >
                                             <Image
-                                                src={item?.iconUrl}
+                                                src="/images/shop/occassion.jpg"
                                                 alt={item.slug}
                                                 layout="fill"
                                                 objectFit="cover"
