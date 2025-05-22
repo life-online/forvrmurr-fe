@@ -1,16 +1,17 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-// import Image from 'next/image';
-// import Link from 'next/link';
+import Image from "next/image";
+import Link from "next/link";
 import productService, {
   Product,
   ProductFilterParams,
   ProductType,
 } from "@/services/product";
 import { useToast } from "@/context/ToastContext";
-// import FilterModal from '@/components/ui/FilterModal'; // Assuming FilterModal is used or will be
+import FilterModal from "@/components/ui/FilterModal"; // Assuming FilterModal is used or will be
 import ProductCard from "@/components/ui/ProductCard";
+import FragranceSelector from "@/components/shop/FragranceFilter";
 
 const scentCategories = [
   { label: "Elegant", value: "elegant" },
@@ -36,6 +37,10 @@ export default function ShopContent() {
   const pageFromUrl = Number(searchParams.get("page")) || 1;
   const typeFromUrl = (searchParams.get("type") as FilterTabValue) || "all";
   const searchFromUrl = searchParams.get("search") || "";
+  const scentTypeSlugs = searchParams.get("scentTypeSlugs") || "";
+  const occasionSlugs = searchParams.get("occasionSlugs") || "";
+  const fragranceFamilySlugs = searchParams.get("fragranceFamilySlugs") || "";
+  const moodSlugs = searchParams.get("moodSlugs") || "";
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,9 +50,9 @@ export default function ShopContent() {
 
   const [activeTab, setActiveTab] = useState<FilterTabValue>(typeFromUrl);
   const [activeCategory, setActiveCategory] = useState("");
-  // const [filterModalOpen, setFilterModalOpen] = useState(false);
-  // const [sortBy, setSortBy] = useState('newest');
-  // const [search, setSearch] = useState(searchFromUrl);
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
+  const [sortBy, setSortBy] = useState("newest");
+  const [search, setSearch] = useState(searchFromUrl);
 
   const initialFilters: ProductFilterParams = {
     page: pageFromUrl,
@@ -62,7 +67,7 @@ export default function ShopContent() {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const response = await productService.getProducts(filters);
+        const response = await productService.getComprehensiveProducts(filters);
         setProducts(response.data);
         // setTotalProducts(response.meta.total);
         setCurrentPage(response.meta.page);
@@ -85,6 +90,7 @@ export default function ShopContent() {
       params.set("page", newFilters.page.toString());
     if (newFilters.type) params.set("type", newFilters.type);
     if (newFilters.search) params.set("search", newFilters.search);
+
     // Add other filters like sortBy, categoryId if they should be in URL
 
     const newUrl = `/shop${params.toString() ? `?${params.toString()}` : ""}`;
@@ -93,6 +99,7 @@ export default function ShopContent() {
 
   const handleTabChange = (tabValue: FilterTabValue) => {
     setActiveTab(tabValue);
+
     const newFilters: ProductFilterParams = {
       ...filters,
       page: 1,
@@ -102,6 +109,20 @@ export default function ShopContent() {
     setFilters(newFilters);
     updateUrl(newFilters);
   };
+
+  useEffect(() => {
+    const newFilters: ProductFilterParams = {
+      ...filters,
+      page: 1,
+      type: activeTab === "all" ? undefined : (activeTab as ProductType),
+      scentTypeSlugs: (scentTypeSlugs as string) || undefined,
+      occasionSlugs: (occasionSlugs as string) || undefined,
+      fragranceFamilySlugs: (fragranceFamilySlugs as string) || undefined,
+      moodSlugs: (moodSlugs as string) || undefined,
+    };
+    setFilters(newFilters);
+    // updateUrl(newFilters);
+  }, [scentTypeSlugs, occasionSlugs, fragranceFamilySlugs, moodSlugs]);
 
   const handleCategoryChange = (categoryId: string) => {
     setActiveCategory((prev) => (prev === categoryId ? "" : categoryId));
@@ -151,7 +172,10 @@ export default function ShopContent() {
       </div>
 
       {/* Tabs */}
-      <div className="max-w-7xl mx-auto w-full px-4 flex gap-2 mb-6">
+      <div
+        data-cur="cursor"
+        className="max-w-7xl mx-auto w-full px-4 flex gap-2 mb-6"
+      >
         {filterTabs.map((tab) => (
           <button
             key={tab.value}
@@ -166,28 +190,7 @@ export default function ShopContent() {
           </button>
         ))}
       </div>
-
-      {/* Scent Category Filters & Search - Simplified Layout */}
-      <div className="max-w-7xl mx-auto w-full px-4 flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {scentCategories.map((cat) => (
-            <button
-              key={cat.value}
-              onClick={() => handleCategoryChange(cat.value)}
-              className={`px-3 py-1 text-xs rounded-full border transition-colors whitespace-nowrap ${
-                activeCategory === cat.value
-                  ? "bg-red-700 text-white border-red-700"
-                  : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-
-        {/* <button onClick={() => setFilterModalOpen(true)} className="p-2 border rounded-md">Filters</button> */}
-      </div>
-
+      <FragranceSelector />
       {/* Loading State */}
       {loading && (
         <div className="text-center py-10 min-h-[70vh]">
@@ -197,9 +200,9 @@ export default function ShopContent() {
       )}
 
       {/* Product Grid */}
-      {!loading && products.length > 0 && (
+      {!loading && products?.length > 0 && (
         <div className="max-w-7xl mx-auto w-full px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
-          {products.map((product, index) => (
+          {products?.map((product, index) => (
             <ProductCard
               key={product.id}
               product={product}
@@ -210,7 +213,7 @@ export default function ShopContent() {
       )}
 
       {/* No Products Found */}
-      {!loading && products.length === 0 && (
+      {!loading && products?.length === 0 && (
         <div className="text-center py-10 min-h-[70vh]">
           <p>No products found matching your criteria.</p>
         </div>

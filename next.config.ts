@@ -1,7 +1,15 @@
 import type { NextConfig } from "next";
 
+// next.config.js
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'storage.cloud.google.com',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

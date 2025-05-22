@@ -19,7 +19,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   priorityLoading = false,
 }) => {
   return (
-    <Link href={`/shop/${product.slug}`} className="block w-full group">
+    <Link href={`/shop/${product?.slug}`} className="block w-full group">
       <div className="bg-[#f8f5f2] relative rounded-lg overflow-hidden p-4 transition-all duration-300 group-hover:shadow-xl pt-10 h-full">
         {/* Product badges/tags */}
         <div className="absolute top-3 left-3">
