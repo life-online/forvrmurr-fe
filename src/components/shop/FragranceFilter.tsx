@@ -161,7 +161,7 @@ export default function FragranceSelector() {
                                             }`}
                                         >
                                             <Image
-                                                src="/images/shop/occassion.jpg"
+                                                src={item.iconUrl || '/images/shop/occassion.jpg'}
                                                 alt={item.slug}
                                                 layout="fill"
                                                 objectFit="cover"
