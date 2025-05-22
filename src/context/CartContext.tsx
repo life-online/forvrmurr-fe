@@ -1,10 +1,10 @@
 "use client";
 
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { CartItem } from '@/components/cart/CartOverlay';
-import { useAuth } from './AuthContext';
-import cartService, { CartResponseDto, CartItemDto } from '@/services/cart';
-import { useToast } from './ToastContext';
+import React, { createContext, useState, useContext, useEffect } from "react";
+import { CartItem } from "@/components/cart/CartOverlay";
+import { useAuth } from "./AuthContext";
+import cartService, { CartResponseDto, CartItemDto } from "@/services/cart";
+import { useToast } from "./ToastContext";
 
 interface CartContextType {
   cartItems: CartItem[];
@@ -12,7 +12,7 @@ interface CartContextType {
   openCart: () => void;
   closeCart: () => void;
   toggleCart: () => void;
-  addToCart: (item: Omit<CartItem, 'quantity'>) => void;
+  addToCart: (item: CartItem) => void;
   removeFromCart: (itemId: string) => void;
   updateItemQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
@@ -22,19 +22,21 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [guestId, setGuestId] = useState<string | null>(null);
   const { user, isAuthenticated } = useAuth();
   const { error } = useToast();
-  
+
   const itemCount = cartItems.reduce((count, item) => count + item.quantity, 0);
 
   // Load guestId from localStorage on mount
   useEffect(() => {
-    const storedGuestId = localStorage.getItem('forvrmurr_guest_id');
+    const storedGuestId = localStorage.getItem("forvrmurr_guest_id");
     if (storedGuestId) {
       setGuestId(storedGuestId);
     }
@@ -52,7 +54,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           cartResponse = await cartService.getCart();
           // If there was a guest ID, we can clear it now
           if (guestId) {
-            localStorage.removeItem('forvrmurr_guest_id');
+            localStorage.removeItem("forvrmurr_guest_id");
             setGuestId(null);
           }
         } else if (guestId) {
@@ -66,21 +68,29 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Log raw items from API response
-        console.log('Raw cart items from API:', JSON.stringify(cartResponse.items, null, 2));
+        console.log(
+          "Raw cart items from API:",
+          JSON.stringify(cartResponse.items, null, 2)
+        );
 
         // Map backend cart items to frontend CartItem format
-        const mappedItems: CartItem[] = cartResponse.items.map((item: CartItemDto) => ({
-          id: item.id,
-          name: item.product.name,
-          brand: item.product.name.split(' ')[0], // Just a guess, adjust based on your data
-          price: parseFloat(item.price),
-          imageUrl: item.product.imageUrl || `/images/products/${item.product.slug}.png`,
-          quantity: item.quantity
-        }));
-        
+        const mappedItems: CartItem[] = cartResponse.items.map(
+          (item: CartItemDto) => ({
+            id: item.id,
+            name: item.product.name,
+            brand: item.product.name.split(" ")[0], // Just a guess, adjust based on your data
+            price: parseFloat(item.price),
+            imageUrl:
+              item.product.imageUrl ||
+              `/images/products/${item.product.slug}.png`,
+            quantity: item.quantity,
+            productId: item.product.id,
+          })
+        );
+
         setCartItems(mappedItems);
       } catch (err) {
-        console.error('Failed to fetch cart:', err);
+        console.error("Failed to fetch cart:", err);
         // If API fails, fallback to empty cart
         setCartItems([]);
       } finally {
@@ -99,49 +109,57 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const openCart = () => setIsCartOpen(true);
   const closeCart = () => setIsCartOpen(false);
-  const toggleCart = () => setIsCartOpen(prev => !prev);
+  const toggleCart = () => setIsCartOpen((prev) => !prev);
 
-  const addToCart = async (newItem: Omit<CartItem, 'quantity'>) => {
+  const addToCart = async (newItem: CartItem) => {
     setIsLoading(true);
     try {
       // API call to add item to cart - backend will generate a guestId for new guests
       const response = await cartService.addItemToCart(
-        { 
-          productId: newItem.id, 
-          quantity: 1 
-        }, 
+        {
+          productId: newItem.id,
+          quantity: newItem.quantity,
+        },
         // Only pass guestId if user is not authenticated and we already have a guestId
         !isAuthenticated && guestId ? guestId : undefined
       );
-      
+
       // Check for guestId in response - the backend provides it for guest users
       if (!isAuthenticated && response.guestId) {
         // Always save the latest guestId from the response
-        localStorage.setItem('forvrmurr_guest_id', response.guestId);
+        localStorage.setItem("forvrmurr_guest_id", response.guestId);
         setGuestId(response.guestId);
-        console.log('Guest ID received from backend:', response.guestId);
+        console.log("Guest ID received from backend:", response.guestId);
       }
-      
+
       // Log raw items from API response after adding item
-      console.log('Raw cart items from API (after add):', JSON.stringify(response.items, null, 2));
-      
+      console.log(
+        "Raw cart items from API (after add):",
+        JSON.stringify(response.items, null, 2)
+      );
+
       // Map backend cart items to frontend CartItem format
-      const mappedItems: CartItem[] = response.items.map((item: CartItemDto) => ({
-        id: item.id,
-        name: item.product.name,
-        brand: item.product.name.split(' ')[0], // Adjust based on actual data
-        price: parseFloat(item.price),
-        imageUrl: item.product.imageUrl || `/images/products/${item.product.slug}.png`,
-        quantity: item.quantity
-      }));
-      
+      const mappedItems: CartItem[] = response.items.map(
+        (item: CartItemDto) => ({
+          id: item.id,
+          name: item.product.name,
+          brand: item.product.name.split(" ")[0], // Adjust based on actual data
+          price: parseFloat(item.price),
+          imageUrl:
+            item.product.imageUrl ||
+            `/images/products/${item.product.slug}.png`,
+          quantity: item.quantity,
+          productId: item.product.id,
+        })
+      );
+
       setCartItems(mappedItems);
-      
+
       // Open cart when adding an item
       openCart();
     } catch (err) {
-      console.error('Failed to add item to cart:', err);
-      error('Could not add item to cart. Please try again.');
+      console.error("Failed to add item to cart:", err);
+      error("Could not add item to cart. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -154,30 +172,38 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         itemId,
         !isAuthenticated && guestId ? guestId : undefined
       );
-      
+
       // Check for updated guestId in response
       if (!isAuthenticated && response.guestId) {
-        localStorage.setItem('forvrmurr_guest_id', response.guestId);
+        localStorage.setItem("forvrmurr_guest_id", response.guestId);
         setGuestId(response.guestId);
       }
-      
+
       // Log raw items from API response after removing item
-      console.log('Raw cart items from API (after remove):', JSON.stringify(response.items, null, 2));
+      console.log(
+        "Raw cart items from API (after remove):",
+        JSON.stringify(response.items, null, 2)
+      );
 
       // Map backend cart items to frontend CartItem format
-      const mappedItems: CartItem[] = response.items.map((item: CartItemDto) => ({
-        id: item.id,
-        name: item.product.name,
-        brand: item.product.name.split(' ')[0], // Adjust based on actual data
-        price: parseFloat(item.price),
-        imageUrl: item.product.imageUrl || `/images/products/${item.product.slug}.png`,
-        quantity: item.quantity
-      }));
-      
+      const mappedItems: CartItem[] = response.items.map(
+        (item: CartItemDto) => ({
+          id: item.id,
+          name: item.product.name,
+          brand: item.product.name.split(" ")[0], // Adjust based on actual data
+          price: parseFloat(item.price),
+          imageUrl:
+            item.product.imageUrl ||
+            `/images/products/${item.product.slug}.png`,
+          quantity: item.quantity,
+          productId: item.product.id,
+        })
+      );
+
       setCartItems(mappedItems);
     } catch (err) {
-      console.error('Failed to remove item from cart:', err);
-      error('Could not remove item from cart. Please try again.');
+      console.error("Failed to remove item from cart:", err);
+      error("Could not remove item from cart. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -185,7 +211,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateItemQuantity = async (itemId: string, quantity: number) => {
     if (quantity <= 0) return;
-    
+
     setIsLoading(true);
     try {
       const response = await cartService.updateItemQuantity(
@@ -193,30 +219,38 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         quantity,
         !isAuthenticated && guestId ? guestId : undefined
       );
-      
+
       // Check for updated guestId in response
       if (!isAuthenticated && response.guestId) {
-        localStorage.setItem('forvrmurr_guest_id', response.guestId);
+        localStorage.setItem("forvrmurr_guest_id", response.guestId);
         setGuestId(response.guestId);
       }
-      
+
       // Log raw items from API response after updating quantity
-      console.log('Raw cart items from API (after update quantity):', JSON.stringify(response.items, null, 2));
+      console.log(
+        "Raw cart items from API (after update quantity):",
+        JSON.stringify(response.items, null, 2)
+      );
 
       // Map backend cart items to frontend CartItem format
-      const mappedItems: CartItem[] = response.items.map((item: CartItemDto) => ({
-        id: item.id,
-        name: item.product.name,
-        brand: item.product.name.split(' ')[0], // Adjust based on actual data
-        price: parseFloat(item.price),
-        imageUrl: item.product.imageUrl || `/images/products/${item.product.slug}.png`,
-        quantity: item.quantity
-      }));
-      
+      const mappedItems: CartItem[] = response.items.map(
+        (item: CartItemDto) => ({
+          id: item.id,
+          name: item.product.name,
+          brand: item.product.name.split(" ")[0], // Adjust based on actual data
+          price: parseFloat(item.price),
+          imageUrl:
+            item.product.imageUrl ||
+            `/images/products/${item.product.slug}.png`,
+          quantity: item.quantity,
+          productId: item.product.id,
+        })
+      );
+
       setCartItems(mappedItems);
     } catch (err) {
-      console.error('Failed to update item quantity:', err);
-      error('Could not update quantity. Please try again.');
+      console.error("Failed to update item quantity:", err);
+      error("Could not update quantity. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -228,36 +262,38 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await cartService.clearCart(
         !isAuthenticated && guestId ? guestId : undefined
       );
-      
+
       // Check for updated guestId in response
       if (!isAuthenticated && response.guestId) {
-        localStorage.setItem('forvrmurr_guest_id', response.guestId);
+        localStorage.setItem("forvrmurr_guest_id", response.guestId);
         setGuestId(response.guestId);
       }
-      
+
       setCartItems([]);
     } catch (err) {
-      console.error('Failed to clear cart:', err);
-      error('Could not clear cart. Please try again.');
+      console.error("Failed to clear cart:", err);
+      error("Could not clear cart. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <CartContext.Provider value={{
-      cartItems,
-      isCartOpen,
-      openCart,
-      closeCart,
-      toggleCart,
-      addToCart,
-      removeFromCart,
-      updateItemQuantity,
-      clearCart,
-      itemCount,
-      isLoading
-    }}>
+    <CartContext.Provider
+      value={{
+        cartItems,
+        isCartOpen,
+        openCart,
+        closeCart,
+        toggleCart,
+        addToCart,
+        removeFromCart,
+        updateItemQuantity,
+        clearCart,
+        itemCount,
+        isLoading,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
@@ -266,7 +302,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useCart = (): CartContextType => {
   const context = useContext(CartContext);
   if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider');
+    throw new Error("useCart must be used within a CartProvider");
   }
   return context;
 };

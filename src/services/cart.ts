@@ -1,4 +1,4 @@
-import { apiRequest } from './api';
+import { apiRequest } from "./api";
 
 export interface CartItemDto {
   id: string;
@@ -34,134 +34,142 @@ export interface AddItemDto {
 const cartService = {
   // Get cart for authenticated user
   getCart: async (): Promise<CartResponseDto> => {
-    return apiRequest<CartResponseDto>('/cart', { requiresAuth: true });
+    return apiRequest<CartResponseDto>("/cart", { requiresAuth: true });
   },
 
   // Get cart for guest user using guestId
   getGuestCart: async (guestId: string): Promise<CartResponseDto> => {
-    return apiRequest<CartResponseDto>(`/cart?guestId=${guestId}`, { requiresAuth: false });
+    return apiRequest<CartResponseDto>(`/cart?guestId=${guestId}`, {
+      requiresAuth: false,
+    });
   },
 
   // Add item to cart (works for both authenticated and guest)
-  addItemToCart: async (item: AddItemDto, guestId?: string): Promise<CartResponseDto> => {
+  addItemToCart: async (
+    item: AddItemDto,
+    guestId?: string
+  ): Promise<CartResponseDto> => {
     // If user is authenticated, use auth token
-    if (localStorage.getItem('accessToken')) {
-      console.log('Adding item to authenticated cart');
-      return apiRequest<CartResponseDto>('/cart/items', {
-        method: 'POST',
+    if (localStorage.getItem("forvrmurr_access_token")) {
+      console.log("Adding item to authenticated cart");
+      return apiRequest<CartResponseDto>("/cart/items", {
+        method: "POST",
         body: JSON.stringify(item),
-        requiresAuth: true
+        requiresAuth: true,
       });
     }
-    
+
     // For guest user with existing guestId
     if (guestId) {
-      return apiRequest<CartResponseDto>('/cart/items', {
-        method: 'POST',
+      return apiRequest<CartResponseDto>("/cart/items", {
+        method: "POST",
         body: JSON.stringify(item),
         requiresAuth: false,
-        params: { guestId }
+        params: { guestId },
       });
     }
-    
+
     // For new guest users (backend will generate guestId)
-    return apiRequest<CartResponseDto>('/cart/items', {
-      method: 'POST',
+    return apiRequest<CartResponseDto>("/cart/items", {
+      method: "POST",
       body: JSON.stringify(item),
-      requiresAuth: false
+      requiresAuth: false,
     });
   },
 
   // Remove item from cart
-  removeItemFromCart: async (itemId: string, guestId?: string): Promise<CartResponseDto> => {
+  removeItemFromCart: async (
+    itemId: string,
+    guestId?: string
+  ): Promise<CartResponseDto> => {
     // If user is authenticated, use auth token
-    if (localStorage.getItem('accessToken')) {
+    if (localStorage.getItem("forvrmurr_access_token")) {
       return apiRequest<CartResponseDto>(`/cart/items/${itemId}`, {
-        method: 'DELETE',
-        requiresAuth: true
+        method: "DELETE",
+        requiresAuth: true,
       });
     }
-    
+
     // For guest user with existing guestId
     if (guestId) {
       return apiRequest<CartResponseDto>(`/cart/items/${itemId}`, {
-        method: 'DELETE',
+        method: "DELETE",
         requiresAuth: false,
-        params: { guestId }
+        params: { guestId },
       });
     }
-    
+
     // Fallback for guests without guestId (shouldn't happen if flow is correct)
     return apiRequest<CartResponseDto>(`/cart/items/${itemId}`, {
-      method: 'DELETE',
-      requiresAuth: false
+      method: "DELETE",
+      requiresAuth: false,
     });
   },
 
   // Update item quantity in cart
   updateItemQuantity: async (
-    itemId: string, 
-    quantity: number, 
+    itemId: string,
+    quantity: number,
     guestId?: string
   ): Promise<CartResponseDto> => {
     // If user is authenticated, use auth token
-    if (localStorage.getItem('accessToken')) {
+    if (localStorage.getItem("forvrmurr_access_token")) {
       return apiRequest<CartResponseDto>(`/cart/items/${itemId}`, {
-        method: 'PATCH',
+        method: "PUT",
         body: JSON.stringify({ quantity }),
-        requiresAuth: true
+        requiresAuth: true,
       });
     }
-    
+
     // For guest user with existing guestId
     if (guestId) {
       return apiRequest<CartResponseDto>(`/cart/items/${itemId}`, {
-        method: 'PATCH',
+        method: "PUT",
         body: JSON.stringify({ quantity }),
         requiresAuth: false,
-        params: { guestId }
+        params: { guestId },
       });
     }
-    
+
     // Fallback for guests without guestId (shouldn't happen if flow is correct)
     return apiRequest<CartResponseDto>(`/cart/items/${itemId}`, {
-      method: 'PATCH',
+      method: "PUT",
       body: JSON.stringify({ quantity }),
-      requiresAuth: false
+      requiresAuth: false,
     });
   },
 
   // Clear cart
   clearCart: async (guestId?: string): Promise<CartResponseDto> => {
     // If user is authenticated, use auth token
-    if (localStorage.getItem('accessToken')) {
-      return apiRequest<CartResponseDto>('/cart', {
-        method: 'DELETE',
-        requiresAuth: true
+    if (localStorage.getItem("forvrmurr_access_token")) {
+      return apiRequest<CartResponseDto>("/cart", {
+        method: "DELETE",
+        requiresAuth: true,
       });
     }
-    
+
     // For guest user with existing guestId
     if (guestId) {
-      return apiRequest<CartResponseDto>('/cart', {
-        method: 'DELETE',
+      return apiRequest<CartResponseDto>("/cart", {
+        method: "DELETE",
         requiresAuth: false,
-        params: { guestId }
+        params: { guestId },
       });
     }
-    
+
     // Fallback for guests without guestId (shouldn't happen if flow is correct)
-    return apiRequest<CartResponseDto>('/cart', {
-      method: 'DELETE',
-      requiresAuth: false
+    return apiRequest<CartResponseDto>("/cart", {
+      method: "DELETE",
+      requiresAuth: false,
     });
   },
 
   // Initiate checkout process (marks cart as checked out)
   initiateCheckout: async (): Promise<CartResponseDto> => {
-    return apiRequest<CartResponseDto>('/cart/initiate-checkout', {
-      method: 'POST',
-      requiresAuth: true
+    return apiRequest<CartResponseDto>("/cart/initiate-checkout", {
+      method: "POST",
+      requiresAuth: true,
     });
   },
 };

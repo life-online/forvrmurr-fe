@@ -9,6 +9,7 @@ import CartOverlay from '@/components/cart/CartOverlay';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import SearchPopup from './SearchPopover';
 
 interface NavItem {
   name: string;
@@ -33,14 +34,14 @@ const discoverSubroutes = [
 const Navbar: React.FC = () => {
   // Mobile menu state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   // Currency selector state
   const [selectedCurrency, setSelectedCurrency] = useState<'GBP' | 'NGN'>('NGN');
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
-  
+
   // Discover dropdown state
   const [showDiscoverDropdown, setShowDiscoverDropdown] = useState(false);
-  
+
   // Refs for click-outside handling
   const currencyDropdownRef = useRef<HTMLDivElement>(null);
   const discoverDropdownRef = useRef<HTMLDivElement>(null);
@@ -53,29 +54,29 @@ const Navbar: React.FC = () => {
       if (currencyDropdownRef.current && !currencyDropdownRef.current.contains(event.target as Node)) {
         setShowCurrencyDropdown(false);
       }
-      
+
       // Close discover dropdown when clicking outside
       if (discoverDropdownRef.current && !discoverDropdownRef.current.contains(event.target as Node)) {
         setShowDiscoverDropdown(false);
       }
-      
+
       // Close mobile menu when clicking outside
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
         setIsMobileMenuOpen(false);
       }
     }
-    
+
     if (showCurrencyDropdown || showDiscoverDropdown || isMobileMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     } else {
       document.removeEventListener('mousedown', handleClickOutside);
     }
-    
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showCurrencyDropdown, showDiscoverDropdown, isMobileMenuOpen]);
-  
+
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
@@ -83,7 +84,7 @@ const Navbar: React.FC = () => {
     } else {
       document.body.style.overflow = '';
     }
-    
+
     return () => {
       document.body.style.overflow = '';
     };
@@ -102,7 +103,7 @@ const Navbar: React.FC = () => {
   } = useCart();
   const { isAuthenticated, logout } = useAuth();
   const { success } = useToast();
-  
+
   const handleLogout = async () => {
     await logout();
     success('Logged out successfully');
@@ -146,7 +147,7 @@ const Navbar: React.FC = () => {
               </ul>
             )}
           </div>
-          
+
           {/* Mobile hamburger menu button */}
           <button
             className="md:hidden flex items-center p-1 text-white focus:outline-none"
@@ -155,48 +156,48 @@ const Navbar: React.FC = () => {
           >
             {isMobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
           </button>
-          
+
           {/* Logo - Centered on desktop, left-aligned on mobile */}
           <div className="mx-auto md:mx-0 md:flex md:flex-col md:items-center order-2 md:order-none">
             {/* Logo */}
             <Link href="/" className="mb-4">
-              <Image 
-                src="/images/logo/logo_white.png" 
-                alt="Forvr Murr" 
-                width={180} 
-                height={60} 
-                className="h-auto w-auto" 
+              <Image
+                src="/images/logo/logo_white.png"
+                alt="Forvr Murr"
+                width={180}
+                height={60}
+                className="h-auto w-auto"
               />
             </Link>
-            
+
             {/* Desktop Navigation Links - Hidden on mobile */}
             <div className="hidden md:flex gap-8">
               {navItems.map((item) => {
-                const isActive = pathname === item.path || 
+                const isActive = pathname === item.path ||
                   (item.path !== '/' && pathname?.startsWith(item.path));
-                
+
                 // Special handling for DISCOVER dropdown
                 if (item.name === 'DISCOVER') {
                   return (
                     <div key={item.path} className="relative" ref={discoverDropdownRef}>
-                      <button 
+                      <button
                         onClick={() => setShowDiscoverDropdown(!showDiscoverDropdown)}
-                        className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${isActive 
-                          ? 'bg-[#f7ede1] text-black font-medium' 
+                        className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${isActive
+                          ? 'bg-[#f7ede1] text-black font-medium'
                           : 'hover:opacity-70'
-                        }`}
+                          }`}
                         aria-expanded={showDiscoverDropdown}
                         aria-haspopup="menu"
                       >
                         {item.name}
                       </button>
-                      
+
                       {/* Discover Dropdown */}
                       {showDiscoverDropdown && (
                         <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg z-50 text-black">
                           {discoverSubroutes.map(subroute => (
-                            <Link 
-                              key={subroute.path} 
+                            <Link
+                              key={subroute.path}
                               href={subroute.path}
                               className="block px-4 py-2 hover:bg-gray-100 text-sm"
                               onClick={() => setShowDiscoverDropdown(false)}
@@ -209,13 +210,13 @@ const Navbar: React.FC = () => {
                     </div>
                   );
                 }
-                  
+
                 return (
                   <Link key={item.path} href={item.path}>
-                    <span className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${isActive 
-                      ? 'bg-[#f7ede1] text-black font-medium' 
+                    <span className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${isActive
+                      ? 'bg-[#f7ede1] text-black font-medium'
                       : 'hover:opacity-70'
-                    }`}>
+                      }`}>
                       {item.name}
                     </span>
                   </Link>
@@ -223,16 +224,10 @@ const Navbar: React.FC = () => {
               })}
             </div>
           </div>
-          
+
           {/* Icons - Right aligned */}
           <div className="flex items-center space-x-5 order-3">
-            {/* <button
-              aria-label="Search"
-              className="hover:opacity-70 transition-opacity"
-            >
-              <FiSearch size={18} />
-            </button> */}
-
+            <SearchPopup />
             {/* Fix hydration mismatch with client-side navigation */}
             <button
               aria-label="Account"
@@ -241,7 +236,7 @@ const Navbar: React.FC = () => {
             >
               <FiUser size={18} />
             </button>
-            
+
             <button
               aria-label="Cart"
               className="hover:opacity-70 transition-opacity relative"
@@ -256,10 +251,10 @@ const Navbar: React.FC = () => {
             </button>
           </div>
         </div>
-        
+
         {/* Mobile Navigation Menu - Slide down when open */}
         {isMobileMenuOpen && (
-          <div 
+          <div
             className="md:hidden absolute top-full left-0 right-0 bg-black z-50 border-t border-gray-800 shadow-lg"
             ref={mobileMenuRef}
           >
@@ -268,7 +263,7 @@ const Navbar: React.FC = () => {
               <div className="border-b border-gray-800 pb-4">
                 <p className="text-sm text-gray-400 mb-2">Select Currency</p>
                 <div className="flex gap-4">
-                  <button 
+                  <button
                     className={`flex items-center px-3 py-2 rounded ${selectedCurrency === 'NGN' ? 'bg-gray-800' : ''}`}
                     onClick={() => setSelectedCurrency('NGN')}
                   >
@@ -276,39 +271,39 @@ const Navbar: React.FC = () => {
                   </button>
                 </div>
               </div>
-              
+
               {/* Mobile Navigation Links */}
               <div className="space-y-2">
                 {navItems.map((item) => {
-                  const isActive = pathname === item.path || 
+                  const isActive = pathname === item.path ||
                     (item.path !== '/' && pathname?.startsWith(item.path));
-                  
+
                   // Special handling for DISCOVER in mobile menu  
                   if (item.name === 'DISCOVER') {
                     return (
                       <div key={item.path} className="space-y-1">
-                        <div 
-                          className={`flex justify-between items-center py-3 px-4 ${isActive 
-                            ? 'bg-gray-800 rounded font-medium' 
+                        <div
+                          className={`flex justify-between items-center py-3 px-4 ${isActive
+                            ? 'bg-gray-800 rounded font-medium'
                             : 'hover:bg-gray-900'
-                          }`}
+                            }`}
                         >
                           <span>{item.name}</span>
                         </div>
-                        
+
                         {/* Mobile discover subroutes */}
                         <div className="pl-6 border-l border-gray-700 ml-4 space-y-1">
                           {discoverSubroutes.map(subroute => {
                             const isSubrouteActive = pathname === subroute.path;
-                            
+
                             return (
-                              <Link 
-                                key={subroute.path} 
+                              <Link
+                                key={subroute.path}
                                 href={subroute.path}
-                                className={`block py-2 px-4 text-sm ${isSubrouteActive 
-                                  ? 'text-white font-medium' 
+                                className={`block py-2 px-4 text-sm ${isSubrouteActive
+                                  ? 'text-white font-medium'
                                   : 'text-gray-400 hover:text-white'
-                                }`}
+                                  }`}
                                 onClick={() => setIsMobileMenuOpen(false)}
                               >
                                 {subroute.name}
@@ -319,15 +314,15 @@ const Navbar: React.FC = () => {
                       </div>
                     );
                   }
-                    
+
                   return (
-                    <Link 
-                      key={item.path} 
+                    <Link
+                      key={item.path}
                       href={item.path}
-                      className={`block py-3 px-4 ${isActive 
-                        ? 'bg-gray-800 rounded font-medium' 
+                      className={`block py-3 px-4 ${isActive
+                        ? 'bg-gray-800 rounded font-medium'
                         : 'hover:bg-gray-900'
-                      }`}
+                        }`}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       {item.name}
@@ -335,7 +330,7 @@ const Navbar: React.FC = () => {
                   );
                 })}
               </div>
-              
+
               {/* Conditionally show logout on mobile */}
               {isAuthenticated && (
                 <div className="pt-4 border-t border-gray-800">
