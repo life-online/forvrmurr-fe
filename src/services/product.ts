@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { apiRequest } from './api';
 
 export type ProductType = 'prime' | 'premium';
@@ -12,6 +13,10 @@ export interface ProductFilterParams {
   isBestSeller?: boolean;
   isFeatured?: boolean;
   search?: string;
+  scentTypeSlugs?: string | undefined;
+  occasionSlugs?: string | undefined;
+  fragranceFamilySlugs?: string | undefined;
+  moodSlugs?: string | undefined;
 }
 
 export interface Brand {
@@ -84,6 +89,28 @@ const productService = {
       requiresAuth: false
     });
   },
+  async getComprehensiveProducts(filters: ProductFilterParams = {}): Promise<ProductsResponse> {
+    // Convert ProductFilterParams to Record<string, string | number | boolean>
+    const params: Record<string, string | number | boolean> = {};
+    if (filters.page) params.page = filters.page;
+    if (filters.limit) params.limit = filters.limit;
+    if (filters.brandId) params.brandId = filters.brandId;
+    if (filters.categoryId) params.categoryId = filters.categoryId;
+    if (filters.noteIds) params.noteIds = filters.noteIds.join(',');
+    if (filters.type) params.type = filters.type;
+    if (filters.isBestSeller !== undefined) params.isBestSeller = filters.isBestSeller;
+    if (filters.isFeatured !== undefined) params.isFeatured = filters.isFeatured;
+    if (filters.search) params.search = filters.search;
+    if (filters.scentTypeSlugs) params.scentTypeSlugs = filters.scentTypeSlugs;
+    if (filters.occasionSlugs) params.occasionSlugs = filters.occasionSlugs;
+    if (filters.fragranceFamilySlugs) params.fragranceFamilySlugs = filters.fragranceFamilySlugs;
+    if (filters.moodSlugs) params.moodSlugs = filters.moodSlugs;
+
+    return apiRequest<ProductsResponse>('/products/filter/comprehensive', {
+      params,
+      requiresAuth: false
+    });
+  },
 
   /**
    * Get a single product by slug
@@ -117,6 +144,54 @@ const productService = {
    */
   async getNotes(): Promise<Note[]> {
     return apiRequest<Note[]>('/notes', {
+      requiresAuth: false
+    });
+  },
+  /**
+   * Get fragrance families with optional pagination
+   */
+  async getFragranceFamilies(page: number = 1, limit: number = 20, search?: string): Promise<any> {
+    const params: Record<string, string | number> = { page, limit };
+    if (search) params.search = search;
+
+    return apiRequest<any>('/products/fragrance-families', {
+      params,
+      requiresAuth: false
+    });
+  },
+  /**
+   * Get product occasions with optional pagination and search
+   */
+  async getProductOccasions(page: number = 1, limit: number = 20, search?: string): Promise<any> {
+    const params: Record<string, string | number> = { page, limit };
+    if (search) params.search = search;
+
+    return apiRequest<any>('/products/occasions', {
+      params,
+      requiresAuth: false
+    });
+  },
+  /**
+   * Get scent types with optional pagination and search
+   */
+  async getScentTypes(page: number = 1, limit: number = 20, search?: string): Promise<any> {
+    const params: Record<string, string | number> = { page, limit };
+    if (search) params.search = search;
+
+    return apiRequest<any>('/products/scent-types', {
+      params,
+      requiresAuth: false
+    });
+  },
+  /**
+   * Get product moods with optional pagination and search
+   */
+  async getProductMoods(page: number = 1, limit: number = 20, search?: string): Promise<any> {
+    const params: Record<string, string | number> = { page, limit };
+    if (search) params.search = search;
+
+    return apiRequest<any>('/products/moods', {
+      params,
       requiresAuth: false
     });
   }

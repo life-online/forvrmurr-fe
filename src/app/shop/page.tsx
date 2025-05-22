@@ -3,7 +3,7 @@ import React, { Suspense } from 'react';
 import Footer from '../../components/layout/Footer';
 import Navbar from '@/components/layout/Navbar';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
-import ShopContent from './ShopContent'; // Import the new client component
+import ShopContent from '../../components/shop/ShopContent'; // Import the new client component
 
 // Basic loading component for Suspense fallback
 const LoadingShop: React.FC = () => {

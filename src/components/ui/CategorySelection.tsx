@@ -62,7 +62,7 @@ const CategorySelection: React.FC = () => {
             </div>
             {/* Button Area */}
             <div className="mt-auto w-full text-center pt-4">
-              <Link href="/prime">
+              <Link href="/shop?type=prime">
                 <Button> 
                   Explore
                 </Button>
@@ -109,7 +109,7 @@ const CategorySelection: React.FC = () => {
             </div>
             {/* Button Area */}
             <div className="mt-auto w-full text-center pt-4">
-              <Link href="/premium">
+              <Link href="/shop?type=premium">
                 <Button> 
                   Explore
                 </Button>
