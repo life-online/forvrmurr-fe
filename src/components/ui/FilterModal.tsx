@@ -1,21 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const filterOptions = {
-  'Scent Type': [
-    'Warm', 'Strong', 'Sweet', 'Fresh', 'Clean', 'Powdery'
+  "Scent Type": ["Warm", "Strong", "Sweet", "Fresh", "Clean", "Powdery"],
+  Occasion: ["Date Night", "Daytime", "Office", "Vacation", "Workout", "Party"],
+  "Fragrance Family": [
+    "Woody",
+    "Spicy",
+    "Citrusy",
+    "Floral",
+    "Fruity",
+    "Aquatic",
+    "Oriental",
+    "Fresh",
+    "Gourmand",
   ],
-  'Occasion': [
-    'Date Night', 'Daytime', 'Office', 'Vacation', 'Workout', 'Party'
+  Mood: [
+    "Soft & Serene",
+    "Clean Addictive",
+    "Bold Moves",
+    "After Dark",
+    "Warm Glow",
+    "Main Character",
+    "Vacation Mood",
   ],
-  'Fragrance Family': [
-    'Woody', 'Spicy', 'Citrusy', 'Floral', 'Fruity', 'Aquatic', 'Oriental', 'Fresh', 'Gourmand'
-  ],
-  'Mood': [
-    'Soft & Serene', 'Clean Addictive', 'Bold Moves', 'After Dark', 'Warm Glow', 'Main Character', 'Vacation Mood'
-  ]
 };
 
-const FilterModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
+const FilterModal = ({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) => {
   const [selected, setSelected] = useState<{ [section: string]: string[] }>({});
 
   if (!open) return null;
@@ -48,26 +64,35 @@ const FilterModal = ({ open, onClose }: { open: boolean; onClose: () => void }) 
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-serif font-bold">Personalize</h2>
-          <button className="text-[#a0001e] text-base font-serif hover:underline" onClick={handleReset}>Reset all</button>
+          <button
+            className="text-[#a0001e] text-base font-serif hover:underline"
+            onClick={handleReset}
+          >
+            Reset all
+          </button>
         </div>
         {/* Sections */}
         {Object.entries(filterOptions).map(([section, options]) => (
           <div key={section} className="mb-6">
-            <h3 className="text-lg font-serif text-[#a0a3b1] mb-3 font-semibold">{section}</h3>
+            <h3 className="text-lg font-serif text-[#a0a3b1] mb-3 font-semibold">
+              {section}
+            </h3>
             <div className="flex flex-wrap gap-4">
               {options.map((option) => (
                 <button
                   key={option}
                   className={`flex flex-col items-center w-24 h-20 rounded-xl bg-gray-100 justify-center transition-all border-2 ${
                     selected[section]?.includes(option)
-                      ? 'border-[#a0001e] bg-[#faf0e2]'
-                      : 'border-transparent'
+                      ? "border-[#a0001e] bg-[#faf0e2]"
+                      : "border-transparent"
                   }`}
                   onClick={() => handleSelect(section, option)}
                   type="button"
                 >
                   <span className="mb-1 text-base">Pic</span>
-                  <span className="text-sm font-serif text-gray-700 mt-1">{option}</span>
+                  <span className="text-sm font-serif text-gray-700 mt-1">
+                    {option}
+                  </span>
                 </button>
               ))}
             </div>
@@ -78,4 +103,4 @@ const FilterModal = ({ open, onClose }: { open: boolean; onClose: () => void }) 
   );
 };
 
-export default FilterModal; 
+export default FilterModal;

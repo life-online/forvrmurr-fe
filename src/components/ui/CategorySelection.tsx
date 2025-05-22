@@ -15,7 +15,7 @@ const CategorySelection: React.FC = () => {
   };
 
   return (
-    <section className="w-full py-24">
+    <section className="w-full pt-24 md:mb-24 pb-16">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12"> 
           <p className="text-sm text-gray-600 mb-2">Start Here</p>
@@ -62,7 +62,7 @@ const CategorySelection: React.FC = () => {
             </div>
             {/* Button Area */}
             <div className="mt-auto w-full text-center pt-4">
-              <Link href="/prime">
+              <Link href="/shop?type=prime">
                 <Button> 
                   Explore
                 </Button>
@@ -109,7 +109,7 @@ const CategorySelection: React.FC = () => {
             </div>
             {/* Button Area */}
             <div className="mt-auto w-full text-center pt-4">
-              <Link href="/premium">
+              <Link href="/shop?type=premium">
                 <Button> 
                   Explore
                 </Button>
@@ -119,14 +119,14 @@ const CategorySelection: React.FC = () => {
         </div>
         
         {/* Quiz Section */}
-        <div className="mt-12 text-center">
+        {/* <div className="mt-12 text-center">
           <p className="text-lg font-serif mb-4">NOT SURE WHERE TO START?</p>
           <Link href="/quiz">
             <Button variant="outline">
               Take Our Scent Quiz
             </Button>
           </Link>
-        </div>
+        </div> */}
       </div>
     </section>
   );

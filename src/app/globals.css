@@ -20,14 +20,20 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #171717;
   }
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
+  color: #444444;
   font-family: "Playfair Display", Arial, Helvetica, serif;
+}
+
+/* Ensure default text is solid black unless overridden by Tailwind or inline styles */
+:root,
+html {
+  color: #444444;
 }
 
 .cinzel-font {
@@ -120,6 +126,25 @@ body {
   background-color: var(--primary-dark);
 }
 
+.curatedBg {
+  background: url("/curatedBg.png") right center no-repeat;
+  background-size: cover;
+  /* mask-image: linear-gradient(
+    to left,
+    transparent,
+    black 20%,
+    transparent,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to left,
+    transparent,
+    black 20%,
+    transparent,
+    transparent
+  );
+  pointer-events: none; */
+}
 /* Typography */
 h1,
 h2,
