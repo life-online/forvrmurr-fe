@@ -122,7 +122,7 @@ export default function FragranceSelector() {
                                 alt="pic"
                                 width={120}
                                 height={150}
-                                className="object-cover rounded-md"
+                                className="object-cover rounded-md h-full"
                             />
                         </div>
                         <p className="text-xs sm:text-sm text-gray-600 mt-1">{cat.label}</p>
@@ -133,7 +133,7 @@ export default function FragranceSelector() {
             <Drawer.Root open={drawerOpen} onOpenChange={setDrawerOpen} direction="right">
                 <Drawer.Portal>
                     <Drawer.Overlay className="fixed inset-0 bg-black/30 z-40" />
-                    <Drawer.Content className="fixed top-0 right-0 w-full sm:w-[400px] h-full bg-white z-50 p-4 overflow-y-auto overflow-x-hidden">
+                    <Drawer.Content className="fixed top-0 right-0 w-full sm:w-[480px] h-full bg-white z-50 p-4 overflow-y-auto overflow-x-hidden">
                         <div className="flex justify-end mb-3">
                             <IoMdClose
                                 size={34}
@@ -164,9 +164,9 @@ export default function FragranceSelector() {
 
                         {Object.entries({
                             'Scent Type': scentTypes,
-                            'Occasion': productOccasions,
                             'Fragrance Family': fragranceFamilies,
                             'Mood': productMoods,
+                            'Occasion': productOccasions,
                         }).map(([section, items]) => (
                             <div key={section} className="mb-4">
                                 <h3 className="text-sm font-bold text-gray-700 mb-2">{section}</h3>
@@ -177,26 +177,21 @@ export default function FragranceSelector() {
                                             onClick={() =>
                                                 handleSubcategoryClick(section, item.slug)
                                             }
-                                            className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-md overflow-hidden cursor-pointer border transition-all duration-200 ${
+                                            className={`relative w-20 h-20 sm:w-25 sm:h-30 rounded-md overflow-hidden cursor-pointer border transition-all duration-200 ${
                                                 selectedFilters[section] === item.slug
                                                     ? 'border-pink-500'
                                                     : 'border-transparent'
                                             }`}
                                         >
-                                            <Image
+                                            <img
                                                 src={
-                                                    item?.imageUrl ||
-                                                    '/images/shop/occassion.jpg'
+                                                    section !== 'Occasion' ? item.iconUrl : '/images/shop/occassion.jpg' 
                                                 }
                                                 alt={item.slug}
-                                                layout="fill"
-                                                objectFit="cover"
-                                                className={`${
-                                                    selectedFilters[section] === item.slug
-                                                        ? 'blur-sm'
-                                                        : ''
-                                                }`}
-                                            />
+                                                className={`
+                                                    object-cover h-full rounded-md 
+                                                    ${selectedFilters[section] === item.slug ? 'blur-sm' : ''}
+                                                `}></img>
                                             <div className="absolute bottom-0 left-0 right-0 text-xs text-white bg-black bg-opacity-40 text-center py-1">
                                                 {item.slug
                                                     .replace(/_/g, ' ')
