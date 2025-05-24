@@ -129,21 +129,14 @@ html {
 .curatedBg {
   background: url("/curatedBg.png") right center no-repeat;
   background-size: cover;
-  /* mask-image: linear-gradient(
-    to left,
-    transparent,
-    black 20%,
-    transparent,
-    transparent
-  );
-  -webkit-mask-image: linear-gradient(
-    to left,
-    transparent,
-    black 20%,
-    transparent,
-    transparent
-  );
-  pointer-events: none; */
+}
+
+@media (max-width: 768px) {
+  .curatedBg {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                url("/curatedBg.png") right center no-repeat;
+    background-size: cover;
+  }
 }
 /* Typography */
 h1,
