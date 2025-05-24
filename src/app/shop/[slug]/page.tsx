@@ -253,10 +253,10 @@ export default function ProductDetailsPage() {
 
                 <div className="mt-8 flex flex-col gap-5">
                   <div className="text-lg font-serif ">Forvr Murr Pricing</div>
-                  <div className="flex items-center justify-between gap-8">
+                  <div className="flex items-center justify-between gap-4 md:gap-8">
                     {/* Left: Bottle, Price label, Price */}
-                    <div className="flex items-center gap-4">
-                      <div className="h-24 w-24 overflow-hidden">
+                    <div className="flex items-center gap-1 md:gap-4">
+                      <div className="h-12 w-12 lg:h-24 lg:w-24 overflow-hidden">
                         <Image
                           src="/images/products/grand_soir.png"
                           alt="Bottle"
@@ -265,38 +265,41 @@ export default function ProductDetailsPage() {
                           className=""
                         />
                       </div>
-                      <div className="flex flex-col gap-1">
-                        <div className="text-sm text-nowrap flex items-center gap-2 font-serif font-bold mb-1">
+                      <div className="flex flex-col">
+                        <div className="text-xs md:text-sm max-w-[150px] md:max-w-[300px] text-nowrap flex items-center gap-2 font-serif font-bold mb-1">
                           <p className="">8ml Bottle Price:</p>{" "}
                         </div>
-                        <div className="flex items-center justify-between  flex-wrap gap-4">
-                          <div className="flex items-center border border-[#a0001e] rounded-full text-[#a0001e] font-serif text-sm py-1">
+                        <div className="flex items-center justify-between  flex-wrap gap-1 md:gap-4">
+                          <div className="flex gap-2 px-3  text-xs md:text-sm items-center border border-[#a0001e] rounded-full text-[#a0001e] font-serif text-sm py-1">
                             <button
                               onClick={decreaseQuantity}
-                              className="px-3 cursor-pointer focus:outline-none hover:bg-red-50 rounded-l-full"
+                              className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-l-full"
                               aria-label="Decrease quantity"
                             >
                               -
                             </button>
-                            <span className="mx-2">No: {mainQuantity}</span>
+                            <span className="">No: {mainQuantity}</span>
                             <button
                               onClick={increaseQuantity}
-                              className="px-3 cursor-pointer focus:outline-none hover:bg-red-50 rounded-r-full"
+                              className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-r-full"
                               aria-label="Increase quantity"
                             >
                               +
                             </button>
                           </div>
                         </div>
-                        <div className="text-sm font-serif text-[#a0001e] font-bold">
-                          ₦{Number(product.nairaPrice).toLocaleString()} ×{" "}
-                          {mainQuantity} = ₦
+                        <div className="text-xs md:text-sm font-serif text-[#a0001e] font-bold">
+                          <span className="hidden md:inline">
+                            ₦{Number(product.nairaPrice).toLocaleString()} ×{" "}
+                            {mainQuantity} =
+                          </span>
+                          ₦
                           {(
                             Number(product.nairaPrice) * mainQuantity
                           ).toLocaleString()}
                         </div>
                         {product.priceFullBottle && (
-                          <div className="text-xs text-gray-600 mt-1">
+                          <div className="text-xs hidden md:inline text-gray-600 mt-1">
                             Full bottle: ₦
                             {Number(product.priceFullBottle).toLocaleString()}
                           </div>
@@ -312,11 +315,11 @@ export default function ProductDetailsPage() {
                   {featuredProducts?.map((item, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between gap-8"
+                      className="flex items-center justify-between gap-4 md:gap-8"
                     >
                       {/* Left: Bottle, Price label, Price */}
-                      <div className="flex items-center gap-4">
-                        <div className="h-24 w-24 overflow-hidden">
+                      <div className="flex items-center gap-1 md:gap-4">
+                        <div className="h-12 w-12 lg:h-24 lg:w-24 overflow-hidden">
                           <Image
                             src="/images/products/TVC_1.png"
                             alt="Bottle"
@@ -326,24 +329,24 @@ export default function ProductDetailsPage() {
                           />
                         </div>
                         <div className="flex  flex-col gap-1">
-                          <div className="text-sm max-w-[300px]  flex items-center gap-2 font-serif font-bold mb-1">
+                          <div className="text-xs md:text-sm max-w-[150px] md:max-w-[300px]  flex items-center gap-2 font-serif font-bold mb-1">
                             <p className="">{item.name}</p>{" "}
                           </div>
-                          <div className="flex items-center justify-between  flex-wrap gap-4">
-                            <div className="flex items-center border border-[#a0001e] rounded-full text-[#a0001e] font-serif text-sm py-1">
+                          <div className="flex items-center justify-between  flex-wrap gap-1 md:gap-4">
+                            <div className="flex px-3 gap-2 items-center border border-[#a0001e] rounded-full text-[#a0001e] font-serif text-sm py-1">
                               <button
                                 onClick={() => decreaseFeaturedQty(item.id)}
-                                className="px-3 cursor-pointer focus:outline-none hover:bg-red-50 rounded-l-full"
+                                className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-l-full"
                                 aria-label="Decrease quantity"
                               >
                                 -
                               </button>
-                              <span className="mx-2">
+                              <span className="">
                                 No: {getFeaturedQty(item.id)}
                               </span>
                               <button
                                 onClick={() => increaseFeaturedQty(item.id)}
-                                className="px-3 cursor-pointer focus:outline-none hover:bg-red-50 rounded-r-full"
+                                className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-r-full"
                                 aria-label="Increase quantity"
                               >
                                 +
@@ -351,8 +354,12 @@ export default function ProductDetailsPage() {
                             </div>
                           </div>
                           <div className="text-sm font-serif text-[#a0001e] font-bold">
-                            ₦{Number(item.nairaPrice).toLocaleString()} ×{" "}
-                            {getFeaturedQty(item.id)} = ₦
+                            <span className="hidden md:inline">
+                              {" "}
+                              ₦{Number(item.nairaPrice).toLocaleString()} ×{" "}
+                              {getFeaturedQty(item.id)} ={" "}
+                            </span>{" "}
+                            ₦
                             {(
                               Number(item.nairaPrice) * getFeaturedQty(item.id)
                             ).toLocaleString()}
@@ -368,6 +375,7 @@ export default function ProductDetailsPage() {
                       {/* Right: Add to cart button */}
                       <AddToCartButton
                         product={item}
+                        className="text-nowrap"
                         quantity={getFeaturedQty(item.id)}
                       />
                     </div>
@@ -489,7 +497,7 @@ export default function ProductDetailsPage() {
           <h3 className="text-3xl font-serif text-[#a0001e] text-center mb-10">
             HERE&apos;S HOW OTHERS DESCRIBED THE SCENT
           </h3>
-          <div className="flex justify-center gap-4 mb-4">
+          <div className="flex flex-wrap justify-center gap-4 mb-4">
             {userTags.map((tag) => (
               <div key={tag.label} className="flex flex-col items-center">
                 <div className="w-28 h-16 bg-gray-100 rounded-xl flex items-center justify-center mb-2 font-serif text-lg">

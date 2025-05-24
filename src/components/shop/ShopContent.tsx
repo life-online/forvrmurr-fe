@@ -1,25 +1,15 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
+
 import productService, {
   Product,
   ProductFilterParams,
   ProductType,
 } from "@/services/product";
 import { useToast } from "@/context/ToastContext";
-import FilterModal from "@/components/ui/FilterModal"; // Assuming FilterModal is used or will be
 import ProductCard from "@/components/ui/ProductCard";
 import FragranceSelector from "@/components/shop/FragranceFilter";
-
-const scentCategories = [
-  { label: "Elegant", value: "elegant" },
-  { label: "Intimate", value: "intimate" },
-  { label: "Sophisticated", value: "sophisticated" },
-  { label: "Warm", value: "warm" },
-  { label: "Clean", value: "clean" },
-];
 
 type FilterTabValue = "all" | ProductType;
 
@@ -49,10 +39,6 @@ export default function ShopContent() {
   const [totalPages, setTotalPages] = useState(1);
 
   const [activeTab, setActiveTab] = useState<FilterTabValue>(typeFromUrl);
-  const [activeCategory, setActiveCategory] = useState("");
-  const [filterModalOpen, setFilterModalOpen] = useState(false);
-  const [sortBy, setSortBy] = useState("newest");
-  const [search, setSearch] = useState(searchFromUrl);
 
   const initialFilters: ProductFilterParams = {
     page: pageFromUrl,
@@ -125,16 +111,6 @@ export default function ShopContent() {
     // updateUrl(newFilters);
   }, [scentTypeSlugs, occasionSlugs, fragranceFamilySlugs, moodSlugs]);
 
-  const handleCategoryChange = (categoryId: string) => {
-    setActiveCategory((prev) => (prev === categoryId ? "" : categoryId));
-    setFilters((prev) => ({
-      ...prev,
-      categoryId: activeCategory === categoryId ? undefined : categoryId,
-      page: 1,
-    }));
-    // updateUrl might be called in useEffect via filters change, or explicitly here
-  };
-
   // const handleSearch = (searchTerm: string) => {
   //   setSearch(searchTerm);
   //   const newFilters = {
@@ -162,13 +138,13 @@ export default function ShopContent() {
     <>
       {/* Breadcrumb and Title */}
       <div className="max-w-7xl mx-auto w-full px-4 pt-8">
-        <div className="text-xs mb-2">
+        {/* <div className="text-xs mb-2">
           <span className="mr-2">New Release</span>
           <span className="mr-2">›</span>
           <span>Shop All</span>
-        </div>
-        <h1 className="text-2xl font-serif font-medium mb-4 text-black">
-          CHOOSE YOUR NEXT SCENT OBSESSION
+        </div> */}
+        <h1 className=" sm:text-xl md:text-2xl font-serif font-medium mb-4 text-black">
+          MEET YOUR NEXT SCENT OBSESSION
         </h1>
       </div>
 
