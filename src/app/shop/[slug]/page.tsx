@@ -165,7 +165,7 @@ export default function ProductDetailsPage() {
         <Navbar />
         {/* Top Section */}
         <div className="w-full pt-16 pb-24" style={{ background: "#F7EDE1" }}>
-          <div className="flex flex-col md:flex-row max-w-6xl mx-auto gap-8 pt-10 pb-10 px-4">
+          <div className="flex flex-col lg:flex-row max-w-6xl mx-auto gap-8 pt-10 pb-10 px-4">
             {/* Product Image and Thumbnails */}
             <div className="flex-1 flex flex-col items-center">
               {/* Main Image with Animation */}
@@ -223,7 +223,7 @@ export default function ProductDetailsPage() {
               </div>
             </div>
             {/* Product Info */}
-            <div className="flex-1 bg-white rounded-xl p-8 flex flex-col justify-between min-h-[400px] shadow text-black my-10">
+            <div className="flex-1 bg-white rounded-xl p-5 lg:p-8 flex flex-col justify-between min-h-[400px] shadow text-black my-10">
               <div>
                 <div className="mb-2 inline-block">
                   {product.type === "premium" ? (
@@ -309,6 +309,7 @@ export default function ProductDetailsPage() {
                     {/* Right: Add to cart button */}
                     <AddToCartButton
                       product={product}
+                      className="text-nowrap"
                       quantity={mainQuantity}
                     />
                   </div>
