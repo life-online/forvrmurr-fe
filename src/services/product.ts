@@ -28,6 +28,14 @@ export interface Category {
   id: string;
   name: string;
 }
+export interface ProductAttribute {
+  id: string;
+  name: string;
+  iconUrl: string;
+}
+export interface DescriptionResponse {
+  attributes: ProductAttribute[];
+}
 
 export interface Note {
   id: string;
@@ -65,6 +73,16 @@ export interface ProductsResponse {
     limit: number;
     totalPages: number;
   };
+}
+export interface Discount {
+  id: string;
+  title: string;
+  summary: string;
+  type: string;
+  discountCode: string;
+  minimumRequirementType: string;
+  minimumSubtotalValue: string;
+  minimumQuantityValue: string | null;
 }
 
 const productService = {
@@ -146,12 +164,39 @@ const productService = {
       requiresAuth: false,
     });
   },
+  async getCurrentDiscount(): Promise<Discount[]> {
+    return apiRequest<Discount[]>("/store/discounts/free-shipping-offers", {
+      requiresAuth: false,
+    });
+  },
 
   /**
    * Get a single product by slug
    */
   async getProductBySlug(slug: string): Promise<Product> {
     return apiRequest<Product>(`/products/slug/${slug}`, {
+      requiresAuth: false,
+    });
+  },
+  async getProductDescriptionByOthers(
+    id: string
+  ): Promise<DescriptionResponse> {
+    return apiRequest<DescriptionResponse>(
+      `/products/${id}/descriptive-attributes`,
+      {
+        requiresAuth: false,
+      }
+    );
+  },
+  async getProductrelatedProductsById(
+    id: string,
+    filters: ProductFilterParams = {}
+  ): Promise<Product[]> {
+    const params: Record<string, string | number | boolean> = {};
+
+    if (filters.limit) params.limit = filters.limit;
+    return apiRequest<Product[]>(`/products/${id}/related`, {
+      params,
       requiresAuth: false,
     });
   },
