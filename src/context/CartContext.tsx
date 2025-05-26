@@ -18,6 +18,7 @@ interface CartContextType {
   clearCart: () => void;
   itemCount: number;
   isLoading: boolean;
+  cart?: CartResponseDto;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -26,6 +27,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartResponseDto>();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [guestId, setGuestId] = useState<string | null>(null);
@@ -52,6 +54,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         if (isAuthenticated) {
           // Fetch authenticated user's cart
           cartResponse = await cartService.getCart();
+          setCart(cartResponse);
           // If there was a guest ID, we can clear it now
           if (guestId) {
             localStorage.removeItem("forvrmurr_guest_id");
@@ -60,9 +63,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         } else if (guestId) {
           // Fetch guest cart using stored guestId
           cartResponse = await cartService.getGuestCart(guestId);
+          setCart(cartResponse);
         } else {
           // No auth and no guestId yet, empty cart state
           setCartItems([]);
+          setCart(undefined);
           setIsLoading(false);
           return;
         }
@@ -291,6 +296,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         updateItemQuantity,
         clearCart,
         itemCount,
+        cart,
         isLoading,
       }}
     >

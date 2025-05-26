@@ -7,7 +7,7 @@ import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import Footer from "@/components/layout/Footer";
-import productService, { Product } from "@/services/product";
+import productService, { Product, ProductAttribute } from "@/services/product";
 import ProductBadge from "@/components/ui/ProductBadge";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import ProductCard from "@/components/ui/ProductCard";
@@ -33,13 +33,6 @@ declare module "@/services/product" {
 }
 
 // User description tags - these could come from API in the future
-const userTags = [
-  { label: "Elegant" },
-  { label: "Intimate" },
-  { label: "Sophisticated" },
-  { label: "Warm" },
-  { label: "Clean" },
-];
 
 export default function ProductDetailsPage() {
   const params = useParams();
@@ -54,6 +47,9 @@ export default function ProductDetailsPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [mainQuantity, setMainQuantity] = useState(1);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [prodDescriptions, setProductDescription] = useState<
+    ProductAttribute[]
+  >([]);
   const [featuredQuantities, setFeaturedQuantities] = useState<
     Record<string, number>
   >({});
@@ -71,12 +67,15 @@ export default function ProductDetailsPage() {
         setFeaturedProducts(featuredProductsData.data);
 
         // After fetching the main product, get related products
-        const relatedProductsResponse = await productService.getProducts({
-          limit: 4,
-          page: 1,
-          // Optional filters - could be based on same brand or category
-        });
-        setRelatedProducts(relatedProductsResponse.data);
+        const relatedProductsResponse =
+          await productService.getProductrelatedProductsById(data.id, {
+            limit: 4,
+          });
+        setRelatedProducts(relatedProductsResponse);
+        const descriptionsByOthers =
+          await productService.getProductDescriptionByOthers(data.id);
+        console.log(descriptionsByOthers, "grileo");
+        setProductDescription(descriptionsByOthers.attributes);
       } catch (err) {
         console.error("Error fetching product:", err);
         setError("Failed to load product details. Please try again later.");
@@ -499,13 +498,19 @@ export default function ProductDetailsPage() {
             HERE&apos;S HOW OTHERS DESCRIBED THE SCENT
           </h3>
           <div className="flex flex-wrap justify-center gap-4 mb-4">
-            {userTags.map((tag) => (
-              <div key={tag.label} className="flex flex-col items-center">
-                <div className="w-28 h-16 bg-gray-100 rounded-xl flex items-center justify-center mb-2 font-serif text-lg">
-                  Pic
+            {prodDescriptions.map((tag) => (
+              <div key={tag.id} className="flex flex-col items-center">
+                <div className="w-28 h-16 overflow-hidden bg-gray-100 rounded-xl flex items-center justify-center mb-2 font-serif text-lg">
+                  <Image
+                    src={tag.iconUrl || FALLBACK_NOTE_IMAGE}
+                    alt="Description Tag"
+                    width={1000}
+                    height={1000}
+                    className="h-full w-full object-contain"
+                  />
                 </div>
                 <span className="text-base font-serif text-gray-700 text-center">
-                  {tag.label}
+                  {tag.name}
                 </span>
               </div>
             ))}

@@ -1,4 +1,4 @@
-import { apiRequest } from './api';
+import { apiRequest } from "./api";
 
 export interface Address {
   id?: string;
@@ -32,6 +32,7 @@ export interface CheckoutFormData {
   shippingAddressId?: string | null;
   shippingMethod: string;
   notes?: string;
+  couponCode?: string;
 }
 
 export interface SavedAddress extends Address {
@@ -60,17 +61,22 @@ export interface PaymentResponse {
 
 const checkoutService = {
   // Get shipping methods
-  getShippingMethods: async (countryCode: string): Promise<ShippingMethod[]> => {
-    return apiRequest<ShippingMethod[]>(`/checkout/shipping-options?countryCode=${countryCode}`, { 
-      requiresAuth: false 
-    });
+  getShippingMethods: async (
+    countryCode: string
+  ): Promise<ShippingMethod[]> => {
+    return apiRequest<ShippingMethod[]>(
+      `/checkout/shipping-options?countryCode=${countryCode}`,
+      {
+        requiresAuth: false,
+      }
+    );
   },
-  
+
   // Get saved addresses for the logged-in user
   getSavedAddresses: async (): Promise<SavedAddress[]> => {
-    return apiRequest<SavedAddress[]>('/addresses', { requiresAuth: true });
+    return apiRequest<SavedAddress[]>("/addresses", { requiresAuth: true });
   },
-  
+
   // Create order
   createOrder: async (
     checkoutData: CheckoutFormData,
@@ -79,17 +85,17 @@ const checkoutService = {
   ): Promise<CheckoutResponse> => {
     const options = {
       requiresAuth: !guestId,
-      params: guestId ? { guestId } : undefined
+      params: guestId ? { guestId } : undefined,
     };
-    
+
     // Format data for API
     const apiPayload = {
       cartId,
       shippingMethod: checkoutData.shippingMethod,
       notes: checkoutData.notes,
       shippingAddress: {
-        firstName: checkoutData.fullName.split(' ')[0],
-        lastName: checkoutData.fullName.split(' ').slice(1).join(' '),
+        firstName: checkoutData.fullName.split(" ")[0],
+        lastName: checkoutData.fullName.split(" ").slice(1).join(" "),
         email: checkoutData.email,
         phoneNumber: checkoutData.phoneNumber,
         streetAddress: checkoutData.shippingAddress.addressLine1,
@@ -97,16 +103,19 @@ const checkoutService = {
         city: checkoutData.shippingAddress.city,
         state: checkoutData.shippingAddress.state,
         postalCode: checkoutData.shippingAddress.postalCode,
-        countryCode: checkoutData.shippingAddress.country === 'Nigeria' ? 'NG' : checkoutData.shippingAddress.country
+        countryCode:
+          checkoutData.shippingAddress.country === "Nigeria"
+            ? "NG"
+            : checkoutData.shippingAddress.country,
       },
-      useShippingAsBilling: checkoutData.useSameForBilling
+      useShippingAsBilling: checkoutData.useSameForBilling,
     };
-    
+
     // Add billing address if not using shipping as billing
     if (!checkoutData.useSameForBilling && checkoutData.billingAddress) {
       (apiPayload as any).billingAddress = {
-        firstName: checkoutData.fullName.split(' ')[0],
-        lastName: checkoutData.fullName.split(' ').slice(1).join(' '),
+        firstName: checkoutData.fullName.split(" ")[0],
+        lastName: checkoutData.fullName.split(" ").slice(1).join(" "),
         email: checkoutData.email,
         phoneNumber: checkoutData.phoneNumber,
         streetAddress: checkoutData.billingAddress.addressLine1,
@@ -114,31 +123,34 @@ const checkoutService = {
         city: checkoutData.billingAddress.city,
         state: checkoutData.billingAddress.state,
         postalCode: checkoutData.billingAddress.postalCode,
-        countryCode: checkoutData.billingAddress.country === 'Nigeria' ? 'NG' : checkoutData.billingAddress.country
+        countryCode:
+          checkoutData.billingAddress.country === "Nigeria"
+            ? "NG"
+            : checkoutData.billingAddress.country,
       };
     }
-    
-    return apiRequest<CheckoutResponse>('/orders', {
-      method: 'POST',
+
+    return apiRequest<CheckoutResponse>("/orders", {
+      method: "POST",
       body: JSON.stringify(apiPayload),
-      ...options
+      ...options,
     });
   },
-  
+
   // Initiate payment with Paystack
   initiatePayment: async (
     orderId: string,
-    paymentMethod: string = 'PAYSTACK'
+    paymentMethod: string = "PAYSTACK"
   ): Promise<PaymentResponse> => {
-    return apiRequest<PaymentResponse>('/payments/initialize', {
-      method: 'POST',
+    return apiRequest<PaymentResponse>("/payments/initialize", {
+      method: "POST",
       body: JSON.stringify({
         orderId,
-        paymentMethod
+        paymentMethod,
       }),
-      requiresAuth: true
+      requiresAuth: true,
     });
-  }
+  },
 };
 
 export default checkoutService;
