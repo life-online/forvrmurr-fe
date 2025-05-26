@@ -3,14 +3,14 @@
 import React from "react";
 import Image from "next/image";
 import { CartItem } from "@/components/cart/CartOverlay";
-import { CouponResponse } from "@/app/shop/checkout/page";
+import { CartResponseDto } from "@/services/cart";
 
 interface CheckoutSummaryProps {
   cartItems: CartItem[];
   subtotal: number;
   shippingCost: number;
   total: number;
-  cart?: CouponResponse;
+  cart?: CartResponseDto;
 }
 
 const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
@@ -94,9 +94,9 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
               <div className="flex justify-between text-sm" key={index}>
                 <div className="">
                   <span className="text-gray-600">{discount.title}</span>
-                  <span className="text-gray-600 text-xs">
+                  {/* <span className="text-gray-600 text-xs">
                     {discount.description}
-                  </span>
+                  </span> */}
                 </div>
                 <span>{`₦${discount.amountDeducted.toLocaleString()}`}</span>
               </div>
