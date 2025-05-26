@@ -1,26 +1,31 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-import AddressForm from '@/components/checkout/AddressForm';
-import SavedAddressList from '@/components/checkout/SavedAddressList';
-import ShippingMethodsSelector from '@/components/checkout/ShippingMethodsSelector';
-import CheckoutSummary from '@/components/checkout/CheckoutSummary';
-import { useCart } from '@/context/CartContext';
-import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/context/ToastContext';
-import checkoutService, { CheckoutFormData, ShippingMethod, SavedAddress, Address } from '@/services/checkout';
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import AddressForm from "@/components/checkout/AddressForm";
+import SavedAddressList from "@/components/checkout/SavedAddressList";
+import ShippingMethodsSelector from "@/components/checkout/ShippingMethodsSelector";
+import CheckoutSummary from "@/components/checkout/CheckoutSummary";
+import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
+import checkoutService, {
+  CheckoutFormData,
+  ShippingMethod,
+  SavedAddress,
+  Address,
+} from "@/services/checkout";
 
 const defaultAddress: Address = {
-  addressLine1: '',
-  addressLine2: '',
-  city: '',
-  state: '',
-  postalCode: '',
-  country: 'Nigeria',
+  addressLine1: "",
+  addressLine2: "",
+  city: "",
+  state: "",
+  postalCode: "",
+  country: "Nigeria",
 };
 
 const CheckoutPage = () => {
@@ -28,136 +33,163 @@ const CheckoutPage = () => {
   const { isAuthenticated, user } = useAuth();
   const { error, success } = useToast();
   const router = useRouter();
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
   const [useSavedAddress, setUseSavedAddress] = useState(false);
   const [showBillingForm, setShowBillingForm] = useState(false);
-  
+
   const [formData, setFormData] = useState<CheckoutFormData>({
-    fullName: user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : '',
-    email: user?.email || '',
-    phoneNumber: '',
+    fullName:
+      user?.firstName && user?.lastName
+        ? `${user.firstName} ${user.lastName}`
+        : "",
+    email: user?.email || "",
+    phoneNumber: "",
     shippingAddress: {
-      addressLine1: '',
-      addressLine2: '',
-      city: '',
-      state: '',
-      postalCode: '',
-      country: 'Nigeria'
+      addressLine1: "",
+      addressLine2: "",
+      city: "",
+      state: "",
+      postalCode: "",
+      country: "Nigeria",
     },
     billingAddress: {
-      addressLine1: '',
-      addressLine2: '',
-      city: '',
-      state: '',
-      postalCode: '',
-      country: 'Nigeria'
+      addressLine1: "",
+      addressLine2: "",
+      city: "",
+      state: "",
+      postalCode: "",
+      country: "Nigeria",
     },
     useSameForBilling: true,
-    shippingMethod: '',
+    shippingMethod: "",
   });
-  
+
   // Calculate subtotal
-  const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  
+  const subtotal = cartItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
+
   // Fetch shipping methods and saved addresses
   useEffect(() => {
     const fetchInitialData = async () => {
       setIsLoading(true);
       try {
         // Fetch shipping methods
-        const methods = await checkoutService.getShippingMethods('NG');
+        const methods = await checkoutService.getShippingMethods("NG");
         console.log(methods);
         setShippingMethods(methods);
-        
+
         if (methods.length > 0) {
-          setFormData(prev => ({ ...prev, shippingMethod: methods[0].id }));
+          setFormData((prev) => ({ ...prev, shippingMethod: methods[0].id }));
         }
-        
+
         // Fetch saved addresses if authenticated
         if (isAuthenticated) {
           const addresses = await checkoutService.getSavedAddresses();
           setSavedAddresses(addresses);
-          
+
           // If there's a default address, pre-fill it
-          const defaultAddress = addresses.find(addr => addr.isDefault);
+          const defaultAddress = addresses.find((addr) => addr.isDefault);
           if (defaultAddress) {
             setUseSavedAddress(true);
           }
         }
       } catch (err) {
-        console.error('Error fetching checkout data:', err);
-        error('Failed to load checkout information. Please try again.');
+        console.error("Error fetching checkout data:", err);
+        error("Failed to load checkout information. Please try again.");
       } finally {
         setIsLoading(false);
       }
     };
-    
+
     fetchInitialData();
   }, [isAuthenticated, error]);
-  
+
   // If cart is empty, redirect to cart page
   useEffect(() => {
     if (itemCount === 0) {
-      router.push('/');
+      router.push("/");
     }
   }, [itemCount, router]);
-  
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value, type } = e.target as HTMLInputElement;
-    const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : undefined;
-    
-    if (name === 'useSameForBilling') {
+    const checked =
+      type === "checkbox" ? (e.target as HTMLInputElement).checked : undefined;
+
+    if (name === "useSameForBilling") {
       const newCheckedState = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        useSameForBilling: newCheckedState
+        useSameForBilling: newCheckedState,
       }));
       setShowBillingForm(!newCheckedState);
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [name]: type === 'checkbox' ? checked : value
+        [name]: type === "checkbox" ? checked : value,
       }));
     }
   };
-  
-  const handleAddressChange = (addressType: 'shippingAddress' | 'billingAddress', field: string, value: string) => {
-    setFormData(prev => ({
+
+  const handleAddressChange = (
+    addressType: "shippingAddress" | "billingAddress",
+    field: string,
+    value: string
+  ) => {
+    setFormData((prev) => ({
       ...prev,
       [addressType]: {
         ...(prev[addressType] || defaultAddress),
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
-  
-  const handleSavedAddressSelect = (addressId: string, addressType: 'shipping' | 'billing') => {
-    if (addressType === 'shipping') {
-      setFormData(prev => ({
+
+  const handleSavedAddressSelect = (
+    addressId: string,
+    addressType: "shipping" | "billing"
+  ) => {
+    if (addressType === "shipping") {
+      setFormData((prev) => ({
         ...prev,
-        shippingAddressId: addressId
+        shippingAddressId: addressId,
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        billingAddressId: addressId
+        billingAddressId: addressId,
       }));
     }
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
       // 1. Create the order
-      const guestId = !isAuthenticated ? localStorage.getItem('forvrmurr_guest_id') || undefined : undefined;
-      const order = await checkoutService.createOrder(formData, undefined, guestId);
+      const guestId = !isAuthenticated
+        ? localStorage.getItem("forvrmurr_guest_id") || undefined
+        : undefined;
+      const order = await checkoutService.createOrder(
+        formData,
+        undefined,
+        guestId
+      );
       // 2. Initiate payment
-      const payment = await checkoutService.initiatePayment(order.id, 'PAYSTACK');
-      success('Order placed successfully! Redirecting to payment...');
+      const payment = await checkoutService.initiatePayment(
+        order.id,
+        "PAYSTACK"
+      );
+      success("Order placed successfully! Redirecting to payment...");
       clearCart();
       // 3. Redirect to payment URL
       if (payment.paymentUrl) {
@@ -166,42 +198,54 @@ const CheckoutPage = () => {
         router.push(`/order-confirmation/${order.id}`);
       }
     } catch (err) {
-      console.error('Checkout error:', err);
-      error('Failed to process your order. Please check your information and try again.');
+      console.error("Checkout error:", err);
+      error(
+        "Failed to process your order. Please check your information and try again."
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  
   if (itemCount === 0) {
     return <div>Loading...</div>;
   }
-  
-  const selectedShippingMethod = shippingMethods.find(method => method.id === formData.shippingMethod);
-  const shippingCost = selectedShippingMethod ? parseInt(selectedShippingMethod.amount) : 0;
+
+  const selectedShippingMethod = shippingMethods.find(
+    (method) => method.id === formData.shippingMethod
+  );
+  const shippingCost = selectedShippingMethod
+    ? parseInt(selectedShippingMethod.amount)
+    : 0;
   const totalAmount = subtotal + shippingCost;
-  
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       <main className="flex-grow py-8 bg-[#f8f5f2]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-serif text-center mb-8">Shipping and Payment</h1>
-          
+          <h1 className="text-3xl font-serif text-center mb-8">
+            Shipping and Payment
+          </h1>
+
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Left side: Checkout form */}
             <div className="flex-grow lg:w-2/3">
               <div className="bg-white p-6 rounded-lg shadow mb-6">
-                <h2 className="text-xl font-serif mb-4">Shipping Information</h2>
-                
+                <h2 className="text-xl font-serif mb-4">
+                  Shipping Information
+                </h2>
+
                 <form onSubmit={handleSubmit}>
                   <div className="space-y-6">
                     {/* Contact Information */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="fullName"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Full Name
                         </label>
                         <input
@@ -215,7 +259,10 @@ const CheckoutPage = () => {
                         />
                       </div>
                       <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="email"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Email Address
                         </label>
                         <input
@@ -229,7 +276,10 @@ const CheckoutPage = () => {
                         />
                       </div>
                       <div>
-                        <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="phoneNumber"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Phone Number
                         </label>
                         <input
@@ -243,11 +293,13 @@ const CheckoutPage = () => {
                         />
                       </div>
                     </div>
-                    
+
                     {/* Shipping Address */}
                     <div>
-                      <h3 className="text-lg font-medium mb-3">Shipping Address</h3>
-                      
+                      <h3 className="text-lg font-medium mb-3">
+                        Shipping Address
+                      </h3>
+
                       {isAuthenticated && savedAddresses.length > 0 && (
                         <div className="mb-4">
                           <div className="flex items-center mb-3">
@@ -255,33 +307,42 @@ const CheckoutPage = () => {
                               type="checkbox"
                               id="useSavedAddress"
                               checked={useSavedAddress}
-                              onChange={() => setUseSavedAddress(!useSavedAddress)}
+                              onChange={() =>
+                                setUseSavedAddress(!useSavedAddress)
+                              }
                               className="h-4 w-4 text-[#a0001e] rounded"
                             />
-                            <label htmlFor="useSavedAddress" className="ml-2 text-sm text-gray-700">
+                            <label
+                              htmlFor="useSavedAddress"
+                              className="ml-2 text-sm text-gray-700"
+                            >
                               Use a saved address
                             </label>
                           </div>
-                          
+
                           {useSavedAddress && (
                             <SavedAddressList
                               addresses={savedAddresses}
-                              onSelect={(id) => handleSavedAddressSelect(id, 'shipping')}
+                              onSelect={(id) =>
+                                handleSavedAddressSelect(id, "shipping")
+                              }
                               selectedAddressId={formData.shippingAddressId}
                             />
                           )}
                         </div>
                       )}
-                      
+
                       {!useSavedAddress && (
                         <AddressForm
                           type="shipping"
                           address={formData.shippingAddress}
-                          onChange={(field, value) => handleAddressChange('shippingAddress', field, value)}
+                          onChange={(field, value) =>
+                            handleAddressChange("shippingAddress", field, value)
+                          }
                         />
                       )}
                     </div>
-                    
+
                     {/* Billing Address */}
                     <div>
                       <div className="flex items-center mb-3">
@@ -293,15 +354,20 @@ const CheckoutPage = () => {
                           onChange={handleInputChange}
                           className="h-4 w-4 text-[#a0001e] rounded"
                         />
-                        <label htmlFor="useSameForBilling" className="ml-2 text-sm text-gray-700">
+                        <label
+                          htmlFor="useSameForBilling"
+                          className="ml-2 text-sm text-gray-700"
+                        >
                           Same as shipping address
                         </label>
                       </div>
-                      
+
                       {!formData.useSameForBilling && (
                         <div className="mt-4">
-                          <h3 className="text-lg font-medium mb-3">Billing Address</h3>
-                          
+                          <h3 className="text-lg font-medium mb-3">
+                            Billing Address
+                          </h3>
+
                           {isAuthenticated && savedAddresses.length > 0 && (
                             <div className="mb-4">
                               <div className="flex items-center mb-3">
@@ -309,48 +375,73 @@ const CheckoutPage = () => {
                                   type="checkbox"
                                   id="useSavedBillingAddress"
                                   checked={showBillingForm}
-                                  onChange={() => setShowBillingForm(!showBillingForm)}
+                                  onChange={() =>
+                                    setShowBillingForm(!showBillingForm)
+                                  }
                                   className="h-4 w-4 text-[#a0001e] rounded"
                                 />
-                                <label htmlFor="useSavedBillingAddress" className="ml-2 text-sm text-gray-700">
+                                <label
+                                  htmlFor="useSavedBillingAddress"
+                                  className="ml-2 text-sm text-gray-700"
+                                >
                                   Use a saved address
                                 </label>
                               </div>
-                              
+
                               {showBillingForm && (
                                 <SavedAddressList
                                   addresses={savedAddresses}
-                                  onSelect={(id) => handleSavedAddressSelect(id, 'billing')}
+                                  onSelect={(id) =>
+                                    handleSavedAddressSelect(id, "billing")
+                                  }
                                   selectedAddressId={formData.billingAddressId}
                                 />
                               )}
                             </div>
                           )}
-                          
+
                           {!showBillingForm && (
                             <AddressForm
                               type="billing"
-                              address={formData.billingAddress || defaultAddress}
-                              onChange={(field, value) => handleAddressChange('billingAddress', field, value)}
+                              address={
+                                formData.billingAddress || defaultAddress
+                              }
+                              onChange={(field, value) =>
+                                handleAddressChange(
+                                  "billingAddress",
+                                  field,
+                                  value
+                                )
+                              }
                             />
                           )}
                         </div>
                       )}
                     </div>
-                    
+
                     {/* Shipping Method */}
                     <div>
-                      <h3 className="text-lg font-medium mb-3">Shipping Method</h3>
+                      <h3 className="text-lg font-medium mb-3">
+                        Shipping Method
+                      </h3>
                       <ShippingMethodsSelector
                         methods={shippingMethods}
                         selectedMethodId={formData.shippingMethod}
-                        onChange={(id) => setFormData(prev => ({ ...prev, shippingMethod: id }))}
+                        onChange={(id) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            shippingMethod: id,
+                          }))
+                        }
                       />
                     </div>
-                    
+
                     {/* Order notes */}
                     <div>
-                      <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="notes"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Order Notes (Optional)
                       </label>
                       <textarea
@@ -363,23 +454,25 @@ const CheckoutPage = () => {
                         placeholder="Any special instructions for delivery or order"
                       />
                     </div>
-                    
+
                     <div className="mt-8 flex justify-end">
                       <button
                         type="submit"
                         disabled={isLoading}
-                        className={`px-6 py-3 bg-[#a0001e] text-white font-serif rounded hover:bg-[#8a0019] transition-colors ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
+                        className={`px-6 py-3 bg-[#a0001e] text-white font-serif rounded hover:bg-[#8a0019] transition-colors ${
+                          isLoading ? "opacity-75 cursor-not-allowed" : ""
+                        }`}
                       >
-                        {isLoading ? 'Processing...' : 'Complete Order'}
+                        {isLoading ? "Processing..." : "Complete Order"}
                       </button>
                     </div>
                   </div>
                 </form>
               </div>
             </div>
-            
+
             {/* Right side: Order summary */}
-            <div className="lg:w-1/3">
+            <div className="lg:w-1/3 flex flex-col gap-5">
               <CheckoutSummary
                 cartItems={cartItems}
                 subtotal={subtotal}
@@ -390,7 +483,7 @@ const CheckoutPage = () => {
           </div>
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );

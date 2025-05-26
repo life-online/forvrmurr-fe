@@ -1,3 +1,4 @@
+import { Discount } from "@/services/product";
 import { apiRequest } from "./api";
 
 export interface CartItemDto {
@@ -14,6 +15,11 @@ export interface CartItemDto {
   subtotal: number;
 }
 
+export interface CartDiscountDto {
+  title: string;
+  code: string;
+  amountDeducted: number;
+}
 export interface CartResponseDto {
   id: string;
   userId: string | null;
@@ -24,6 +30,13 @@ export interface CartResponseDto {
   isEmpty: boolean;
   createdAt: string;
   updatedAt: string;
+
+  itemCount: number;
+  discount: number;
+  total: number;
+  appliedCouponCode: string | null;
+  hasFreeShipping: boolean;
+  appliedDiscounts: CartDiscountDto[];
 }
 
 export interface AddItemDto {
@@ -41,6 +54,19 @@ const cartService = {
   getGuestCart: async (guestId: string): Promise<CartResponseDto> => {
     return apiRequest<CartResponseDto>(`/cart?guestId=${guestId}`, {
       requiresAuth: false,
+    });
+  },
+  applycoupon: async (code: string): Promise<any> => {
+    return apiRequest<any>(`/cart/apply-coupon`, {
+      method: "POST",
+      body: JSON.stringify({ couponCode: code }), // Replace with actual coupon code
+      requiresAuth: true,
+    });
+  },
+  removecoupon: async (): Promise<any> => {
+    return apiRequest<any>(`/cart/remove-coupon`, {
+      method: "DELETE",
+      requiresAuth: true,
     });
   },
 

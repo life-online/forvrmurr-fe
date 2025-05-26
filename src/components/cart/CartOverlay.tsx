@@ -7,7 +7,7 @@ import { FiMinus, FiPlus, FiX, FiShoppingBag } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import cartService from "../../services/cart";
-import productService, { Product } from "@/services/product";
+import productService, { Discount, Product } from "@/services/product";
 
 // Types
 export interface CartItem {
@@ -45,17 +45,10 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
   const [featuredQuantities, setFeaturedQuantities] = useState<
     Record<string, number>
   >({});
-  // Delivery threshold calculatio
-  const deliveryThreshold = 49000; // ₦49,000
-  const subtotal = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
-  const amountToFreeDelivery = Math.max(0, deliveryThreshold - subtotal);
-  const progressPercentage = Math.min(
-    100,
-    (subtotal / deliveryThreshold) * 100
-  );
+  const [currentDiscount, setCurrentDiscount] = useState<Discount>();
+  const [amountToFreeDelivery, setAmountTodelivery] = useState<number>(0);
+  const [subtotal, setSubTotal] = useState<number>(0);
+  const [progressPercentage, setProgress] = useState<number>(0);
 
   // Available add-ons
 
@@ -86,9 +79,30 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
           // After fetching the main product, get related products
           const featuredProductsData =
             await productService.getFeaturedProducts();
-          // const filtered = featuredProductsData.data.filter(
-          //   (prod) => !cartItems.some((item) => item.productId === prod.id)
-          // );
+          // fetch current discount
+          const currentDiscount = await productService.getCurrentDiscount();
+          setCurrentDiscount(currentDiscount[0]);
+          // do some discount calculation
+          const deliveryThreshold = parseInt(
+            currentDiscount[0].minimumSubtotalValue
+          ); // ₦49,000
+          const subtotal = cartItems.reduce(
+            (total, item) => total + item.price * item.quantity,
+            0
+          );
+          const amountToFreeDelivery = Math.max(
+            0,
+            deliveryThreshold - subtotal
+          );
+          const progressPercentage = Math.min(
+            100,
+            (subtotal / deliveryThreshold) * 100
+          );
+
+          setSubTotal(subtotal);
+          setAmountTodelivery(amountToFreeDelivery);
+          setProgress(progressPercentage);
+
           const filtered = featuredProductsData.data.filter((prod) => {
             if (!cartItems.some((ci) => ci.productId === prod.id)) {
               return prod;
@@ -203,24 +217,24 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
         </div>
 
         {/* Delivery Progress */}
-        {/* <div className="bg-[#faf0e2] p-4">
-          <p className="text-[#8b0000] font-medium mb-1">
-            {amountToFreeDelivery > 0 ? "Almost there..." : "Congratulations"}
-          </p>
-          <p className="text-[#8b0000] text-sm mb-2">
-            {amountToFreeDelivery > 0
-              ? `You are ₦${(
-                  amountToFreeDelivery / 100
-                ).toLocaleString()} away from free delivery*`
-              : "You qualify for free delivery!"}
-          </p>
-          <div className="h-2 bg-[#f8e2c8] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-orange-400 via-red-500 to-pink-300"
-              style={{ width: `${progressPercentage}%` }}
-            />
+        {cartItems.length > 0 && currentDiscount && (
+          <div className="bg-[#faf0e2] p-4">
+            <p className="text-[#8b0000] font-medium mb-1">
+              {amountToFreeDelivery > 0 ? "Almost there..." : "Congratulations"}
+            </p>
+            <p className="text-[#8b0000] text-sm mb-2">
+              {amountToFreeDelivery > 0
+                ? `You are ₦${amountToFreeDelivery.toLocaleString()} away from free shipping*`
+                : `You qualify for free shipping!`}
+            </p>
+            <div className="h-2 bg-[#f8e2c8] rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-orange-400 via-red-500 to-pink-300"
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
           </div>
-        </div> */}
+        )}
 
         {/* Cart Content */}
         <div className="flex-1 overflow-y-auto p-4">
@@ -343,74 +357,79 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
               </div>
 
               {/* Add to your order section */}
-              <div className="mt-6 mb-4">
-                <h3 className="text-lg font-medium mb-4">Add to your order</h3>
-                <div className="space-y-4">
-                  {filteredFeaturedProducts.map((prod, index) => (
-                    <div
-                      key={index}
-                      className="bg-[#faf0e2] flex flex-col gap-3 rounded-lg p-4 relative"
-                    >
-                      <div className="inline-block bg-[#f3d5b5] w-fit text-[#8b0000] px-3 py-1 rounded-full text-xs font-medium mb-2">
-                        ✨{prod.name}
-                      </div>
+              {filteredFeaturedProducts.length > 0 && (
+                <div className="mt-6 mb-4">
+                  <h3 className="text-lg font-medium mb-4">
+                    Add to your order
+                  </h3>
+                  <div className="space-y-4">
+                    {filteredFeaturedProducts.map((prod, index) => (
+                      <div
+                        key={index}
+                        className="bg-[#faf0e2] flex flex-col gap-3 rounded-lg p-4 relative"
+                      >
+                        <div className="inline-block bg-[#f3d5b5] w-fit text-[#8b0000] px-3 py-1 rounded-full text-xs font-medium mb-2">
+                          ✨{prod.name}
+                        </div>
 
-                      <div className="flex gap-3 items-start">
-                        <input
-                          type="checkbox"
-                          className="p-3 h-4 w-4"
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              handleAddFeaturedProduct(prod);
-                            } else {
-                              removeFromCart(prod.id);
-                            }
-                          }}
-                        />
-                        <div className="flex-1">
-                          {/* <p className="font-medium">{prod.description}</p> */}
-                          <div className="flex items-center justify-between  flex-wrap gap-4">
-                            <div className="flex items-center border border-[#a0001e] rounded-full text-[#a0001e] font-serif text-sm py-1">
-                              <button
-                                onClick={() => decreaseFeaturedQty(prod.id)}
-                                className="px-3 cursor-pointer focus:outline-none hover:bg-red-50 rounded-l-full"
-                                aria-label="Decrease quantity"
-                              >
-                                -
-                              </button>
-                              <span className="mx-2">
-                                No: {getFeaturedQty(prod.id)}
-                              </span>
-                              <button
-                                onClick={() => increaseFeaturedQty(prod.id)}
-                                className="px-3 cursor-pointer focus:outline-none hover:bg-red-50 rounded-r-full"
-                                aria-label="Increase quantity"
-                              >
-                                +
-                              </button>
+                        <div className="flex gap-3 items-start">
+                          <input
+                            type="checkbox"
+                            className="p-3 h-4 w-4"
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                handleAddFeaturedProduct(prod);
+                              } else {
+                                removeFromCart(prod.id);
+                              }
+                            }}
+                          />
+                          <div className="flex-1">
+                            {/* <p className="font-medium">{prod.description}</p> */}
+                            <div className="flex items-center justify-between  flex-wrap gap-4">
+                              <div className="flex items-center border border-[#a0001e] rounded-full text-[#a0001e] font-serif text-sm py-1">
+                                <button
+                                  onClick={() => decreaseFeaturedQty(prod.id)}
+                                  className="px-3 cursor-pointer focus:outline-none hover:bg-red-50 rounded-l-full"
+                                  aria-label="Decrease quantity"
+                                >
+                                  -
+                                </button>
+                                <span className="mx-2">
+                                  No: {getFeaturedQty(prod.id)}
+                                </span>
+                                <button
+                                  onClick={() => increaseFeaturedQty(prod.id)}
+                                  className="px-3 cursor-pointer focus:outline-none hover:bg-red-50 rounded-r-full"
+                                  aria-label="Increase quantity"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                            <div className="text-sm font-serif text-[#a0001e] font-bold">
+                              ₦{Number(prod.nairaPrice).toLocaleString()} ×{" "}
+                              {getFeaturedQty(prod.id)} = ₦
+                              {(
+                                Number(prod.nairaPrice) *
+                                getFeaturedQty(prod.id)
+                              ).toLocaleString()}
                             </div>
                           </div>
-                          <div className="text-sm font-serif text-[#a0001e] font-bold">
-                            ₦{Number(prod.nairaPrice).toLocaleString()} ×{" "}
-                            {getFeaturedQty(prod.id)} = ₦
-                            {(
-                              Number(prod.nairaPrice) * getFeaturedQty(prod.id)
-                            ).toLocaleString()}
+                          <div className="ml-4 relative h-16 w-16">
+                            <Image
+                              src={prod.imageUrls[0]}
+                              alt={prod.name}
+                              fill
+                              style={{ objectFit: "contain" }}
+                            />
                           </div>
                         </div>
-                        <div className="ml-4 relative h-16 w-16">
-                          <Image
-                            src={prod.imageUrls[0]}
-                            alt={prod.name}
-                            fill
-                            style={{ objectFit: "contain" }}
-                          />
-                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </>
           )}
         </div>

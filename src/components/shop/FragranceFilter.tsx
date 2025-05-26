@@ -7,7 +7,7 @@ import { IoMdClose } from "react-icons/io";
 
 const categories = [
   { label: "Scent Type", imageUrl: "/images/scent_notes/face.png" },
-  { label: "Concentration", imageUrl: "/images/scent_notes/yellowFlower.png" },
+  // { label: "Concentration", imageUrl: "/images/scent_notes/yellowFlower.png" },
   { label: "Occasion", imageUrl: "/images/scent_notes/musk.png" },
   { label: "Fragrance Family", imageUrl: "/images/scent_notes/citrus.png" },
   { label: "Mood", imageUrl: "/images/scent_notes/redPics.png" },
