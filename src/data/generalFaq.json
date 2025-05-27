@@ -3,26 +3,32 @@
     "name": "General",
     "questions": [
       {
+        "id": "1",
         "q": "Will the bottles be refillable",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       },
       {
+        "id": "2",
         "q": "How long do you reckon an 8 mL will last the average perfume addict?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       },
       {
+        "id": "3",
         "q": "Are you going to sell a dupe or the actual product?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       },
       {
+        "id": "4",
         "q": "How does Forvr Murr Work?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       },
       {
+        "id": "5",
         "q": "What’s the difference between Prime and Premium?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       },
       {
+        "id": "6",
         "q": "Will perfumes come in original packaging?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       }
@@ -32,18 +38,22 @@
     "name": "Subscriptions",
     "questions": [
       {
+        "id": "7",
         "q": "Can I choose the scent I receive each month?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       },
       {
+        "id": "8",
         "q": "When will I receive my first delivery?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       },
       {
+        "id": "9",
         "q": "Can I gift a subscription?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       },
       {
+        "id": "10",
         "q": "Can I skip a month or cancel anytime?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       }
@@ -53,14 +63,17 @@
     "name": "Scent Quiz",
     "questions": [
       {
+        "id": "11",
         "q": "Do I have to take the quiz before subscribing?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       },
       {
+        "id": "12",
         "q": "Can I retake or update my quiz answers?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       },
       {
+        "id": "13",
         "q": "What if I don't like my quiz result?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       }
@@ -70,18 +83,22 @@
     "name": "Shipping & Delivery",
     "questions": [
       {
+        "id": "14",
         "q": "Do you ship nationwide in Nigeria?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       },
       {
+        "id": "15",
         "q": "How long does delivery take?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       },
       {
+        "id": "16",
         "q": "How can I track my order?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       },
       {
+        "id": "17",
         "q": "What do I do if my package is delayed or damaged?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       }
@@ -91,14 +108,17 @@
     "name": "Returns & Exchanges",
     "questions": [
       {
+        "id": "18",
         "q": "Can I return or exchange a scent I don’t like?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       },
       {
+        "id": "19",
         "q": "What if I receive the wrong item?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       },
       {
+        "id": "20",
         "q": "Do you offer refunds?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       }
@@ -108,14 +128,17 @@
     "name": "Gifting",
     "questions": [
       {
+        "id": "21",
         "q": "Can I add a gift note or request gift wrapping?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       },
       {
+        "id": "22",
         "q": "Do you offer bulk gifting or party favors?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       },
       {
+        "id": "23",
         "q": "Is it possible to gift a subscription?",
         "a": "While your monthly scent is curated based on your quiz results, we're building something even better—your wishlist. Add scents you love to your wishlist and we’ll prioritize them in your upcoming deliveries. Coming soon to your subscription dashboard!"
       }

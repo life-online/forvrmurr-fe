@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { FiFacebook, FiInstagram, FiTwitter } from "react-icons/fi";
+import { FaTiktok } from "react-icons/fa";
 
 const Footer: React.FC = () => {
   return (
@@ -80,7 +81,7 @@ const Footer: React.FC = () => {
             <h3 className="text-sm font-bold mb-4 uppercase">Connect</h3>
             <div className="flex space-x-4 mb-4">
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/forvrmurr/?igsh=M2FnaXhxaTljMDY2#"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
@@ -88,7 +89,7 @@ const Footer: React.FC = () => {
                 <FiInstagram size={20} className="hover:text-gray-300" />
               </a>
               <a
-                href="https://facebook.com"
+                href="https://web.facebook.com/profile.php?id=61574755126571"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
@@ -96,12 +97,20 @@ const Footer: React.FC = () => {
                 <FiFacebook size={20} className="hover:text-gray-300" />
               </a>
               <a
-                href="https://twitter.com"
+                href="https://x.com/forvrmurr?s=11"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Twitter"
               >
                 <FiTwitter size={20} className="hover:text-gray-300" />
+              </a>
+              <a
+                href="https://www.tiktok.com/@forvrmurr?_t=ZM-8wiBQFH3OAY&_r=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Twitter"
+              >
+                <FaTiktok size={20} className="hover:text-gray-300" />
               </a>
             </div>
             <p className="text-sm text-gray-400">

@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 export default function Faq() {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [openFaq, setOpenFaq] = useState<string | null>(null);
   return (
     <div className="min-h-screen bg-white flex flex-col ">
       <AnnouncementBar message="New collection revealed monthly!" />
@@ -40,21 +40,23 @@ export default function Faq() {
             >
               <p className="text-xl lg:text-2xl text-[#CE0000]">{item.name}</p>
               <div className="flex flex-col gap-2 w-full">
-                {item.questions.map((faq, idx) => (
+                {item.questions.map((faq) => (
                   <div
-                    key={faq.q}
+                    key={faq.id}
                     className="mb-2 border border-gray-200 rounded overflow-hidden bg-white"
                   >
                     <button
                       className="w-full text-left font-serif font-semibold text-[#1C1C1C] px-4 py-3 focus:outline-none flex justify-between items-center"
-                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      onClick={() =>
+                        setOpenFaq(openFaq === faq.id ? null : faq.id)
+                      }
                     >
                       <span>{faq.q}</span>
                       <span className="ml-2">
-                        {openFaq === idx ? "-" : "+"}
+                        {openFaq === faq.id ? "-" : "+"}
                       </span>
                     </button>
-                    {openFaq === idx && (
+                    {openFaq === faq.id && (
                       <div className="text-[#1C1C1C] mt-0 px-4 pb-3 text-sm">
                         {faq.a}
                       </div>
