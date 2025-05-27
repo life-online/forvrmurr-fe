@@ -30,7 +30,7 @@ export interface CheckoutFormData {
   useSameForBilling: boolean;
   billingAddressId?: string | null;
   shippingAddressId?: string | null;
-  shippingMethod: string;
+  shippingRateId: string;
   notes?: string;
   couponCode?: string;
 }
@@ -91,7 +91,7 @@ const checkoutService = {
     // Format data for API
     const apiPayload = {
       cartId,
-      shippingMethod: checkoutData.shippingMethod,
+      shippingRateId: checkoutData.shippingRateId,
       notes: checkoutData.notes,
       shippingAddress: {
         firstName: checkoutData.fullName.split(" ")[0],

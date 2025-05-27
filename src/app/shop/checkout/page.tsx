@@ -63,7 +63,7 @@ const CheckoutPage = () => {
       country: "Nigeria",
     },
     useSameForBilling: true,
-    shippingMethod: "",
+    shippingRateId: "",
     notes: "",
     couponCode: "", // Ensure couponCode is always a string
   });
@@ -90,7 +90,7 @@ const CheckoutPage = () => {
         setShippingMethods(methods);
 
         if (methods.length > 0) {
-          setFormData((prev) => ({ ...prev, shippingMethod: methods[0].id }));
+          setFormData((prev) => ({ ...prev, shippingRateId: methods[0].id }));
         }
 
         // Fetch saved addresses if authenticated
@@ -111,6 +111,7 @@ const CheckoutPage = () => {
         setIsLoading(false);
       }
     };
+    console.log(cart, "cart in checkout page");
     setCouponRes(cart);
     fetchInitialData();
   }, [isAuthenticated, error]);
@@ -268,8 +269,10 @@ const CheckoutPage = () => {
   };
   useEffect(() => {
     const selectedShippingMethod = shippingMethods.find(
-      (method) => method.id === formData.shippingMethod
+      (method) => method.id === formData.shippingRateId
     );
+
+    console.log(selectedShippingMethod, "selected shipping method");
     const shippingCost = selectedShippingMethod
       ? parseInt(selectedShippingMethod.amount)
       : 0; // Use .amount instead of .price
@@ -370,7 +373,7 @@ const CheckoutPage = () => {
                         Shipping Address
                       </h3>
 
-                      {isAuthenticated && savedAddresses.length > 0 && (
+                      {/* {isAuthenticated && savedAddresses.length > 0 && (
                         <div className="mb-4">
                           <div className="flex items-center mb-3">
                             <input
@@ -400,7 +403,7 @@ const CheckoutPage = () => {
                             />
                           )}
                         </div>
-                      )}
+                      )} */}
 
                       {!useSavedAddress && (
                         <AddressForm
@@ -510,11 +513,11 @@ const CheckoutPage = () => {
                       </h3>
                       <ShippingMethodsSelector
                         methods={shippingMethods}
-                        selectedMethodId={formData.shippingMethod}
+                        selectedMethodId={formData.shippingRateId}
                         onChange={(id) =>
                           setFormData((prev) => ({
                             ...prev,
-                            shippingMethod: id,
+                            shippingRateId: id,
                           }))
                         }
                       />
