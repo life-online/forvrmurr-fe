@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { FiFacebook, FiInstagram, FiTwitter } from "react-icons/fi";
+import { FaTiktok } from "react-icons/fa";
 
 const Footer: React.FC = () => {
   return (
@@ -28,24 +29,47 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* <div>
+          <div>
             <h3 className="text-sm font-bold mb-4 uppercase">About</h3>
             <ul className="space-y-2 text-sm text-gray-300">
-              <li><Link href="/our-story" className="hover:text-white">Our Story</Link></li>
-              <li><Link href="/ingredients" className="hover:text-white">Ingredients</Link></li>
-              <li><Link href="/sustainability" className="hover:text-white">Sustainability</Link></li>
-              <li><Link href="/ethics" className="hover:text-white">Ethics</Link></li>
+              <li>
+                <Link href="/about/story" className="hover:text-white">
+                  Our Story
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="hover:text-white">
+                  Meet the Founders
+                </Link>
+              </li>
+              <li>
+                <Link href="/about/faq" className="hover:text-white">
+                  FAQs
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-white">
+                  Contact Us
+                </Link>
+              </li>
             </ul>
-          </div> */}
+          </div>
 
           <div>
-            <h3 className="text-sm font-bold mb-4 uppercase">Help</h3>
+            <h3 className="text-sm font-bold mb-4 uppercase">Discover</h3>
             <ul className="space-y-2 text-sm text-gray-300">
-              {/* <li><Link href="/contact" className="hover:text-white">Contact Us</Link></li>
-              <li><Link href="/shipping" className="hover:text-white">Shipping & Returns</Link></li> */}
+              {/* <li><Link href="/contact" className="hover:text-white">Contact Us</Link></li> */}
               <li>
-                <Link href="/faq" className="hover:text-white">
-                  FAQ
+                <Link href="/coming-soon" className="hover:text-white">
+                  Take the Scent Quiz
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/discover/choose-decants"
+                  className="hover:text-white"
+                >
+                  Why Choose Decants
                 </Link>
               </li>
               {/* <li><Link href="/terms" className="hover:text-white">Terms & Conditions</Link></li>
@@ -57,7 +81,7 @@ const Footer: React.FC = () => {
             <h3 className="text-sm font-bold mb-4 uppercase">Connect</h3>
             <div className="flex space-x-4 mb-4">
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/forvrmurr/?igsh=M2FnaXhxaTljMDY2#"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
@@ -65,7 +89,7 @@ const Footer: React.FC = () => {
                 <FiInstagram size={20} className="hover:text-gray-300" />
               </a>
               <a
-                href="https://facebook.com"
+                href="https://web.facebook.com/profile.php?id=61574755126571"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
@@ -73,12 +97,20 @@ const Footer: React.FC = () => {
                 <FiFacebook size={20} className="hover:text-gray-300" />
               </a>
               <a
-                href="https://twitter.com"
+                href="https://x.com/forvrmurr?s=11"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Twitter"
               >
                 <FiTwitter size={20} className="hover:text-gray-300" />
+              </a>
+              <a
+                href="https://www.tiktok.com/@forvrmurr?_t=ZM-8wiBQFH3OAY&_r=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Twitter"
+              >
+                <FaTiktok size={20} className="hover:text-gray-300" />
               </a>
             </div>
             <p className="text-sm text-gray-400">

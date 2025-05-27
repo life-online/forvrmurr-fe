@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import ProductCard from "./ProductCard";
 import productService, {
   Product,
@@ -23,7 +22,7 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
   title,
   subtitle,
   limit = 8,
-  filterBy,
+  // filterBy,
   initialProducts,
 }) => {
   const [products, setProducts] = useState<Product[]>(initialProducts || []);

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import React from "react";
 
 const Newsletter: React.FC = () => {
@@ -23,12 +24,16 @@ const Newsletter: React.FC = () => {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 max-w-md md:max-w-lg mx-auto">
-          <button className="bg-[#8b0000] text-nowrap w-full text-white py-3 px-6 text-xs rounded-xl transition-all hover:bg-[#6b0000] font-medium">
-            Prime Plan: ₦20,000 / month
-          </button>
-          <button className="border-[#8b0000] text-nowrap text-[#8b0000] border w-full  py-3 px-6 text-xs rounded-xl transition-all hover:bg-[#6b0000] hover:text-white font-medium">
-            Premium Plan: ₦60,000 / month
-          </button>
+          <Link href="/coming-soon">
+            <button className="bg-[#8b0000] text-nowrap w-full text-white py-3 px-6 text-xs rounded-xl transition-all hover:bg-[#6b0000] font-medium">
+              Prime Plan: ₦20,000 / month
+            </button>
+          </Link>
+          <Link href="/coming-soon">
+            <button className="border-[#8b0000] text-nowrap text-[#8b0000] border w-full  py-3 px-6 text-xs rounded-xl transition-all hover:bg-[#6b0000] hover:text-white font-medium">
+              Premium Plan: ₦60,000 / month
+            </button>
+          </Link>
         </div>
       </div>
     </section>

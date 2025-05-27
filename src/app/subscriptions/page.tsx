@@ -172,7 +172,7 @@ export default function SubscriptionsPage() {
               <input type="checkbox" className="accent-[#a0001e]" />
               <span>Still need help?</span>
             </div>
-            <div className="text-sm text-gray-500">Visit our contact page for more details <a href="#" className="underline">Contact Us</a></div>
+            <div className="text-sm text-gray-500">Visit our contact page for more details <a href="/contact" className="underline">Contact Us</a></div>
           </div>
           {/* Right: Accordion */}
           <div className="flex-1">

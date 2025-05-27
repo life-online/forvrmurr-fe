@@ -159,7 +159,15 @@ export default function FragranceSelector() {
       >
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/30 z-40" />
-          <Drawer.Content className="fixed top-0 right-0 w-full sm:w-[480px] h-full bg-white z-50 p-4 overflow-y-auto overflow-x-hidden">
+          {/* <Drawer.Content className="fixed top-0 right-0 w-full sm:w-[480px] h-full bg-white z-40 p-4 overflow-y-auto overflow-x-hidden touch"> */}
+          <Drawer.Content
+            className="fixed top-0 right-0 w-full sm:w-[480px] max-h-screen bg-white z-50 p-4 overflow-y-auto overflow-x-hidden overscroll-y-contain"
+            style={{
+              WebkitOverflowScrolling: "touch",
+              touchAction: "pan-y",
+              overscrollBehavior: "contain",
+            }}
+          >
             <div className="flex justify-end mb-3">
               <IoMdClose
                 size={34}
