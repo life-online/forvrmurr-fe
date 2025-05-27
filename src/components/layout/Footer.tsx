@@ -43,11 +43,11 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <Link href="/about/faq" className="hover:text-white">
-                  Sustainability
+                  FAQs
                 </Link>
               </li>
               <li>
-                <Link href="/ethics" className="hover:text-white">
+                <Link href="/contact" className="hover:text-white">
                   Contact Us
                 </Link>
               </li>

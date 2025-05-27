@@ -4,6 +4,7 @@ import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import generalFaq from "@/data/generalFaq.json";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 export default function Faq() {
@@ -65,7 +66,7 @@ export default function Faq() {
           ))}
           <p className="text-sm text-black">
             still need help?{" "}
-            <span className="underline text-[#C8102E]">Contact Us here</span>
+            <span className="underline text-[#C8102E]"><Link href="/contact">Contact Us here</Link></span>
           </p>
         </div>
       </div>

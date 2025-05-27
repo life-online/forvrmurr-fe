@@ -10,12 +10,13 @@ export default function CuratedExperiences({
   return (
     <div className="relative bg-gradient-to-r from-[#290101] to-[#8B0000] overflow-hidden">
       {/* Background Image */}
-      <div className="absolute bottom-0 right-0 transition-all ease-in-out duration-500 w-[30vh] h-[30vh] md:w-[70vh] md:h-[70vh] lg:w-[90vh] lg:h-[90vh] z-0">
+      <div className="absolute bottom-0 right-0 transition-all ease-in-out duration-500 w-[30vh] h-[30vh] md:w-[70vh] md:h-[70vh] lg:w-[90vh] lg:h-[90vh] z-0 flex items-end justify-center">
         <Image
           src={"/images/hero/lade.png"}
           alt="lade image"
           width={1112}
           height={957}
+          className="object-contain object-bottom"
         />
       </div>
       
