@@ -111,7 +111,6 @@ const CheckoutPage = () => {
         setIsLoading(false);
       }
     };
-    console.log(cart, "cart in checkout page");
     setCouponRes(cart);
     fetchInitialData();
   }, [isAuthenticated, error]);
@@ -272,7 +271,6 @@ const CheckoutPage = () => {
       (method) => method.id === formData.shippingRateId
     );
 
-    console.log(selectedShippingMethod, "selected shipping method");
     const shippingCost = selectedShippingMethod
       ? parseInt(selectedShippingMethod.amount)
       : 0; // Use .amount instead of .price
