@@ -1,4 +1,5 @@
 import Navbar from "@/components/layout/Navbar";
+import Image from "next/image";
 
 export default function TwoWomen() {
   return (
@@ -34,7 +35,15 @@ export default function TwoWomen() {
 
         <div className="grid md:grid-cols-2 gap-5 max-w-3xl mx-auto">
           <div className=" p-6 rounded-lg">
-            <div className="w-full h-80 bg-gray-300 rounded mb-4"></div>
+            <div className="w-full h-90 bg-gray-300 overflow-hidden rounded-xl mb-4">
+              <Image
+                src={"/images/founders/ayodeji.jpg"}
+                alt="alt 1"
+                width={1000}
+                height={1000}
+                className="object-cover w-full h-full"
+              />
+            </div>
             <h4 className="text-red-700 font-bold mb-2">Ayodeji</h4>
             <p className="text-sm">
               Ayodeji is known for her friend-first work for Forvr. Her
@@ -48,7 +57,7 @@ export default function TwoWomen() {
           </div>
 
           <div className=" p-6 rounded-lg">
-            <div className="w-full h-80 bg-gray-300 rounded mb-4"></div>
+            <div className="w-full h-90 bg-gray-300 rounded-xl mb-4"></div>
             <h4 className="text-red-700 font-bold mb-2">Lamide</h4>
             <p className="text-sm">
               Lamide is an emotional scholar and scent researcher. Her scent lab
