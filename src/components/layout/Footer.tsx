@@ -28,24 +28,47 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* <div>
+          <div>
             <h3 className="text-sm font-bold mb-4 uppercase">About</h3>
             <ul className="space-y-2 text-sm text-gray-300">
-              <li><Link href="/our-story" className="hover:text-white">Our Story</Link></li>
-              <li><Link href="/ingredients" className="hover:text-white">Ingredients</Link></li>
-              <li><Link href="/sustainability" className="hover:text-white">Sustainability</Link></li>
-              <li><Link href="/ethics" className="hover:text-white">Ethics</Link></li>
+              <li>
+                <Link href="/about/story" className="hover:text-white">
+                  Our Story
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="hover:text-white">
+                  Meet the Founders
+                </Link>
+              </li>
+              <li>
+                <Link href="/about/faq" className="hover:text-white">
+                  Sustainability
+                </Link>
+              </li>
+              <li>
+                <Link href="/ethics" className="hover:text-white">
+                  Contact Us
+                </Link>
+              </li>
             </ul>
-          </div> */}
+          </div>
 
           <div>
-            <h3 className="text-sm font-bold mb-4 uppercase">Help</h3>
+            <h3 className="text-sm font-bold mb-4 uppercase">Discover</h3>
             <ul className="space-y-2 text-sm text-gray-300">
-              {/* <li><Link href="/contact" className="hover:text-white">Contact Us</Link></li>
-              <li><Link href="/shipping" className="hover:text-white">Shipping & Returns</Link></li> */}
+              {/* <li><Link href="/contact" className="hover:text-white">Contact Us</Link></li> */}
               <li>
-                <Link href="/faq" className="hover:text-white">
-                  FAQ
+                <Link href="/coming-soon" className="hover:text-white">
+                  Take the Scent Quiz
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/discover/choose-decants"
+                  className="hover:text-white"
+                >
+                  Why Choose Decants
                 </Link>
               </li>
               {/* <li><Link href="/terms" className="hover:text-white">Terms & Conditions</Link></li>
