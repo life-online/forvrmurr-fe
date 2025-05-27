@@ -71,7 +71,7 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-6 md:gap-0 mb-12">
           <div>
             <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-              <p className="text-sm">Our Top Picks, Voted By You!</p>
+              <p className="text-sm">Our Top Picks, Voted By You</p>
             </div>
             <h2 className="text-2xl md:text-3xl font-serif">{title}</h2>
             {subtitle && <p className="text-gray-600 mt-1">{subtitle}</p>}
