@@ -239,7 +239,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
         {/* Cart Content */}
         <div className="flex-1 overflow-y-auto p-4">
           {cartItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="flex flex-col items-center justify-center py-12 text-center h-full">
               <h3 className="text-xl font-medium mb-2">
                 Your cart is looking a little too empty.
               </h3>
@@ -254,7 +254,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
               </button>
 
               {/* Empty cart add-on section */}
-              <div className="mt-16 w-full">
+              {/* <div className="mt-16 w-full">
                 {emptyCartAddOns.map((addon) => (
                   <div
                     key={addon.id}
@@ -298,7 +298,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
                     </div>
                   </div>
                 ))}
-              </div>
+              </div> */}
             </div>
           ) : (
             <>

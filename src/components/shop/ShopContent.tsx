@@ -144,7 +144,7 @@ export default function ShopContent() {
           <span>Shop All</span>
         </div> */}
         <h1 className=" sm:text-xl md:text-2xl font-serif font-medium mb-4 text-black">
-          MEET YOUR NEXT SCENT OBSESSION
+          MEET YOUR NEXT OBSESSION
         </h1>
       </div>
 
