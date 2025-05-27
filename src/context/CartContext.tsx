@@ -164,7 +164,53 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       openCart();
     } catch (err) {
       console.error("Failed to add item to cart:", err);
-      error("Could not add item to cart. Please try again.");
+      // currently cannot replicate the isssue so we clear both auth token or guest Id and retry the request
+      localStorage.removeItem("forvrmurr_access_token");
+      localStorage.removeItem("forvrmurr_guest_id");
+      // API call to add item to cart - backend will generate a guestId for new guests
+      const response = await cartService.addItemToCart(
+        {
+          productId: newItem.id,
+          quantity: newItem.quantity,
+        },
+        // Only pass guestId if user is not authenticated and we already have a guestId
+        !isAuthenticated && guestId ? guestId : undefined
+      );
+
+      // Check for guestId in response - the backend provides it for guest users
+      if (!isAuthenticated && response.guestId) {
+        // Always save the latest guestId from the response
+        localStorage.setItem("forvrmurr_guest_id", response.guestId);
+        setGuestId(response.guestId);
+        console.log("Guest ID received from backend:", response.guestId);
+      }
+
+      // Log raw items from API response after adding item
+      console.log(
+        "Raw cart items from API (after add):",
+        JSON.stringify(response.items, null, 2)
+      );
+
+      // Map backend cart items to frontend CartItem format
+      const mappedItems: CartItem[] = response.items.map(
+        (item: CartItemDto) => ({
+          id: item.id,
+          name: item.product.name,
+          brand: item.product.name.split(" ")[0], // Adjust based on actual data
+          price: parseFloat(item.price),
+          imageUrl:
+            item.product.imageUrl ||
+            `/images/products/${item.product.slug}.png`,
+          quantity: item.quantity,
+          productId: item.product.id,
+        })
+      );
+
+      setCartItems(mappedItems);
+
+      // Open cart when adding an item
+      openCart();
+      // error("Could not add item to cart. Please try again.");
     } finally {
       setIsLoading(false);
     }
