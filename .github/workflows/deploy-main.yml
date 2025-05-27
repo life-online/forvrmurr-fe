@@ -14,7 +14,7 @@ env:
 jobs:
   deploy:
     name: Production Deployment
-    runs-on: forvrmurr-prod  # Using self-hosted runner
+    runs-on: [self-hosted, forvrmurr-prod]  # Using self-hosted runner
     
     steps:
       - name: Checkout repository
