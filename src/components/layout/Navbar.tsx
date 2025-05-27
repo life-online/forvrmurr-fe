@@ -18,89 +18,36 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { name: "HOME", path: "/" },
-  { name: "ABOUT", path: "/about" },
+  { name: "ABOUT", path: "/about" }, // Keep this here for general path matching, but dropdown will override behavior
   { name: "SHOP", path: "/shop" },
-  { name: "SUBSCRIPTIONS", path: "/subscriptions" },
+  { name: "SUBSCRIPTIONS", path: "/coming-soon" },
   { name: "DISCOVER", path: "/discover" },
-  // { name: 'ABOUT', path: '/about' },
 ];
 
-// Discover subroutes
 const discoverSubroutes = [
-  { name: "Take The Scent Quiz", path: "/" },
-  { name: "Why Choose Decants", path: "/" },
-  // { name: "Your Scent", path: "/discover/your-scent" },
+  { name: "Take the Scent Quiz", path: "/coming-soon" },
+  { name: "Why Choose Decants", path: "/discover/choose-decants" },
+];
+
+const aboutSubroutes = [
+  { name: "Our Story", path: "/about/story" },
+  { name: "Meet the Founders", path: "/about" }, // This could be the main /about page
+  { name: "FAQs", path: "/about/faq" },
 ];
 
 const Navbar: React.FC = () => {
-  // Mobile menu state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // Currency selector state
   const [selectedCurrency, setSelectedCurrency] = useState<"GBP" | "NGN">(
     "NGN"
   );
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
-
-  // Discover dropdown state
   const [showDiscoverDropdown, setShowDiscoverDropdown] = useState(false);
+  const [showAboutDropdown, setShowAboutDropdown] = useState(false); // State for About dropdown
 
-  // Refs for click-outside handling
   const currencyDropdownRef = useRef<HTMLDivElement>(null);
   const discoverDropdownRef = useRef<HTMLDivElement>(null);
+  const aboutDropdownRef = useRef<HTMLDivElement>(null); // Ref for About dropdown
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-
-  // Close dropdowns on outside click
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      // Close currency dropdown when clicking outside
-      if (
-        currencyDropdownRef.current &&
-        !currencyDropdownRef.current.contains(event.target as Node)
-      ) {
-        setShowCurrencyDropdown(false);
-      }
-
-      // Close discover dropdown when clicking outside
-      if (
-        discoverDropdownRef.current &&
-        !discoverDropdownRef.current.contains(event.target as Node)
-      ) {
-        setShowDiscoverDropdown(false);
-      }
-
-      // Close mobile menu when clicking outside
-      if (
-        mobileMenuRef.current &&
-        !mobileMenuRef.current.contains(event.target as Node)
-      ) {
-        setIsMobileMenuOpen(false);
-      }
-    }
-
-    if (showCurrencyDropdown || showDiscoverDropdown || isMobileMenuOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showCurrencyDropdown, showDiscoverDropdown, isMobileMenuOpen]);
-
-  // Prevent body scroll when mobile menu is open
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isMobileMenuOpen]);
 
   const pathname = usePathname();
   const {
@@ -115,6 +62,70 @@ const Navbar: React.FC = () => {
   } = useCart();
   const { isAuthenticated, logout } = useAuth();
   const { success } = useToast();
+
+  // Close dropdowns and mobile menu on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        currencyDropdownRef.current &&
+        !currencyDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowCurrencyDropdown(false);
+      }
+      if (
+        discoverDropdownRef.current &&
+        !discoverDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowDiscoverDropdown(false);
+      }
+      // Added About dropdown ref
+      if (
+        aboutDropdownRef.current &&
+        !aboutDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowAboutDropdown(false);
+      }
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsMobileMenuOpen(false);
+      }
+    }
+
+    if (
+      showCurrencyDropdown ||
+      showDiscoverDropdown ||
+      showAboutDropdown || // Include About dropdown in listener condition
+      isMobileMenuOpen
+    ) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [
+    showCurrencyDropdown,
+    showDiscoverDropdown,
+    showAboutDropdown, // Dependency for About dropdown
+    isMobileMenuOpen,
+  ]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
 
   const handleLogout = async () => {
     await logout();
@@ -165,6 +176,20 @@ const Navbar: React.FC = () => {
                 >
                   <span className="text-lg mr-2">🇳🇬</span> NG | ₦
                 </li>
+                {/* Add GBP option if needed */}
+                {/* <li
+                  className={`flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100 ${
+                    selectedCurrency === "GBP" ? "font-bold" : ""
+                  }`}
+                  onClick={() => {
+                    setSelectedCurrency("GBP");
+                    setShowCurrencyDropdown(false);
+                  }}
+                  role="option"
+                  aria-selected={selectedCurrency === "GBP"}
+                >
+                  <span className="text-lg mr-2">🇬🇧</span> GB | £
+                </li> */}
               </ul>
             )}
           </div>
@@ -240,6 +265,46 @@ const Navbar: React.FC = () => {
                   );
                 }
 
+                // Special handling for ABOUT dropdown
+                if (item.name === "ABOUT") {
+                  return (
+                    <div
+                      key={item.path}
+                      className="relative"
+                      ref={aboutDropdownRef} // Use the dedicated ref for About
+                    >
+                      <button
+                        onClick={() => setShowAboutDropdown(!showAboutDropdown)}
+                        className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${
+                          isActive
+                            ? "bg-[#f7ede1] text-black font-medium"
+                            : "hover:opacity-70"
+                        }`}
+                        aria-expanded={showAboutDropdown}
+                        aria-haspopup="menu"
+                      >
+                        {item.name}
+                      </button>
+
+                      {/* About Dropdown */}
+                      {showAboutDropdown && (
+                        <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg z-50 text-black">
+                          {aboutSubroutes.map((subroute) => (
+                            <Link
+                              key={subroute.path}
+                              href={subroute.path}
+                              className="block px-4 py-2 hover:bg-gray-100 text-sm"
+                              onClick={() => setShowAboutDropdown(false)} // Close dropdown on click
+                            >
+                              {subroute.name}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
                 return (
                   <Link key={item.path} href={item.path}>
                     <span
@@ -260,7 +325,6 @@ const Navbar: React.FC = () => {
           {/* Icons - Right aligned */}
           <div className="flex items-center space-x-5 order-3">
             <SearchPopup />
-            {/* Fix hydration mismatch with client-side navigation */}
             <button
               aria-label="Account"
               className="hover:opacity-70 transition-opacity"
@@ -307,6 +371,15 @@ const Navbar: React.FC = () => {
                   >
                     <span className="text-lg mr-2">🇳🇬</span> NG | ₦
                   </button>
+                  {/* Add GBP option if needed */}
+                  {/* <button
+                    className={`flex items-center px-3 py-2 rounded ${
+                      selectedCurrency === "GBP" ? "bg-gray-800" : ""
+                    }`}
+                    onClick={() => setSelectedCurrency("GBP")}
+                  >
+                    <span className="text-lg mr-2">🇬🇧</span> GB | £
+                  </button> */}
                 </div>
               </div>
 
@@ -334,6 +407,48 @@ const Navbar: React.FC = () => {
                         {/* Mobile discover subroutes */}
                         <div className="pl-6 border-l border-gray-700 ml-4 space-y-1">
                           {discoverSubroutes.map((subroute) => {
+                            const isSubrouteActive = pathname === subroute.path;
+
+                            return (
+                              <Link
+                                key={subroute.path}
+                                href={subroute.path}
+                                className={`block py-2 px-4 text-sm ${
+                                  isSubrouteActive
+                                    ? "text-white font-medium"
+                                    : "text-gray-400 hover:text-white"
+                                }`}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                              >
+                                {subroute.name}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Special handling for ABOUT in mobile menu
+                  if (item.name === "ABOUT") {
+                    const isAboutActive = aboutSubroutes.some(
+                      (subroute) => pathname === subroute.path
+                    );
+                    return (
+                      <div key={item.path} className="space-y-1">
+                        <div
+                          className={`flex justify-between items-center py-3 px-4 ${
+                            isAboutActive
+                              ? "bg-gray-800 rounded font-medium"
+                              : "hover:bg-gray-900"
+                          }`}
+                        >
+                          <span>{item.name}</span>
+                        </div>
+
+                        {/* Mobile about subroutes */}
+                        <div className="pl-6 border-l border-gray-700 ml-4 space-y-1">
+                          {aboutSubroutes.map((subroute) => {
                             const isSubrouteActive = pathname === subroute.path;
 
                             return (

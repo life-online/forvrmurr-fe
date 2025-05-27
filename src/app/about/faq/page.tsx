@@ -2,7 +2,7 @@
 import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
-import { GeneralFaq } from "@/data/preference";
+import generalFaq from "@/data/generalFaq.json";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -16,7 +16,7 @@ export default function Faq() {
         <Image
           src={"/images/category_selection/faqBanner.png"}
           alt="banner"
-          className="w-full h-full"
+          className="w-full object-cover h-full"
           width={1000}
           height={1000}
         />
@@ -32,7 +32,7 @@ export default function Faq() {
           <p className="text-sm text-[#C8102E]">Showing 26 questions</p>
         </div>
         <div className="flex flex-col items-center gap-3 w-[90%] lg:w-[50%]">
-          {GeneralFaq.map((item, index) => (
+          {generalFaq.map((item, index) => (
             <div
               className="flex flex-col items-center gap-3 w-full"
               key={index}
