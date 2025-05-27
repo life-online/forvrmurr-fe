@@ -53,19 +53,19 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
   // Available add-ons
 
   // For empty cart state
-  const emptyCartAddOns = [
-    {
-      id: "subscription-empty",
-      name: "Monthly Fragrance Subscription",
-      description: "Would you like to add a monthly fragrance subscription?",
-      price: 24900, // ₦24,900
-      options: [
-        { id: "prime", name: "Add Prime", price: 17500 },
-        { id: "premium", name: "Add Premium", price: 35500 },
-      ],
-      imageUrl: "/images/products/subscription-bottle.png",
-    },
-  ];
+  // const emptyCartAddOns = [
+  //   {
+  //     id: "subscription-empty",
+  //     name: "Monthly Fragrance Subscription",
+  //     description: "Would you like to add a monthly fragrance subscription?",
+  //     price: 24900, // ₦24,900
+  //     options: [
+  //       { id: "prime", name: "Add Prime", price: 17500 },
+  //       { id: "premium", name: "Add Premium", price: 35500 },
+  //     ],
+  //     imageUrl: "/images/products/subscription-bottle.png",
+  //   },
+  // ];
 
   const router = useRouter();
   const { isAuthenticated } = useAuth();
@@ -255,7 +255,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
 
               {/* Empty cart add-on section */}
               <div className="mt-16 w-full">
-                {emptyCartAddOns.map((addon) => (
+                {/* {emptyCartAddOns.map((addon) => (
                   <div
                     key={addon.id}
                     className="bg-[#faf0e2] rounded-lg p-4 mt-4 relative"
@@ -297,7 +297,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
                       ))}
                     </div>
                   </div>
-                ))}
+                ))} */}
               </div>
             </div>
           ) : (
