@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function CuratedExperiences({
   showButton,
@@ -45,9 +46,11 @@ export default function CuratedExperiences({
             scent, desire, and indulgence.
           </p>
           {showButton && (
-            <button className="bg-[#8b0000] z-50 text-nowrap w-fit text-white py-3 px-6 text-xs rounded-xl transition-all hover:bg-[#6b0000] font-medium">
-              Subscribe
-            </button>
+            <Link href={"/coming-soon"}>
+              <button className="bg-[#8b0000] z-50 text-nowrap w-fit text-white py-3 px-6 text-xs rounded-xl transition-all hover:bg-[#6b0000] font-medium">
+                Subscribe
+              </button>
+            </Link>
           )}
         </div>
       </div>
