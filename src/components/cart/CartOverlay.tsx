@@ -148,7 +148,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
       const message =
         "Please create an account or log in to complete your checkout.";
       router.push(
-        `auth/register?redirect=${encodeURIComponent(
+        `/auth/register?redirect=${encodeURIComponent(
           redirectUrl
         )}&message=${encodeURIComponent(message)}`
       );
@@ -254,7 +254,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
               </button>
 
               {/* Empty cart add-on section */}
- {/*
+              {/*
               <div className="mt-16 w-full">
              {emptyCartAddOns.map((addon) => (
 
