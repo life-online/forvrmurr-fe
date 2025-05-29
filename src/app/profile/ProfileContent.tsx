@@ -12,11 +12,11 @@ import UpcomingDeliveryCard from "@/components/profile/UpcomingDelivery";
 
 const dirs = [
   "My Upcoming Delivery",
-  "My Preferences",
-  "My Plan",
-  "Account Actions",
-  "Optional Add-on",
-  "Profile", // Assuming 'Profile' itself is a view, otherwise can be removed if not used
+  // "My Preferences",
+  // "My Plan",
+  // "Account Actions",
+  // "Optional Add-on",
+  // "Profile", // Assuming 'Profile' itself is a view, otherwise can be removed if not used
 ];
 
 export default function ProfileContent() {
@@ -51,7 +51,7 @@ export default function ProfileContent() {
         <ProfileMobileSideBar
           isOpen={isSideBar}
           onClose={onCloseSideBar}
-          dirs={dirs.filter(d => d !== 'Profile')} // Filter out 'Profile' if it's not a content view
+          dirs={dirs.filter((d) => d !== "Profile")} // Filter out 'Profile' if it's not a content view
           view={view}
           onClickView={onClickMenu}
           hoveredDir={hoveredDir}
@@ -60,34 +60,39 @@ export default function ProfileContent() {
       </div>
       <div className="flex items-start justify-between gap-8">
         <div className="hidden lg:flex flex-col gap-5 w-[20%] ">
-          <p className="text-xl lg:text-2xl text-black font-semibold">
-            Hello,
-          </p>
+          <p className="text-xl lg:text-2xl text-black font-semibold">Hello,</p>
           <div className="flex flex-col gap-4">
-            {dirs.filter(d => d !== 'Profile').map((item, index) => ( // Filter out 'Profile'
-              <div
-                className="flex items-center gap-1  cursor-pointer"
-                key={index}
-                onClick={() => onClickMenu(item)}
-                onMouseEnter={() => setHoveredDir(item)}
-                onMouseLeave={() => setHoveredDir(undefined)}
-              >
-                <div
-                  className={`h-7 ${
-                    view === item || hoveredDir === item
-                      ? "opacity-100"
-                      : "opacity-1"
-                  } ease-in-out duration-500 border-2 rounded-full border-[#C8102E]`}
-                ></div>
-                <p
-                  className={`px-3 w-full py-1 text-black hover:bg-white ease-in-out ${
-                    view === item ? "bg-white" : ""
-                  } duration-500 rounded-lg`}
-                >
-                  {item}
-                </p>
-              </div>
-            ))}
+            {dirs
+              .filter((d) => d !== "Profile")
+              .map(
+                (
+                  item,
+                  index // Filter out 'Profile'
+                ) => (
+                  <div
+                    className="flex items-center gap-1  cursor-pointer"
+                    key={index}
+                    onClick={() => onClickMenu(item)}
+                    onMouseEnter={() => setHoveredDir(item)}
+                    onMouseLeave={() => setHoveredDir(undefined)}
+                  >
+                    <div
+                      className={`h-7 ${
+                        view === item || hoveredDir === item
+                          ? "opacity-100"
+                          : "opacity-1"
+                      } ease-in-out duration-500 border-2 rounded-full border-[#C8102E]`}
+                    ></div>
+                    <p
+                      className={`px-3 w-full py-1 text-black hover:bg-white ease-in-out ${
+                        view === item ? "bg-white" : ""
+                      } duration-500 rounded-lg`}
+                    >
+                      {item}
+                    </p>
+                  </div>
+                )
+              )}
           </div>
         </div>
 
