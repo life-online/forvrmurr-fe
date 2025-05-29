@@ -150,7 +150,7 @@ export default function UpcomingDeliveryCard() {
   return (
     <div className="flex flex-col gap-5 w-full  bg-white rounded-xl p-3">
       <div className="flex md:flex-row flex-col items-center w-full justify-between">
-        <p className="text-sm lg:text-2xl text-black "> My Upcoming Delivery</p>
+        <p className="text-sm lg:text-2xl text-black "> My Orders</p>
         <div className="flex md:flex-row flex-col items-center  gap-2">
           <div className="flex text-black items-center">
             <p className="text-sm">Sort by :</p>

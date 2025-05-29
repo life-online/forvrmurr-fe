@@ -11,7 +11,7 @@ import Preferences from "@/components/profile/Preferences";
 import UpcomingDeliveryCard from "@/components/profile/UpcomingDelivery";
 
 const dirs = [
-  "My Upcoming Delivery",
+  "My Orders",
   // "My Preferences",
   // "My Plan",
   // "Account Actions",
@@ -97,7 +97,7 @@ export default function ProfileContent() {
         </div>
 
         <div className="flex flex-col gap-5 w-full lg:w-[75%] bg-white rounded-xl p-3 min-h-[300px]">
-          {view === "My Upcoming Delivery" && <UpcomingDeliveryCard />}
+          {view === "My Orders" && <UpcomingDeliveryCard />}
           {view === "My Preferences" && <Preferences />}
           {view === "My Plan" && <Plan />}
           {view === "Account Actions" && <AccountActions />}
