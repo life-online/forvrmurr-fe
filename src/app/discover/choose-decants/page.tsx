@@ -7,7 +7,7 @@ export default function PerfumeQuizLanding() {
     <div className="w-full text-center">
       {/* Hero Section */}
       {/* <Navbar /> */}
-      <section className="relative h-screen w-full flex items-center justify-center bg-black text-white px-4">
+      <section className="relative h-[40vh] md:h-[60vh] lg:h-screen w-full flex items-center justify-center bg-black text-white px-4">
         <div className="absolute inset-0">
           <img
             src="/brand-background.svg"
@@ -20,10 +20,10 @@ export default function PerfumeQuizLanding() {
           className="relative z-10 max-w-3xl h-[75%] bg-center bg-cover bg-no-repeat p-8 rounded-xl flex flex-col items-center justify-center"
           style={{ backgroundImage: "url('/centered-bg.svg')" }}
         >
-          <h1 className="text-3xl md:text-4xl font-semibold text-[#F8D49A] mb-4 text-center">
+          <h1 className="text-sm md:text-2xl lg:text-3xl font-semibold text-[#F8D49A] mb-4 text-center">
             BLIND BUYING PERFUME IS <br /> UNSERIOUS
           </h1>
-          <p className="text-[#F8D49A] text-[24px] mb-6 text-center">
+          <p className="text-[#F8D49A] text-xs md:text-lg mb-6 text-center">
             Whether it&apos;s a signature scent or a fleeting flirt, you deserve
             options — without the pressure of a $300 commitment.
           </p>
@@ -36,10 +36,10 @@ export default function PerfumeQuizLanding() {
       {/* Why Choose Decants Section */}
       <section className="bg-white py-16 px-6 text-black">
         <div className=" mx-auto mb-10">
-          <h2 className="text-[#A71916] text-[32px] text-sm font-bold uppercase mb-4 cinzel">
+          <h2 className="text-[#A71916] text-xl md:text-2xl text-sm font-bold uppercase mb-4 cinzel">
             Why Choose Decants?
           </h2>
-          <p className="lg:text-2xl text-lg font-light max-w-3xl mx-auto">
+          <p className=" text-lg font-light max-w-3xl mx-auto">
             The niche perfume world was built on exclusivity. We break that
             barrier—without watering anything down. Our decants offer a
             luxurious way to sample the best perfumes on the market, without the
