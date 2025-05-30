@@ -272,15 +272,15 @@ export default function ProductDetailsPage() {
                           <div className="flex gap-2 px-3  text-xs md:text-sm items-center border border-[#a0001e] rounded-full text-[#a0001e] font-serif text-sm py-1">
                             <button
                               onClick={decreaseQuantity}
-                              className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-l-full"
+                              className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-l-full text-lg"
                               aria-label="Decrease quantity"
                             >
                               -
                             </button>
-                            <span className="">No: {mainQuantity}</span>
+                            <span className="text-sm">No: {mainQuantity}</span>
                             <button
                               onClick={increaseQuantity}
-                              className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-r-full"
+                              className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-r-full text-lg"
                               aria-label="Increase quantity"
                             >
                               +
@@ -312,6 +312,7 @@ export default function ProductDetailsPage() {
                       quantity={mainQuantity}
                     />
                   </div>
+                  <div className="text-lg font-serif ">Add-On</div>
                   {featuredProducts?.map((item, index) => (
                     <div
                       key={index}
@@ -336,17 +337,17 @@ export default function ProductDetailsPage() {
                             <div className="flex px-3 gap-2 items-center border border-[#a0001e] rounded-full text-[#a0001e] font-serif text-sm py-1">
                               <button
                                 onClick={() => decreaseFeaturedQty(item.id)}
-                                className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-l-full"
+                                className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-l-full text-lg"
                                 aria-label="Decrease quantity"
                               >
                                 -
                               </button>
-                              <span className="">
+                              <span className="text-sm">
                                 No: {getFeaturedQty(item.id)}
                               </span>
                               <button
                                 onClick={() => increaseFeaturedQty(item.id)}
-                                className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-r-full"
+                                className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-r-full text-lg"
                                 aria-label="Increase quantity"
                               >
                                 +

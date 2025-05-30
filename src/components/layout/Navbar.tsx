@@ -10,6 +10,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import SearchPopup from "./SearchPopover";
+import { BiLogOut } from "react-icons/bi";
 
 interface NavItem {
   name: string;
@@ -164,9 +165,8 @@ const Navbar: React.FC = () => {
                 role="listbox"
               >
                 <li
-                  className={`flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100 ${
-                    selectedCurrency === "NGN" ? "font-bold" : ""
-                  }`}
+                  className={`flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100 ${selectedCurrency === "NGN" ? "font-bold" : ""
+                    }`}
                   onClick={() => {
                     setSelectedCurrency("NGN");
                     setShowCurrencyDropdown(false);
@@ -235,11 +235,10 @@ const Navbar: React.FC = () => {
                         onClick={() =>
                           setShowDiscoverDropdown(!showDiscoverDropdown)
                         }
-                        className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${
-                          isActive
+                        className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${isActive
                             ? "bg-[#f7ede1] text-black font-medium"
                             : "hover:opacity-70"
-                        }`}
+                          }`}
                         aria-expanded={showDiscoverDropdown}
                         aria-haspopup="menu"
                       >
@@ -275,11 +274,10 @@ const Navbar: React.FC = () => {
                     >
                       <button
                         onClick={() => setShowAboutDropdown(!showAboutDropdown)}
-                        className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${
-                          isActive
+                        className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${isActive
                             ? "bg-[#f7ede1] text-black font-medium"
                             : "hover:opacity-70"
-                        }`}
+                          }`}
                         aria-expanded={showAboutDropdown}
                         aria-haspopup="menu"
                       >
@@ -308,11 +306,10 @@ const Navbar: React.FC = () => {
                 return (
                   <Link key={item.path} href={item.path}>
                     <span
-                      className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${
-                        isActive
+                      className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${isActive
                           ? "bg-[#f7ede1] text-black font-medium"
                           : "hover:opacity-70"
-                      }`}
+                        }`}
                     >
                       {item.name}
                     </span>
@@ -329,13 +326,26 @@ const Navbar: React.FC = () => {
               aria-label="Account"
               className="hover:opacity-70 transition-opacity"
               onClick={() =>
-                (window.location.href = isAuthenticated
-                  ? "/profile"
-                  : "/auth/login")
+              (window.location.href = isAuthenticated
+                ? "/profile"
+                : "/auth/login")
               }
             >
               <FiUser size={18} />
             </button>
+            {
+              isAuthenticated && (
+                <button
+                  aria-label="Account"
+                  className="hover:opacity-70 transition-opacity"
+                  onClick={() =>
+                    window.location.href = "/auth/logout"
+                  }
+                >
+                  <BiLogOut size={18} />
+                </button>
+              )
+            }
 
             <button
               aria-label="Cart"
@@ -364,9 +374,8 @@ const Navbar: React.FC = () => {
                 <p className="text-sm text-gray-400 mb-2">Select Currency</p>
                 <div className="flex gap-4">
                   <button
-                    className={`flex items-center px-3 py-2 rounded ${
-                      selectedCurrency === "NGN" ? "bg-gray-800" : ""
-                    }`}
+                    className={`flex items-center px-3 py-2 rounded ${selectedCurrency === "NGN" ? "bg-gray-800" : ""
+                      }`}
                     onClick={() => setSelectedCurrency("NGN")}
                   >
                     <span className="text-lg mr-2">🇳🇬</span> NG | ₦
@@ -395,11 +404,10 @@ const Navbar: React.FC = () => {
                     return (
                       <div key={item.path} className="space-y-1">
                         <div
-                          className={`flex justify-between items-center py-3 px-4 ${
-                            isActive
+                          className={`flex justify-between items-center py-3 px-4 ${isActive
                               ? "bg-gray-800 rounded font-medium"
                               : "hover:bg-gray-900"
-                          }`}
+                            }`}
                         >
                           <span>{item.name}</span>
                         </div>
@@ -413,11 +421,10 @@ const Navbar: React.FC = () => {
                               <Link
                                 key={subroute.path}
                                 href={subroute.path}
-                                className={`block py-2 px-4 text-sm ${
-                                  isSubrouteActive
+                                className={`block py-2 px-4 text-sm ${isSubrouteActive
                                     ? "text-white font-medium"
                                     : "text-gray-400 hover:text-white"
-                                }`}
+                                  }`}
                                 onClick={() => setIsMobileMenuOpen(false)}
                               >
                                 {subroute.name}
@@ -437,11 +444,10 @@ const Navbar: React.FC = () => {
                     return (
                       <div key={item.path} className="space-y-1">
                         <div
-                          className={`flex justify-between items-center py-3 px-4 ${
-                            isAboutActive
+                          className={`flex justify-between items-center py-3 px-4 ${isAboutActive
                               ? "bg-gray-800 rounded font-medium"
                               : "hover:bg-gray-900"
-                          }`}
+                            }`}
                         >
                           <span>{item.name}</span>
                         </div>
@@ -455,11 +461,10 @@ const Navbar: React.FC = () => {
                               <Link
                                 key={subroute.path}
                                 href={subroute.path}
-                                className={`block py-2 px-4 text-sm ${
-                                  isSubrouteActive
+                                className={`block py-2 px-4 text-sm ${isSubrouteActive
                                     ? "text-white font-medium"
                                     : "text-gray-400 hover:text-white"
-                                }`}
+                                  }`}
                                 onClick={() => setIsMobileMenuOpen(false)}
                               >
                                 {subroute.name}
@@ -475,11 +480,10 @@ const Navbar: React.FC = () => {
                     <Link
                       key={item.path}
                       href={item.path}
-                      className={`block py-3 px-4 ${
-                        isActive
+                      className={`block py-3 px-4 ${isActive
                           ? "bg-gray-800 rounded font-medium"
                           : "hover:bg-gray-900"
-                      }`}
+                        }`}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       {item.name}
