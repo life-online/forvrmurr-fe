@@ -22,7 +22,7 @@ export default function Register() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { register } = useAuth();
-  const { success, error } = useToast();
+  const { success } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<RegisterFormData>({
     firstName: "",
@@ -157,7 +157,7 @@ export default function Register() {
       }
     } catch (err) {
       console.error("Registration component error:", err);
-      error("Registration failed. Please try again.");
+      // error("Registration failed. Please try again.");
       // Optionally log error
     } finally {
       setIsSubmitting(false);

@@ -17,7 +17,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: "HOME", path: "/" },
+  // { name: "HOME", path: "/" },
   { name: "ABOUT", path: "/about" }, // Keep this here for general path matching, but dropdown will override behavior
   { name: "SHOP", path: "/shop" },
   { name: "SUBSCRIPTIONS", path: "/coming-soon" },
@@ -139,7 +139,7 @@ const Navbar: React.FC = () => {
       <nav className="w-full bg-black text-white pt-4 pb-6 px-4 md:px-6 relative">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between">
           {/* Currency Selector - Hidden on mobile, visible on desktop */}
-          <div
+          {/* <div
             className="relative hidden md:flex items-center"
             ref={currencyDropdownRef}
           >
@@ -150,9 +150,9 @@ const Navbar: React.FC = () => {
               aria-expanded={showCurrencyDropdown}
               type="button"
             >
-              {/* <span className="text-xl mr-1">
+              <span className="text-xl mr-1">
                 {selectedCurrency === "NGN" ? "🇳🇬" : "🇬🇧"}
-              </span> */}
+              </span>
               <span className="text-base mr-1">
                 {selectedCurrency === "NGN" ? "₦" : "£"}
               </span>
@@ -176,8 +176,8 @@ const Navbar: React.FC = () => {
                 >
                   <span className="text-lg mr-2">🇳🇬</span> NG | ₦
                 </li>
-                {/* Add GBP option if needed */}
-                {/* <li
+                Add GBP option if needed
+                <li
                   className={`flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100 ${
                     selectedCurrency === "GBP" ? "font-bold" : ""
                   }`}
@@ -189,11 +189,11 @@ const Navbar: React.FC = () => {
                   aria-selected={selectedCurrency === "GBP"}
                 >
                   <span className="text-lg mr-2">🇬🇧</span> GB | £
-                </li> */}
+                </li>
               </ul>
             )}
-          </div>
-
+          </div> */}
+          <div className=""></div>
           {/* Mobile hamburger menu button */}
           <button
             className="md:hidden flex items-center p-1 text-white focus:outline-none"
@@ -360,7 +360,7 @@ const Navbar: React.FC = () => {
           >
             <div className="px-4 py-6 space-y-8">
               {/* Mobile Currency Selector */}
-              <div className="border-b border-gray-800 pb-4">
+              {/* <div className="border-b border-gray-800 pb-4">
                 <p className="text-sm text-gray-400 mb-2">Select Currency</p>
                 <div className="flex gap-4">
                   <button
@@ -371,17 +371,17 @@ const Navbar: React.FC = () => {
                   >
                     <span className="text-lg mr-2">🇳🇬</span> NG | ₦
                   </button>
-                  {/* Add GBP option if needed */}
-                  {/* <button
+                  Add GBP option if needed
+                  <button
                     className={`flex items-center px-3 py-2 rounded ${
                       selectedCurrency === "GBP" ? "bg-gray-800" : ""
                     }`}
                     onClick={() => setSelectedCurrency("GBP")}
                   >
                     <span className="text-lg mr-2">🇬🇧</span> GB | £
-                  </button> */}
+                  </button>
                 </div>
-              </div>
+              </div> */}
 
               {/* Mobile Navigation Links */}
               <div className="space-y-2">
