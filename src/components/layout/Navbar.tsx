@@ -194,7 +194,7 @@ const Navbar: React.FC = () => {
               </ul>
             )}
           </div>
-          <div className=""></div>
+
           {/* Mobile hamburger menu button */}
           <button
             className="md:hidden flex items-center p-1 text-white focus:outline-none"
