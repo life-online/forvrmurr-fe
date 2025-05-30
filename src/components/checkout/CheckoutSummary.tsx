@@ -6,7 +6,7 @@ import { CartItem } from "@/components/cart/CartOverlay";
 import { CartResponseDto } from "@/services/cart";
 
 interface CheckoutSummaryProps {
-  cartItems: CartItem[];
+  cartItems: CartItem[] | null;
   subtotal: number;
   shippingCost: number;
   total: number;
@@ -26,31 +26,32 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 
       {/* Cart Items */}
       <div className="space-y-4 mb-6">
-        {cartItems.map((item) => (
-          <div key={item.id} className="flex gap-4">
-            <div className="h-20 w-20 relative bg-gray-50 rounded-md overflow-hidden flex-shrink-0">
-              <Image
-                src={item.imageUrl}
-                alt={item.name}
-                fill
-                className="object-contain"
-                sizes="80px"
-              />
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-sm">{item.brand}</p>
-              <p className="text-sm text-gray-700">{item.name}</p>
-              <div className="flex justify-between mt-1">
-                <p className="text-sm text-gray-600">
-                  {item.quantity} × ₦{Number(item.price).toLocaleString()}
-                </p>
-                <p className="font-medium">
-                  ₦{(Number(item.price) * item.quantity).toLocaleString()}
-                </p>
+        {cartItems !== null &&
+          cartItems.map((item) => (
+            <div key={item.id} className="flex gap-4">
+              <div className="h-20 w-20 relative bg-gray-50 rounded-md overflow-hidden flex-shrink-0">
+                <Image
+                  src={item.imageUrl || "/images/hero/hero_image.png"}
+                  alt={item.name}
+                  fill
+                  className="object-contain"
+                  sizes="80px"
+                />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-sm">{item.brand}</p>
+                <p className="text-sm text-gray-700">{item.name}</p>
+                <div className="flex justify-between mt-1">
+                  <p className="text-sm text-gray-600">
+                    {item.quantity} × ₦{Number(item.price).toLocaleString()}
+                  </p>
+                  <p className="font-medium">
+                    ₦{(Number(item.price) * item.quantity).toLocaleString()}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
 
       {/* Delivery Progress Bar */}

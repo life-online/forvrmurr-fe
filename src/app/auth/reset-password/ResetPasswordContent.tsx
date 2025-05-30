@@ -10,7 +10,7 @@ export default function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token"); // Keep token check here as it's from URL
   const { resetPassword, isLoading } = useAuth();
-  const { success, error } = useToast();
+  const { error } = useToast();
 
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -20,7 +20,9 @@ export default function ResetPasswordContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) {
-      error("Invalid or missing password reset token. Please request a new link.");
+      error(
+        "Invalid or missing password reset token. Please request a new link."
+      );
       router.push("/auth/forgot-password"); // Redirect to forgot password if token is bad
       return;
     }
@@ -35,7 +37,7 @@ export default function ResetPasswordContent() {
     setIsSubmitting(true);
     try {
       await resetPassword(token, email, newPassword);
-      success("Password reset successfully! Please log in with your new password.");
+      // success("Password reset successfully! Please log in with your new password.");
       router.push("/auth/login");
     } catch (err: any) {
       // Error toast is handled by AuthContext, but can add specific ones if needed
@@ -52,7 +54,13 @@ export default function ResetPasswordContent() {
     return (
       <div className="text-center p-4">
         <p className="text-red-600">Invalid or missing password reset token.</p>
-        <p>Please <a href="/auth/forgot-password" className="underline">request a new password reset link</a>.</p>
+        <p>
+          Please{" "}
+          <a href="/auth/forgot-password" className="underline">
+            request a new password reset link
+          </a>
+          .
+        </p>
       </div>
     );
   }
@@ -60,7 +68,10 @@ export default function ResetPasswordContent() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
           Email
         </label>
         <input
@@ -72,12 +83,15 @@ export default function ResetPasswordContent() {
           className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent"
           placeholder="your@email.com"
           value={email}
-          onChange={e => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           disabled={isSubmitting || isLoading}
         />
       </div>
       <div>
-        <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
+        <label
+          htmlFor="newPassword"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
           New Password
         </label>
         <input
@@ -89,12 +103,15 @@ export default function ResetPasswordContent() {
           className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent"
           placeholder="Enter new password (min. 8 characters)"
           value={newPassword}
-          onChange={e => setNewPassword(e.target.value)}
+          onChange={(e) => setNewPassword(e.target.value)}
           disabled={isSubmitting || isLoading}
         />
       </div>
       <div>
-        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+        <label
+          htmlFor="confirmPassword"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
           Confirm Password
         </label>
         <input
@@ -106,7 +123,7 @@ export default function ResetPasswordContent() {
           className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent"
           placeholder="Confirm new password"
           value={confirmPassword}
-          onChange={e => setConfirmPassword(e.target.value)}
+          onChange={(e) => setConfirmPassword(e.target.value)}
           disabled={isSubmitting || isLoading}
         />
       </div>

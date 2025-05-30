@@ -55,7 +55,7 @@ export default function ShopContent() {
       try {
         const response = await productService.getComprehensiveProducts(filters);
         setProducts(response.data);
-        console.log(response.data, "debuggoimh");
+
         // setTotalProducts(response.meta.total);
         setCurrentPage(response.meta.page);
         setTotalPages(response.meta.totalPages);
