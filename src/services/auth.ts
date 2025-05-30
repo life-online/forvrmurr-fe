@@ -223,7 +223,7 @@ export const authService = {
    * Request password reset
    */
   async requestPasswordReset(email: string): Promise<void> {
-    await api.post("auth/forgot-password", { email });
+    await api.post("/auth/forgot-password", { email });
   },
 
   async resetPassword(
@@ -231,7 +231,7 @@ export const authService = {
     email: string,
     newPassword: string
   ): Promise<void> {
-    await api.post("auth/reset-password", { token, email, newPassword });
+    await api.post("/auth/reset-password", { token, email, newPassword });
   },
 
   async verifyEmail(email: string, token: string): Promise<void> {
@@ -242,7 +242,7 @@ export const authService = {
    * Update user profile
    */
   async updateProfile(profileData: Partial<User>): Promise<User> {
-    const updatedUser = await api.patch<User>("auth/profile", profileData, {
+    const updatedUser = await api.patch<User>("/auth/profile", profileData, {
       requiresAuth: true,
     });
     this.setUser(updatedUser);

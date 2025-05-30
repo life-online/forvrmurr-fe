@@ -34,7 +34,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   return (
     <button
       onClick={handleAddToCart}
-      className={`border text-xs md:text-sm border-[#a0001e] text-[#a0001e] rounded-xl px-8 py-2 text-base font-serif font-medium hover:bg-[#a0001e] hover:text-white transition-colors ${className}`}
+      className={`border text-xs md:text-sm border-[#a0001e] text-[#a0001e] rounded-xl px-5 md:px-8 py-2 text-base font-serif font-medium hover:bg-[#a0001e] hover:text-white transition-colors ${className}`}
     >
       Add {quantity > 1 ? `${quantity} items` : "to cart"}
     </button>

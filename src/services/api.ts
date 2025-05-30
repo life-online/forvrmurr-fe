@@ -1,4 +1,4 @@
-import { clientConfig } from '@/config';
+import { clientConfig } from "@/config";
 
 /**
  * API service utilities for making requests to the backend
@@ -22,7 +22,7 @@ export async function apiRequest<T = Record<string, unknown>>(
   options: ApiOptions = {}
 ): Promise<T> {
   const { params, requiresAuth = false, ...fetchOptions } = options;
-  
+
   // Build URL with query parameters
   const url = new URL(`${API_BASE_URL}${endpoint}`);
   if (params) {
@@ -34,26 +34,45 @@ export async function apiRequest<T = Record<string, unknown>>(
   // Add default headers
   const headers = new Headers(fetchOptions.headers);
   // Always set Content-Type for JSON requests unless specifically overridden
-  if (!headers.has('Content-Type')) {
-    headers.set('Content-Type', 'application/json');
+  if (
+    !headers.has("Content-Type") &&
+    !(fetchOptions.body instanceof FormData)
+  ) {
+    // Only set Content-Type to application/json if body is not FormData
+    headers.set("Content-Type", "application/json");
   }
-  
+
   // Add auth token if required
   if (requiresAuth) {
-    const token = localStorage.getItem('forvrmurr_access_token');
+    const token = localStorage.getItem("forvrmurr_access_token");
     if (token) {
-      headers.set('Authorization', `Bearer ${token}`);
+      headers.set("Authorization", `Bearer ${token}`);
+    } else {
+      // If auth is required but no token is found, redirect to login
+      console.warn(
+        "Authentication required but no token found. Redirecting to login."
+      );
+      // It's better to use Next.js router for client-side navigation
+      // but for simplicity in this example, we'll use window.location.
+      // In a real Next.js app, you'd use:
+      // import { useRouter } from 'next/navigation';
+      // const router = useRouter();
+      // router.push('/auth/login');
+      localStorage.removeItem("forvrmurr_access_token");
+      localStorage.removeItem("forvrmurr_user"); // Assuming you store user info
+      window.location.href = "/auth/login"; // Redirect to login page
+      throw new Error("Authentication token missing."); // Stop the request
     }
   }
 
   // Log the request details for debugging
-  console.log('API Request:', {
+  console.log("API Request:", {
     url: url.toString(),
     method: fetchOptions.method,
     headers: Object.fromEntries(headers.entries()),
-    body: fetchOptions.body
+    body: fetchOptions.body,
   });
-  
+
   // Make the request
   const response = await fetch(url.toString(), {
     ...fetchOptions,
@@ -62,14 +81,33 @@ export async function apiRequest<T = Record<string, unknown>>(
 
   // Handle errors
   if (!response.ok) {
+    // --- START: 401 Unauthorized Handling ---
+    if (response.status === 401) {
+      console.warn(
+        "API Error: 401 Unauthorized. Clearing session and redirecting."
+      );
+      localStorage.removeItem("forvrmurr_access_token");
+      localStorage.removeItem("forvrmurr_user"); // Assuming you store user information
+      // Redirect to login page or home. Use Next.js Router if in a React component.
+      // For a utility function, a direct window.location.href might be acceptable,
+      // but be aware it causes a full page reload.
+      window.location.href = "/auth/login";
+      // Throw an error to stop further processing in the caller function
+      throw new Error("Unauthorized: Session expired or invalid token.");
+    }
+    // --- END: 401 Unauthorized Handling ---
+
     const errorData = await response.json().catch(() => ({}));
-    console.error('API Error Response:', {
+    console.error("API Error Response:", {
       status: response.status,
       url: response.url,
-      errorData
+      errorData,
     });
     // Create a more detailed error object
-    const error = new Error(errorData.message || `API error: ${response.status} ${response.statusText}`);
+    const error = new Error(
+      errorData.message ||
+        `API error: ${response.status} ${response.statusText}`
+    );
     // @ts-ignore - Add additional properties to the error
     error.status = response.status;
     // @ts-ignore
@@ -81,7 +119,7 @@ export async function apiRequest<T = Record<string, unknown>>(
   if (response.status === 204) {
     return {} as T; // No content
   }
-  
+
   return response.json();
 }
 
@@ -89,30 +127,59 @@ export async function apiRequest<T = Record<string, unknown>>(
  * API utility methods for common operations
  */
 export const api = {
-  get: <T = Record<string, unknown>>(endpoint: string, options?: ApiOptions) => 
-    apiRequest<T>(endpoint, { method: 'GET', ...options }),
-    
-  post: <T = Record<string, unknown>>(endpoint: string, data?: Record<string, unknown>, options?: ApiOptions) =>
+  get: <T = Record<string, unknown>>(endpoint: string, options?: ApiOptions) =>
+    apiRequest<T>(endpoint, { method: "GET", ...options }),
+
+  post: <T = Record<string, unknown>>(
+    endpoint: string,
+    data?: Record<string, unknown> | FormData,
+    options?: ApiOptions
+  ) =>
     apiRequest<T>(endpoint, {
-      method: 'POST',
-      body: data ? JSON.stringify(data) : undefined,
+      method: "POST",
+      body:
+        data instanceof FormData
+          ? data
+          : data
+          ? JSON.stringify(data)
+          : undefined,
       ...options,
     }),
-    
-  put: <T = Record<string, unknown>>(endpoint: string, data?: Record<string, unknown>, options?: ApiOptions) =>
+
+  put: <T = Record<string, unknown>>(
+    endpoint: string,
+    data?: Record<string, unknown> | FormData,
+    options?: ApiOptions
+  ) =>
     apiRequest<T>(endpoint, {
-      method: 'PUT',
-      body: data ? JSON.stringify(data) : undefined,
+      method: "PUT",
+      body:
+        data instanceof FormData
+          ? data
+          : data
+          ? JSON.stringify(data)
+          : undefined,
       ...options,
     }),
-    
-  patch: <T = Record<string, unknown>>(endpoint: string, data?: Record<string, unknown>, options?: ApiOptions) =>
+
+  patch: <T = Record<string, unknown>>(
+    endpoint: string,
+    data?: Record<string, unknown> | FormData,
+    options?: ApiOptions
+  ) =>
     apiRequest<T>(endpoint, {
-      method: 'PATCH',
-      body: data ? JSON.stringify(data) : undefined,
+      method: "PATCH",
+      body:
+        data instanceof FormData
+          ? data
+          : data
+          ? JSON.stringify(data)
+          : undefined,
       ...options,
     }),
-    
-  delete: <T = Record<string, unknown>>(endpoint: string, options?: ApiOptions) =>
-    apiRequest<T>(endpoint, { method: 'DELETE', ...options }),
+
+  delete: <T = Record<string, unknown>>(
+    endpoint: string,
+    options?: ApiOptions
+  ) => apiRequest<T>(endpoint, { method: "DELETE", ...options }),
 };

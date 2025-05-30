@@ -10,6 +10,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import SearchPopup from "./SearchPopover";
+import { BiLogOut } from "react-icons/bi";
 
 interface NavItem {
   name: string;
@@ -17,10 +18,10 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: "HOME", path: "/" },
-  { name: "ABOUT", path: "/about" }, // Keep this here for general path matching, but dropdown will override behavior
+  // { name: "HOME", path: "/" },
   { name: "SHOP", path: "/shop" },
   { name: "SUBSCRIPTIONS", path: "/coming-soon" },
+  { name: "ABOUT", path: "/about" }, // Keep this here for general path matching, but dropdown will override behavior
   { name: "DISCOVER", path: "/discover" },
 ];
 
@@ -154,7 +155,7 @@ const Navbar: React.FC = () => {
                 {selectedCurrency === "NGN" ? "🇳🇬" : "🇬🇧"}
               </span>
               <span className="text-base mr-1">
-                {selectedCurrency === "NGN" ? "NG | ₦" : "GB | £"}
+                {selectedCurrency === "NGN" ? "₦" : "£"}
               </span>
               <span className="text-base">▼</span>
             </button>
@@ -174,7 +175,7 @@ const Navbar: React.FC = () => {
                   role="option"
                   aria-selected={selectedCurrency === "NGN"}
                 >
-                  <span className="text-lg mr-2">🇳🇬</span> NG | ₦
+                  <span className="text-lg mr-2">🇳🇬</span> ₦
                 </li>
                 {/* Add GBP option if needed */}
                 {/* <li
@@ -193,7 +194,7 @@ const Navbar: React.FC = () => {
               </ul>
             )}
           </div>
-
+          <div className=""></div>
           {/* Mobile hamburger menu button */}
           <button
             className="md:hidden flex items-center p-1 text-white focus:outline-none"
@@ -323,7 +324,7 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Icons - Right aligned */}
-          <div className="flex items-center space-x-5 order-3">
+          <div className="flex items-center space-x-3 order-3">
             <SearchPopup />
             <button
               aria-label="Account"
@@ -336,6 +337,15 @@ const Navbar: React.FC = () => {
             >
               <FiUser size={18} />
             </button>
+            {isAuthenticated && (
+              <button
+                aria-label="Account"
+                className="hover:opacity-70 transition-opacity"
+                onClick={handleLogout}
+              >
+                <BiLogOut size={18} />
+              </button>
+            )}
 
             <button
               aria-label="Cart"
@@ -355,7 +365,7 @@ const Navbar: React.FC = () => {
         {/* Mobile Navigation Menu - Slide down when open */}
         {isMobileMenuOpen && (
           <div
-            className="md:hidden absolute top-full left-0 right-0 bg-black z-50 border-t border-gray-800 shadow-lg"
+            className="md:hidden absolute top-full left-0 right-0 bg-black z-50 border-t border-gray-800 shadow-lg overflow-auto max-h-[80vh]"
             ref={mobileMenuRef}
           >
             <div className="px-4 py-6 space-y-8">
@@ -371,8 +381,8 @@ const Navbar: React.FC = () => {
                   >
                     <span className="text-lg mr-2">🇳🇬</span> NG | ₦
                   </button>
-                  {/* Add GBP option if needed */}
-                  {/* <button
+                  {/* Add GBP option if needed
+                  <button
                     className={`flex items-center px-3 py-2 rounded ${
                       selectedCurrency === "GBP" ? "bg-gray-800" : ""
                     }`}

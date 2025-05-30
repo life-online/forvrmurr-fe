@@ -7,7 +7,7 @@ import cartService, { CartResponseDto, CartItemDto } from "@/services/cart";
 import { useToast } from "./ToastContext";
 
 interface CartContextType {
-  cartItems: CartItem[];
+  cartItems: CartItem[] | null;
   isCartOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
@@ -26,7 +26,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[] | null>(null);
   const [cart, setCart] = useState<CartResponseDto>();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +34,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   const { user, isAuthenticated } = useAuth();
   const { error } = useToast();
 
-  const itemCount = cartItems.reduce((count, item) => count + item.quantity, 0);
+  const itemCount =
+    cartItems != null &&
+    cartItems.reduce((count, item) => count + item.quantity, 0);
 
   // Load guestId from localStorage on mount
   useEffect(() => {
@@ -66,7 +68,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
           setCart(cartResponse);
         } else {
           // No auth and no guestId yet, empty cart state
-          setCartItems([]);
+          setCartItems(null);
           setCart(undefined);
           setIsLoading(false);
           return;
@@ -85,9 +87,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
             name: item.product.name,
             brand: item.product.name.split(" ")[0], // Just a guess, adjust based on your data
             price: parseFloat(item.price),
-            imageUrl:
-              item.product.imageUrl ||
-              `/images/products/${item.product.slug}.png`,
+            imageUrl: item.product.imageUrl || null,
             quantity: item.quantity,
             productId: item.product.id,
           })
@@ -97,7 +97,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       } catch (err) {
         console.error("Failed to fetch cart:", err);
         // If API fails, fallback to empty cart
-        setCartItems([]);
+        setCartItems(null);
       } finally {
         setIsLoading(false);
       }
@@ -108,7 +108,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       fetchCart();
     } else {
       // No auth and no guestId, start with empty cart
-      setCartItems([]);
+      setCartItems(null);
     }
   }, [isAuthenticated, guestId, user]);
 
@@ -320,7 +320,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         setGuestId(response.guestId);
       }
 
-      setCartItems([]);
+      setCartItems(null);
     } catch (err) {
       console.error("Failed to clear cart:", err);
       error("Could not clear cart. Please try again.");
@@ -341,7 +341,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         removeFromCart,
         updateItemQuantity,
         clearCart,
-        itemCount,
+        itemCount: itemCount as number,
         cart,
         isLoading,
       }}
