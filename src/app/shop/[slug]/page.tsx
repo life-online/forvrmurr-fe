@@ -287,7 +287,7 @@ export default function ProductDetailsPage() {
                             </button>
                           </div>
                         </div>
-                        <div className="text-xs md:text-sm font-serif text-[#a0001e] font-bold">
+                        <div className="text-xs md:text-sm font-serif text-[#a0001e] mt-2 font-bold">
                           <span className="hidden md:inline">
                             ₦{Number(product.nairaPrice).toLocaleString()} ×{" "}
                             {mainQuantity} =
@@ -353,7 +353,7 @@ export default function ProductDetailsPage() {
                               </button>
                             </div>
                           </div>
-                          <div className="text-sm font-serif text-[#a0001e] font-bold">
+                          <div className="text-sm font-serif text-[#a0001e] mt-2 font-bold">
                             <span className="hidden md:inline">
                               {" "}
                               ₦{Number(item.nairaPrice).toLocaleString()} ×{" "}
