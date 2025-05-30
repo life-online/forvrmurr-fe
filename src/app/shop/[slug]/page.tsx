@@ -252,101 +252,40 @@ export default function ProductDetailsPage() {
 
                 <div className="mt-8 flex flex-col gap-5">
                   <div className="text-lg font-serif ">Forvr Murr Pricing</div>
-                  <div className="flex items-center justify-between gap-4 md:gap-8">
-                    {/* Left: Bottle, Price label, Price */}
-                    <div className="flex items-center gap-1 md:gap-4">
-                      <div className="h-12 w-12 lg:h-24 lg:w-24 overflow-hidden">
-                        <Image
-                          src="/images/products/grand_soir.png"
-                          alt="Bottle"
-                          width={80}
-                          height={100}
-                          className=""
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <div className="text-xs md:text-sm max-w-[150px] md:max-w-[300px] text-nowrap flex items-center gap-2 font-serif font-bold mb-1">
-                          <p className="">8ml Bottle Price:</p>{" "}
-                        </div>
-                        <div className="flex items-center justify-between  flex-wrap gap-1 md:gap-4">
-                          <div className="flex gap-2 px-3  text-xs md:text-sm items-center border border-[#a0001e] rounded-full text-[#a0001e] font-serif text-sm py-1">
-                            <button
-                              onClick={decreaseQuantity}
-                              className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-l-full text-lg"
-                              aria-label="Decrease quantity"
-                            >
-                              -
-                            </button>
-                            <span className="text-sm">No: {mainQuantity}</span>
-                            <button
-                              onClick={increaseQuantity}
-                              className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-r-full text-lg"
-                              aria-label="Increase quantity"
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
-                        <div className="text-xs md:text-sm font-serif text-[#a0001e] mt-2 font-bold">
-                          <span className="hidden md:inline">
-                            ₦{Number(product.nairaPrice).toLocaleString()} ×{" "}
-                            {mainQuantity} =
-                          </span>
-                          ₦
-                          {(
-                            Number(product.nairaPrice) * mainQuantity
-                          ).toLocaleString()}
-                        </div>
-                        {product.priceFullBottle && (
-                          <div className="text-xs hidden md:inline text-gray-600 mt-1">
-                            Full bottle: ₦
-                            {Number(product.priceFullBottle).toLocaleString()}
-                          </div>
-                        )}
-                      </div>
+                  <div className="flex flex-col gap-1">
+                    <div className="text-xs md:text-sm  text-nowrap flex md:hidden items-center gap-2 font-serif font-bold mb-1">
+                      <p className="">8ml Bottle Price:</p>{" "}
                     </div>
-                    {/* Right: Add to cart button */}
-                    <AddToCartButton
-                      product={product}
-                      className="text-nowrap"
-                      quantity={mainQuantity}
-                    />
-                  </div>
-                  <div className="text-lg font-serif ">Add-On</div>
-                  {featuredProducts?.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between gap-4 md:gap-8"
-                    >
+                    <div className="flex justify-between gap-4 md:gap-8">
                       {/* Left: Bottle, Price label, Price */}
-                      <div className="flex items-center gap-1 md:gap-4">
-                        <div className="h-12 w-12 lg:h-24 lg:w-24 overflow-hidden">
+                      <div className="flex  gap-1 md:gap-4">
+                        <div className="h-10 w-10 lg:h-24 lg:w-24 overflow-hidden">
                           <Image
-                            src="/images/products/TVC_1.png"
+                            src="/images/products/grand_soir.png"
                             alt="Bottle"
                             width={80}
                             height={100}
-                            className="object-contain"
+                            className=""
                           />
                         </div>
-                        <div className="flex  flex-col gap-1">
-                          <div className="text-xs md:text-sm max-w-[150px] md:max-w-[300px]  flex items-center gap-2 font-serif font-bold mb-1">
-                            <p className="">{item.name}</p>{" "}
+                        <div className="flex flex-col items-center md:items-start">
+                          <div className="text-xs md:text-sm  text-nowrap md:flex hidden items-center gap-2 font-serif font-bold mb-1">
+                            <p className="">8ml Bottle Price:</p>{" "}
                           </div>
                           <div className="flex items-center justify-between  flex-wrap gap-1 md:gap-4">
-                            <div className="flex px-3 gap-2 items-center border border-[#a0001e] rounded-full text-[#a0001e] font-serif text-sm py-1">
+                            <div className="flex px-3 justify-center w-full sm:w-fit gap-2 items-center border border-[#a0001e] rounded-full text-[#a0001e] font-serif text-sm py-[px]">
                               <button
-                                onClick={() => decreaseFeaturedQty(item.id)}
+                                onClick={decreaseQuantity}
                                 className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-l-full text-lg"
                                 aria-label="Decrease quantity"
                               >
                                 -
                               </button>
                               <span className="text-sm">
-                                No: {getFeaturedQty(item.id)}
+                                No: {mainQuantity}
                               </span>
                               <button
-                                onClick={() => increaseFeaturedQty(item.id)}
+                                onClick={increaseQuantity}
                                 className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-r-full text-lg"
                                 aria-label="Increase quantity"
                               >
@@ -354,31 +293,98 @@ export default function ProductDetailsPage() {
                               </button>
                             </div>
                           </div>
-                          <div className="text-sm font-serif text-[#a0001e] mt-2 font-bold">
+                          <div className="text-xs md:text-sm font-serif text-[#a0001e] mt-2 font-bold">
                             <span className="hidden md:inline">
-                              {" "}
-                              ₦{Number(item.nairaPrice).toLocaleString()} ×{" "}
-                              {getFeaturedQty(item.id)} ={" "}
-                            </span>{" "}
+                              ₦{Number(product.nairaPrice).toLocaleString()} ×{" "}
+                              {mainQuantity} =
+                            </span>
                             ₦
                             {(
-                              Number(item.nairaPrice) * getFeaturedQty(item.id)
+                              Number(product.nairaPrice) * mainQuantity
                             ).toLocaleString()}
                           </div>
                           {/* {product.priceFullBottle && (
-                          <div className="text-xs text-gray-600 mt-1">
-                            Full bottle: ₦
-                            {Number(product.priceFullBottle).toLocaleString()}
-                          </div>
-                        )} */}
+                            <div className="text-xs hidden md:inline text-gray-600 mt-1">
+                              Full bottle: ₦
+                              {Number(product.priceFullBottle).toLocaleString()}
+                            </div>
+                          )} */}
                         </div>
                       </div>
                       {/* Right: Add to cart button */}
                       <AddToCartButton
-                        product={item}
-                        className="text-nowrap"
-                        quantity={getFeaturedQty(item.id)}
+                        product={product}
+                        className="text-nowrap h-fit"
+                        quantity={mainQuantity}
                       />
+                    </div>
+                  </div>
+                  <div className="text-lg font-serif ">Add-On</div>
+                  {featuredProducts?.map((item, index) => (
+                    <div key={index} className="flex flex-col gap-1">
+                      <div className="text-xs md:text-sm md:hidden   flex items-center gap-2 font-serif font-bold mb-1">
+                        <p className="">{item.name}</p>{" "}
+                      </div>
+                      <div className="flex  justify-between gap-4 md:gap-8">
+                        {/* Left: Bottle, Price label, Price */}
+                        <div className="flex  gap-1 md:gap-4">
+                          <div className="h-10 w-10 lg:h-24 lg:w-24 overflow-hidden">
+                            <Image
+                              src="/images/products/TVC_1.png"
+                              alt="Bottle"
+                              width={80}
+                              height={100}
+                              className=""
+                            />
+                          </div>
+                          <div className="flex  flex-col  items-center md:items-start">
+                            <div className="text-xs md:text-sm hidden   md:flex items-center gap-2 font-serif font-bold mb-1">
+                              <p className="">{item.name}</p>{" "}
+                            </div>
+                            <div className="flex items-center justify-between  flex-wrap gap-1 md:gap-4">
+                              <div className="flex px-3 justify-center w-full sm:w-fit gap-2 items-center border border-[#a0001e] rounded-full text-[#a0001e] font-serif text-sm py-[px]">
+                                <button
+                                  onClick={() => decreaseFeaturedQty(item.id)}
+                                  className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-l-full text-lg"
+                                  aria-label="Decrease quantity"
+                                >
+                                  -
+                                </button>
+                                <span className="text-sm">
+                                  No: {getFeaturedQty(item.id)}
+                                </span>
+                                <button
+                                  onClick={() => increaseFeaturedQty(item.id)}
+                                  className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-r-full text-lg"
+                                  aria-label="Increase quantity"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                            <div className="text-xs md:text-sm font-serif text-[#a0001e] mt-2 font-bold">
+                              <span className="hidden md:inline">
+                                {" "}
+                                ₦{Number(
+                                  item.nairaPrice
+                                ).toLocaleString()} × {getFeaturedQty(item.id)}{" "}
+                                ={" "}
+                              </span>{" "}
+                              ₦
+                              {(
+                                Number(item.nairaPrice) *
+                                getFeaturedQty(item.id)
+                              ).toLocaleString()}
+                            </div>
+                          </div>
+                        </div>
+                        {/* Right: Add to cart button */}
+                        <AddToCartButton
+                          product={item}
+                          className="text-nowrap h-fit"
+                          quantity={getFeaturedQty(item.id)}
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>

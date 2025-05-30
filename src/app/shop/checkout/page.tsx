@@ -17,13 +17,10 @@ import checkoutService, {
   CheckoutFormData,
   ShippingMethod,
   SavedAddress,
-  CheckoutResponse,
-  PaymentResponse,
 } from "@/services/checkout";
-import { CartItem } from "@/components/cart/CartOverlay";
 
 const CheckoutPage = () => {
-  const { cartItems, itemCount, clearCart, cart } = useCart();
+  const { cartItems, itemCount, cart } = useCart();
   const { isAuthenticated, user } = useAuth();
   const { error, success } = useToast();
   const router = useRouter();
@@ -69,10 +66,9 @@ const CheckoutPage = () => {
   });
 
   // Calculate subtotal
-  const subtotal = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
+  const subtotal =
+    cartItems !== null &&
+    cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
   // Fetch shipping methods and saved addresses
   useEffect(() => {
@@ -117,10 +113,10 @@ const CheckoutPage = () => {
 
   // If cart is empty, redirect to cart page
   useEffect(() => {
-    if (itemCount === 0) {
+    if (cartItems !== null && cartItems.length < 1) {
       router.push("/shop");
     }
-  }, [itemCount, router]);
+  }, [cartItems]);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -187,7 +183,6 @@ const CheckoutPage = () => {
       setIsApplyingCoupon(true);
       const response = await cartService.applycoupon(couponCode);
       setCouponApplied(true);
-      console.log(response, "coupon response");
       setCouponRes(response);
     } catch (err) {
       console.error("Checkout error:", err);
@@ -248,14 +243,10 @@ const CheckoutPage = () => {
       );
 
       // 4. Clear cart since order is created
-      clearCart();
 
       // 5. Redirect to Paystack payment page
       if (paymentResponse.paymentUrl) {
         window.location.href = paymentResponse.paymentUrl;
-      } else {
-        // Fallback in case there's no payment URL
-        router.push(`/shop/order-confirmation/${orderResponse.id}`);
       }
     } catch (err) {
       console.error("Checkout error:", err);
@@ -276,7 +267,7 @@ const CheckoutPage = () => {
       : 0; // Use .amount instead of .price
 
     const totalAmount =
-      subtotal +
+      (subtotal as number) +
       (cart?.hasFreeShipping ? 0 : shippingCost) -
       (couponRes?.discount || 0);
     setShippingCost(cart?.hasFreeShipping ? 0 : shippingCost);
@@ -653,7 +644,7 @@ const CheckoutPage = () => {
             <div className="lg:w-1/3 flex  flex-col gap-6">
               <CheckoutSummary
                 cartItems={cartItems}
-                subtotal={subtotal}
+                subtotal={subtotal as number}
                 shippingCost={shippingCost}
                 total={totalAmount}
                 cart={couponRes}

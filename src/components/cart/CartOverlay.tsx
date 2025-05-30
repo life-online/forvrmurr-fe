@@ -15,7 +15,7 @@ export interface CartItem {
   name: string;
   brand: string;
   price: number;
-  imageUrl: string;
+  imageUrl: string | null;
   quantity: number;
   productId: string;
 }
@@ -23,7 +23,7 @@ export interface CartItem {
 interface CartOverlayProps {
   isOpen: boolean;
   onClose: () => void;
-  cartItems: CartItem[];
+  cartItems: CartItem[] | null;
   addToCart: (item: CartItem) => void;
   removeFromCart: (itemId: string) => void;
   updateItemQuantity: (itemId: string, quantity: number) => void;
@@ -71,7 +71,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
   const { isAuthenticated } = useAuth();
   const { info, success, error: showError } = useToast();
   useEffect(() => {
-    if (cartItems.length > 0) {
+    if (cartItems !== null && cartItems.length > 0) {
       const fetchProduct = async () => {
         try {
           setLoading(true);
@@ -118,6 +118,8 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
       };
       fetchProduct();
     }
+
+    console.log(cartItems, "carttt");
   }, [cartItems]);
 
   if (!isOpen) return null;
@@ -173,7 +175,8 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
   };
 
   const handleAddFeaturedProduct = (product: Product) => {
-    const exists = cartItems.some((ci) => ci.id === product.id);
+    const exists =
+      cartItems !== null && cartItems.some((ci) => ci.id === product.id);
     if (exists) {
       // removeFromCart(product.id);
     } else {
@@ -217,7 +220,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
         </div>
 
         {/* Delivery Progress */}
-        {cartItems.length > 0 && currentDiscount && (
+        {cartItems !== null && cartItems.length > 0 && currentDiscount && (
           <div className="bg-[#faf0e2] p-4">
             <p className="text-[#8b0000] font-medium mb-1">
               {amountToFreeDelivery > 0 ? "Almost there..." : "Congratulations"}
@@ -238,7 +241,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
 
         {/* Cart Content */}
         <div className="flex-1 overflow-y-auto p-4">
-          {cartItems.length === 0 ? (
+          {cartItems !== null && cartItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center h-full">
               <h3 className="text-xl font-medium mb-2">
                 Your cart is looking a little too empty.
@@ -313,56 +316,61 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
             <>
               {/* Cart Items */}
               <div className="space-y-4 mb-6">
-                {cartItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center py-4 border-b border-gray-100"
-                  >
-                    <div className="h-20 w-20 relative mr-4">
-                      <Image
-                        src={item.imageUrl}
-                        alt={item.name}
-                        fill
-                        style={{ objectFit: "contain" }}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium">{item.brand}</h4>
-                      <p className="text-sm text-gray-600">{item.name}</p>
-                      <p className="text-sm font-medium mt-1">
-                        ₦ {item.price.toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="flex items-center border border-gray-300 rounded-full">
-                      <button
-                        onClick={() => {
-                          if (item.quantity > 1) {
-                            updateItemQuantity(item.id, item.quantity - 1);
-                          }
-                        }}
-                        className="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-[#8b0000]"
-                        disabled={item.quantity <= 1}
-                      >
-                        <FiMinus size={16} />
-                      </button>
-                      <span className="w-8 text-center">{item.quantity}</span>
-                      <button
-                        onClick={() =>
-                          updateItemQuantity(item.id, item.quantity + 1)
-                        }
-                        className="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-[#8b0000]"
-                      >
-                        <FiPlus size={16} />
-                      </button>
-                    </div>
-                    <button
-                      onClick={() => removeFromCart(item.id)}
-                      className="ml-4 text-[#8b0000] text-sm font-medium border border-[#8b0000] rounded px-3 py-1 hover:bg-[#8b0000] hover:text-white transition-colors"
+                {cartItems !== null &&
+                  cartItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center py-4 border-b border-gray-100"
                     >
-                      Remove
-                    </button>
-                  </div>
-                ))}
+                      <div className="h-20 w-20 relative mr-4">
+                        <Image
+                          src={
+                            item.imageUrl && item.imageUrl !== null
+                              ? item.imageUrl
+                              : "/images/hero/hero_image.png"
+                          }
+                          alt={item.name}
+                          fill
+                          style={{ objectFit: "contain" }}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium">{item.brand}</h4>
+                        <p className="text-sm text-gray-600">{item.name}</p>
+                        <p className="text-sm font-medium mt-1">
+                          ₦ {item.price.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="flex items-center border border-gray-300 rounded-full">
+                        <button
+                          onClick={() => {
+                            if (item.quantity > 1) {
+                              updateItemQuantity(item.id, item.quantity - 1);
+                            }
+                          }}
+                          className="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-[#8b0000]"
+                          disabled={item.quantity <= 1}
+                        >
+                          <FiMinus size={16} />
+                        </button>
+                        <span className="w-8 text-center">{item.quantity}</span>
+                        <button
+                          onClick={() =>
+                            updateItemQuantity(item.id, item.quantity + 1)
+                          }
+                          className="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-[#8b0000]"
+                        >
+                          <FiPlus size={16} />
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => removeFromCart(item.id)}
+                        className="ml-4 text-[#8b0000] text-sm font-medium border border-[#8b0000] rounded px-3 py-1 hover:bg-[#8b0000] hover:text-white transition-colors"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
               </div>
 
               {/* Add to your order section */}
@@ -444,7 +452,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
         </div>
 
         {/* Footer with totals and checkout button */}
-        {cartItems.length > 0 && (
+        {cartItems !== null && cartItems.length > 0 && (
           <div className="border-t border-gray-200 p-4 bg-white">
             <div className="flex justify-between text-base font-medium text-gray-900 mb-4">
               <p>Subtotal</p>
