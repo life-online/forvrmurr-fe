@@ -150,11 +150,11 @@ const Navbar: React.FC = () => {
               aria-expanded={showCurrencyDropdown}
               type="button"
             >
-              <span className="text-xl mr-1">
+              {/* <span className="text-xl mr-1">
                 {selectedCurrency === "NGN" ? "🇳🇬" : "🇬🇧"}
-              </span>
+              </span> */}
               <span className="text-base mr-1">
-                {selectedCurrency === "NGN" ? "NG | ₦" : "GB | £"}
+                {selectedCurrency === "NGN" ? "₦" : "£"}
               </span>
               <span className="text-base">▼</span>
             </button>
@@ -355,7 +355,7 @@ const Navbar: React.FC = () => {
         {/* Mobile Navigation Menu - Slide down when open */}
         {isMobileMenuOpen && (
           <div
-            className="md:hidden absolute top-full left-0 right-0 bg-black z-50 border-t border-gray-800 shadow-lg"
+            className="md:hidden absolute top-full left-0 right-0 bg-black z-50 border-t border-gray-800 shadow-lg overflow-auto max-h-[80vh]"
             ref={mobileMenuRef}
           >
             <div className="px-4 py-6 space-y-8">
