@@ -72,8 +72,8 @@ const Footer: React.FC = () => {
                   Why Choose Decants
                 </Link>
               </li>
-              {/* <li><Link href="/terms" className="hover:text-white">Terms & Conditions</Link></li>
-              <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li> */}
+              <li><Link href="/terms" className="hover:text-white">Terms & Conditions</Link></li>
+              <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
             </ul>
           </div>
 

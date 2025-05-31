@@ -17,7 +17,7 @@ export default function Faq() {
   }
   return (
     <div className="min-h-screen bg-white flex flex-col ">
-      <AnnouncementBar message="New collection revealed monthly!" />
+      <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
       <Navbar />
       <section className="">
         <div>

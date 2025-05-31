@@ -32,7 +32,7 @@ const LoadingShop: React.FC = () => {
 export default function ShopPage() {
   return (
     <div className="min-h-screen bg-white text-black flex flex-col">
-      <AnnouncementBar message="New collection revealed monthly!" />
+      <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
       <Navbar />
       <Suspense fallback={<LoadingShop />}>
         <ShopContent />

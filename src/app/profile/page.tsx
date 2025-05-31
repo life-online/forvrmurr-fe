@@ -17,7 +17,7 @@ const LoadingProfile: React.FC = () => {
 export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <AnnouncementBar message="New collection revealed monthly!" />
+      <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
       <Navbar />
       <Suspense fallback={<LoadingProfile />}>
         <ProfileContent />

@@ -116,7 +116,7 @@ export default function ProductDetailsPage() {
     return (
       <>
         <div className="min-h-screen bg-[#f8f5f2]">
-          <AnnouncementBar message="New collection revealed monthly!" />
+          <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
           <Navbar />
           <div className="w-full py-20 text-center">
             <div className="animate-pulse">
@@ -137,7 +137,7 @@ export default function ProductDetailsPage() {
     return (
       <>
         <div className="min-h-screen bg-[#f8f5f2]">
-          <AnnouncementBar message="New collection revealed monthly!" />
+          <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
           <Navbar />
           <div className="w-full py-20 text-center">
             <h2 className="text-2xl text-red-800 mb-4">
@@ -160,7 +160,7 @@ export default function ProductDetailsPage() {
   return (
     <>
       <div className="min-h-screen bg-white pb-3">
-        <AnnouncementBar message="New collection revealed monthly!" />
+        <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
         <Navbar />
         {/* Top Section */}
         <div className="w-full pt-16 pb-24" style={{ background: "#F7EDE1" }}>

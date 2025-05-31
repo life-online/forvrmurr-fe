@@ -10,7 +10,7 @@ import CuratedExperiences from "@/components/ui/CuratedExperiences";
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
-      <AnnouncementBar message="New collection revealed monthly!" />
+      <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
       <Navbar />
 
       <main className="flex-grow bg-white">
