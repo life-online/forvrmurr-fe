@@ -36,7 +36,7 @@ const HeroSection: React.FC = () => {
             MEET YOUR NEXT OBSESSION
           </h1>
           <p className="text-lg md:text-xl font-light text-[#e6c789]">
-            Explore coveted fragrance like Delina, Khamrah & Oud Satin - in 8ml
+            Explore coveted fragrances like Delina, Khamrah & Oud Satin - in 8ml
             portions.
           </p>
           <p className="text-lg md:text-xl font-light text-[#e6c789] mb-8">

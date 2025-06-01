@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import AuthLayout from "@/components/auth/AuthLayout";
 import { useToast } from "@/context/ToastContext";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 interface RegisterFormData {
   firstName: string;
@@ -22,7 +23,7 @@ export default function Register() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { register } = useAuth();
-  const { success } = useToast();
+  const { success, error } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<RegisterFormData>({
     firstName: "",
@@ -36,6 +37,8 @@ export default function Register() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [displayMessage, setDisplayMessage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     const message = searchParams.get("message");
@@ -44,11 +47,56 @@ export default function Register() {
     }
   }, [searchParams]);
 
+  // Individual field validation functions
+  const validateField = (name: string, value: string | boolean): string | null => {
+    switch (name) {
+      case 'firstName':
+        return !value ? "First name is required" : null;
+      
+      case 'lastName':
+        return !value ? "Last name is required" : null;
+      
+      case 'email':
+        if (!value) return "Email is required";
+        return !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value as string) 
+          ? "Please enter a valid email address" 
+          : null;
+      
+      case 'password':
+        if (!value) return "Password is required";
+        if ((value as string).length < 8) return "Password must be at least 8 characters";
+        if (!/(?=.*[a-z])/.test(value as string)) return "Password must contain at least one lowercase letter";
+        if (!/(?=.*[A-Z])/.test(value as string)) return "Password must contain at least one uppercase letter";
+        if (!/((?=.*\d)|(?=.*\W+))(?![.\n])/.test(value as string)) {
+          return "Password must contain at least one number or special character";
+        }
+        return null;
+      
+      case 'confirmPassword':
+        if (!value) return "Please confirm your password";
+        return value !== formData.password ? "Passwords do not match" : null;
+      
+      case 'phoneNumber':
+        return (value as string).trim() && !/^\+[1-9]\d{1,14}$/.test(value as string)
+          ? "Phone number must be a valid international phone number (e.g., +12125552368)"
+          : null;
+      
+      case 'acceptTerms':
+        return !value ? "You must accept the terms and conditions" : null;
+      
+      default:
+        return null;
+    }
+  };
+
+  // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
+    const newValue = type === "checkbox" ? checked : value;
+    
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: newValue,
     }));
 
     // Clear error when field is edited
@@ -61,59 +109,36 @@ export default function Register() {
     }
   };
 
+  // Handle field blur for real-time validation
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    const fieldValue = type === "checkbox" ? checked : value;
+    
+    const error = validateField(name, fieldValue);
+    
+    if (error) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: error
+      }));
+    }
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
+    const fieldNames: (keyof RegisterFormData)[] = [
+      'firstName', 'lastName', 'email', 'password', 'confirmPassword', 'phoneNumber', 'acceptTerms'
+    ];
 
-    // Validate first name
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = "First name is required";
-    }
-
-    // Validate last name
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = "Last name is required";
-    }
-
-    // Validate email
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
-    }
-
-    // Password validation
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    } else if (!/(?=.*[a-z])/.test(formData.password)) {
-      newErrors.password =
-        "Password must contain at least one lowercase letter";
-    } else if (!/(?=.*[A-Z])/.test(formData.password)) {
-      newErrors.password =
-        "Password must contain at least one uppercase letter";
-    } else if (!/(?=.*[0-9\W])/.test(formData.password)) {
-      newErrors.password =
-        "Password must contain at least one number or special character";
-    }
-
-    // Validate password confirmation
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    // Validate phone number
-    if (!formData.phoneNumber) {
-      newErrors.phoneNumber = "Phone number is required";
-    } else if (!/^\+[1-9]\d{1,14}$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber =
-        "Phone number must be in international format (e.g., +12125552368)";
-    }
-
-    // Validate terms acceptance
-    if (!formData.acceptTerms) {
-      newErrors.acceptTerms = "You must accept the terms and conditions";
-    }
+    // Validate all fields using our validateField function
+    fieldNames.forEach(fieldName => {
+      const fieldValue = formData[fieldName];
+      // Make sure we're passing a valid value type to validateField
+      const error = validateField(fieldName, fieldValue || ''); // Convert undefined to empty string
+      if (error) {
+        newErrors[fieldName] = error;
+      }
+    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -133,14 +158,9 @@ export default function Register() {
       lastName: formData.lastName.trim(),
       email: formData.email.trim(),
       password: formData.password,
-      phoneNumber: formData.phoneNumber.trim(),
+      // Always include phoneNumber as required by RegisterData interface
+      phoneNumber: formData.phoneNumber.trim() || "+", // Empty international format if not provided
     };
-
-    // Log registration data directly from the component
-    console.log(
-      "REGISTER COMPONENT - Sending data:",
-      JSON.stringify(registrationData)
-    );
 
     try {
       setIsSubmitting(true);
@@ -155,10 +175,13 @@ export default function Register() {
       } else {
         router.push("/");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Registration component error:", err);
-      // error("Registration failed. Please try again.");
-      // Optionally log error
+      setErrors(prev => ({
+        ...prev,
+        general: err?.message || "Registration failed. Please try again."
+      }));
+      error("Registration failed. Please check your information and try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -179,7 +202,6 @@ export default function Register() {
           <p>{displayMessage}</p>
         </div>
       )}
-
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -194,11 +216,10 @@ export default function Register() {
               name="firstName"
               type="text"
               required
-              className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
-                errors.firstName ? "border-red-500" : ""
-              }`}
+              className={`w-full px-4 py-3 border ${errors.firstName ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent`}
               value={formData.firstName}
               onChange={handleChange}
+              onBlur={handleBlur}
             />
             {errors.firstName && (
               <p className="mt-1 text-xs text-red-500">{errors.firstName}</p>
@@ -217,11 +238,10 @@ export default function Register() {
               name="lastName"
               type="text"
               required
-              className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
-                errors.lastName ? "border-red-500" : ""
-              }`}
+              className={`w-full px-4 py-3 border ${errors.lastName ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent`}
               value={formData.lastName}
               onChange={handleChange}
+              onBlur={handleBlur}
             />
             {errors.lastName && (
               <p className="mt-1 text-xs text-red-500">{errors.lastName}</p>
@@ -241,13 +261,11 @@ export default function Register() {
             id="phoneNumber"
             name="phoneNumber"
             type="tel"
-            required
-            className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
-              errors.phoneNumber ? "border-red-500" : ""
-            }`}
-            placeholder="+12125552368 (no spaces or dashes)"
+            className={`w-full px-4 py-3 border ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent`}
+            placeholder="+12125552368 (optional, international format)"
             value={formData.phoneNumber}
             onChange={handleChange}
+            onBlur={handleBlur}
           />
           {errors.phoneNumber && (
             <p className="mt-1 text-xs text-red-500">{errors.phoneNumber}</p>
@@ -266,12 +284,11 @@ export default function Register() {
             name="email"
             type="email"
             required
-            className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
-              errors.email ? "border-red-500" : ""
-            }`}
+            className={`w-full px-4 py-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent`}
             placeholder="your@email.com"
             value={formData.email}
             onChange={handleChange}
+            onBlur={handleBlur}
           />
           {errors.email && (
             <p className="mt-1 text-xs text-red-500">{errors.email}</p>
@@ -285,18 +302,27 @@ export default function Register() {
           >
             Password
           </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
-              errors.password ? "border-red-500" : ""
-            }`}
-            placeholder="••••••••"
-            value={formData.password}
-            onChange={handleChange}
-          />
+          <div className="relative">
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              required
+              className={`w-full px-4 py-3 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent pr-10`}
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={handleChange}
+              onBlur={handleBlur}
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 focus:outline-none"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+            </button>
+          </div>
           {errors.password && (
             <p className="mt-1 text-xs text-red-500">{errors.password}</p>
           )}
@@ -313,18 +339,27 @@ export default function Register() {
           >
             Confirm Password
           </label>
-          <input
-            id="confirmPassword"
-            name="confirmPassword"
-            type="password"
-            required
-            className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent ${
-              errors.confirmPassword ? "border-red-500" : ""
-            }`}
-            placeholder="••••••••"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-          />
+          <div className="relative">
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              required
+              className={`w-full px-4 py-3 border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent pr-10`}
+              placeholder="••••••••"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              onBlur={handleBlur}
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 focus:outline-none"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+            >
+              {showConfirmPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+            </button>
+          </div>
           {errors.confirmPassword && (
             <p className="mt-1 text-xs text-red-500">
               {errors.confirmPassword}
@@ -338,11 +373,10 @@ export default function Register() {
               id="acceptTerms"
               name="acceptTerms"
               type="checkbox"
-              className={`h-4 w-4 accent-[#8b0000] ${
-                errors.acceptTerms ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`h-4 w-4 accent-[#8b0000] ${errors.acceptTerms ? "border-red-500" : "border-gray-300"}`}
               checked={formData.acceptTerms}
               onChange={handleChange}
+              onBlur={handleBlur}
             />
           </div>
           <div className="ml-3 text-sm">

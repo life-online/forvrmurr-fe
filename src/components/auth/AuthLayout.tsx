@@ -12,14 +12,19 @@ interface AuthLayoutProps {
 
 const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitle }) => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8f5f2] p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8f5f2] px-4 md:py-20 py-10">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="flex justify-center">
-            <div className="text-2xl font-serif tracking-wider">
-              Forvr <span className="font-bold">Murr</span>
-            </div>
+            <Image 
+              src="/images/logo/logo_black.png" 
+              alt="ForvrMurr Logo" 
+              width={160} 
+              height={60} 
+              className="h-auto" 
+              priority
+            />
           </Link>
         </div>
 
