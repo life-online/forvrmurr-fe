@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { CartItem } from "@/components/cart/CartOverlay";
 import { CartResponseDto } from "@/services/cart";
+import { TaxConfiguration } from "@/services/tax";
 
 interface CheckoutSummaryProps {
   cartItems: CartItem[] | null;
@@ -11,6 +12,8 @@ interface CheckoutSummaryProps {
   shippingCost: number;
   total: number;
   cart?: CartResponseDto;
+  taxConfig?: TaxConfiguration;
+  taxAmount?: number;
 }
 
 const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
@@ -19,6 +22,8 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   shippingCost,
   total,
   cart,
+  taxConfig,
+  taxAmount,
 }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow sticky top-8">
@@ -54,40 +59,20 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           ))}
       </div>
 
-      {/* Delivery Progress Bar */}
-      {/* {subtotal < 49000 && (
-        <div className="bg-[#faf0e2] p-4 rounded mb-6">
-          <p className="text-[#8b0000] font-medium mb-1">
-            {subtotal < 49000 ? "Almost there..." : "Congratulations!"}
-          </p>
-          <p className="text-[#8b0000] text-sm mb-2">
-            {subtotal < 49000
-              ? `You are ₦${(
-                  49000 - subtotal
-                ).toLocaleString()} away from free delivery`
-              : "You qualify for free delivery!"}
-          </p>
-          <div className="h-2 bg-[#f8e2c8] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-orange-400 via-red-500 to-pink-300"
-              style={{ width: `${Math.min(100, (subtotal / 49000) * 100)}%` }}
-            />
-          </div>
-        </div>
-      )} */}
-
       {/* Order Summary */}
       <div className="border-t border-gray-200 pt-4 space-y-3">
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Subtotal</span>
           <span>₦{subtotal.toLocaleString()}</span>
         </div>
+        {/* Shipping cost */}
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Shipping</span>
           <span>
             {shippingCost === 0 ? "Free" : `₦${shippingCost.toLocaleString()}`}
           </span>
         </div>
+        {/* Discount */}
         {cart &&
           cart.appliedDiscounts
             .filter((item) => item.title != "FM-FREESHIPPING40")
@@ -95,17 +80,20 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
               <div className="flex justify-between text-sm" key={index}>
                 <div className="">
                   <span className="text-gray-600">{discount.title}</span>
-                  {/* <span className="text-gray-600 text-xs">
-                    {discount.description}
-                  </span> */}
                 </div>
                 <span>{`₦${discount.amountDeducted.toLocaleString()}`}</span>
               </div>
             ))}
-        {/* <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Tax</span>
-          <span>₦0.00</span>
-        </div> */}
+        {/* Tax */}
+        {taxConfig && taxAmount !== undefined && (
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">
+              Tax ({parseFloat(taxConfig.rate) * 100}%)
+            </span>
+            <span>₦{taxAmount.toLocaleString()}</span>
+          </div>
+        )}
+        {/* Total */}
         <div className="border-t border-gray-200 pt-3 flex justify-between font-medium text-base">
           <span>Total</span>
           <span className="text-[#a0001e]">₦{total.toLocaleString()}</span>

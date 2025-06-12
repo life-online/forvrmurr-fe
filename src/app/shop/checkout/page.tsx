@@ -17,6 +17,7 @@ import checkoutService, {
   ShippingMethod,
   SavedAddress,
 } from "@/services/checkout";
+import taxService, { TaxConfiguration } from "@/services/tax";
 import { isValidPhoneNumber, parsePhoneNumber } from 'libphonenumber-js';
 
 interface Address {
@@ -62,6 +63,8 @@ const CheckoutPage = () => {
   const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
   const [shippingCost, setShippingCost] = useState<number>(0);
   const [totalAmount, setTotal] = useState<number>(0);
+  const [taxConfig, setTaxConfig] = useState<TaxConfiguration | undefined>();
+  const [taxAmount, setTaxAmount] = useState<number>(0);
   
   // UI control state
   const [showBillingForm, setShowBillingForm] = useState(false);
@@ -106,27 +109,90 @@ const CheckoutPage = () => {
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   // Calculate subtotal
-  const subtotal =
-    cartItems !== null &&
-    cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  const subtotal = cartItems !== null
+    ? cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
+    : 0;
+    
+  // Centralized function to calculate the order total
+  const calculateOrderTotal = (options: {
+    subtotal: number;
+    shippingCost: number;
+    taxAmount: number;
+    hasFreeShipping?: boolean;
+    discountAmount?: number;
+  }) => {
+    const { subtotal, shippingCost, taxAmount, hasFreeShipping = false, discountAmount = 0 } = options;
+    
+    // Calculate the final shipping cost (0 if free shipping)
+    const finalShippingCost = hasFreeShipping ? 0 : shippingCost;
+    
+    // Calculate the total amount
+    return subtotal + finalShippingCost + taxAmount - discountAmount;
+  };
+  
+  // Update the total amount whenever relevant values change
+  const updateTotalAmount = () => {
+    const discountAmount = couponRes?.discount || 0;
+    const hasFreeShipping = couponRes?.hasFreeShipping || false;
+    
+    const newTotal = calculateOrderTotal({
+      subtotal,
+      shippingCost,
+      taxAmount,
+      hasFreeShipping,
+      discountAmount
+    });
+    
+    setTotal(newTotal);
+  };
+  
+  // Fetch tax configuration based on country
+  const fetchTaxConfiguration = async (countryCode: string) => {
+    try {
+      const taxConfigs = await taxService.getTaxConfigurationByCountry(countryCode);
+      if (taxConfigs && taxConfigs.length > 0) {
+        setTaxConfig(taxConfigs[0]);
+        // Calculate tax amount
+        if (subtotal) {
+          const calculatedTaxAmount = taxService.calculateTaxAmount(subtotal, taxConfigs[0].rate);
+          setTaxAmount(calculatedTaxAmount);
+          // Update total through the centralized function
+          updateTotalAmount();
+        }
+      } else {
+        setTaxConfig(undefined);
+        setTaxAmount(0);
+        // Update total through the centralized function
+        updateTotalAmount();
+      }
+    } catch (err) {
+      console.error("Error fetching tax configuration:", err);
+      setTaxConfig(undefined);
+      setTaxAmount(0);
+      // Update total through the centralized function
+      updateTotalAmount();
+    }
+  };
 
   // Fetch shipping methods and saved addresses
   useEffect(() => {
     const fetchInitialData = async () => {
       setIsLoading(true);
       try {
+        // Default country code for Nigeria
+        const countryCode = "NG";
+        
         // Fetch shipping methods
-        const countryCode =
-          formData.shippingAddress.country === "Nigeria"
-            ? "NG"
-            : formData.shippingAddress.country;
-        const methods = await checkoutService.getShippingMethods(countryCode); 
+        const methods = await checkoutService.getShippingMethods(countryCode);
         setShippingMethods(methods);
-
+        
         if (methods.length > 0) {
           setFormData((prev) => ({ ...prev, shippingRateId: methods[0].id }));
         }
-
+        
+        // Fetch tax configuration for Nigeria (default country)
+        await fetchTaxConfiguration(countryCode);
+        
         // Fetch saved addresses if authenticated
         if (isAuthenticated) {
           const addresses = await checkoutService.getSavedAddresses();
@@ -157,6 +223,25 @@ const CheckoutPage = () => {
       router.push("/shop");
     }
   }, [cartItems]);
+  
+  // Update shipping cost and total amount when relevant values change
+  useEffect(() => {
+    const selectedShippingMethod = shippingMethods.find(
+      (method) => method.id === formData.shippingRateId
+    );
+
+    const newShippingCost = selectedShippingMethod
+      ? parseInt(selectedShippingMethod.amount)
+      : 0;
+      
+    const hasFreeShipping = couponRes?.hasFreeShipping || false;
+    // Update shipping cost state
+    setShippingCost(hasFreeShipping ? 0 : newShippingCost);
+    
+    // Update total amount
+    updateTotalAmount();
+    
+  }, [formData.shippingRateId, shippingMethods, couponRes, subtotal, taxAmount]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -324,6 +409,11 @@ const CheckoutPage = () => {
           shippingAddress: newShippingAddress
         };
       });
+      
+      // If using same billing address and the country changed, update tax configuration
+      if (field === 'country' && formData.useSameForBilling) {
+        fetchTaxConfiguration(value);
+      }
     } else {
       setFormData((prev: CheckoutFormData) => {
         const newBillingAddress = { ...prev.billingAddress };
@@ -333,6 +423,11 @@ const CheckoutPage = () => {
           billingAddress: newBillingAddress
         };
       });
+      
+      // If billing country changed, update tax configuration
+      if (field === 'country') {
+        fetchTaxConfiguration(value);
+      }
     }
     
     // Clear error when user makes a change
@@ -397,9 +492,12 @@ const CheckoutPage = () => {
       const response = await cartService.applycoupon(couponCode);
       setCouponApplied(true);
       setCouponRes(response);
+      
+      // Update total amount after coupon is applied
+      updateTotalAmount();
     } catch (err) {
       console.error("Checkout error:", err);
-      error("Failed to process. Please try again.");
+      error("Failed to apply coupon. Please try again.");
     } finally {
       setIsApplyingCoupon(false);
     }
@@ -410,11 +508,13 @@ const CheckoutPage = () => {
       setIsApplyingCoupon(true);
       const response = await cartService.removecoupon();
       setCouponApplied(false);
-
       setCouponRes(response);
+      
+      // Update total amount after coupon is removed
+      updateTotalAmount();
     } catch (err) {
       console.error("Checkout error:", err);
-      error("Failed to process. Please try again.");
+      error("Failed to remove coupon. Please try again.");
     } finally {
       setIsApplyingCoupon(false);
     }
@@ -530,6 +630,8 @@ const CheckoutPage = () => {
       setIsLoading(false);
     }
   };
+
+  
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -859,6 +961,8 @@ const CheckoutPage = () => {
                 shippingCost={shippingCost}
                 total={totalAmount}
                 cart={couponRes || undefined}
+                taxConfig={taxConfig}
+                taxAmount={taxAmount}
               />
             </div>
           </div>

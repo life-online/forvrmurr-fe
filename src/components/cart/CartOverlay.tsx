@@ -192,8 +192,6 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
       addToCart(carddata);
     }
   };
-
-  console.log(cartItems)
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
