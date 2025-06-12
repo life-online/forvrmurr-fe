@@ -14,10 +14,41 @@ import cartService, { CartResponseDto } from "@/services/cart";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import checkoutService, {
-  CheckoutFormData,
   ShippingMethod,
   SavedAddress,
 } from "@/services/checkout";
+import { isValidPhoneNumber, parsePhoneNumber } from 'libphonenumber-js';
+
+interface Address {
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+}
+
+interface CheckoutFormData {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  shippingAddress: Address;
+  billingAddress: Address;
+  shippingRateId: string;
+  notes: string;
+  couponCode: string;
+  useSameForBilling: boolean;
+}
+
+type FormErrors = {
+  fullName?: string;
+  email?: string;
+  phoneNumber?: string;
+  shippingRateId?: string;
+  shippingAddress?: Record<string, string | undefined>;
+  billingAddress?: Record<string, string | undefined>;
+  [key: string]: any;
+};
 
 const CheckoutPage = () => {
   const { cartItems, itemCount, cart } = useCart();
@@ -25,45 +56,54 @@ const CheckoutPage = () => {
   const { error, success } = useToast();
   const router = useRouter();
 
+  // Loading and API state
   const [isLoading, setIsLoading] = useState(false);
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
-  const [useSavedAddress, setUseSavedAddress] = useState(false);
-  const [showBillingForm, setShowBillingForm] = useState(false);
-  const [addingCOupon, setAddingCoupon] = useState(false);
-  const [isapplyingCOupon, setIsApplyingCoupon] = useState(false);
-  const [couponApplied, setCouponApplied] = useState(false);
   const [shippingCost, setShippingCost] = useState<number>(0);
   const [totalAmount, setTotal] = useState<number>(0);
-  const [couponRes, setCouponRes] = useState<CartResponseDto>();
+  
+  // UI control state
+  const [showBillingForm, setShowBillingForm] = useState(false);
+  const [useSavedAddress, setUseSavedAddress] = useState(false);
+  const [addingCoupon, setAddingCoupon] = useState(false);
+  
+  // Coupon related state
+  const [couponCode, setCouponCode] = useState('');
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [couponRes, setCouponRes] = useState<CartResponseDto | null>(null);
+  
+  // Form state
   const [formData, setFormData] = useState<CheckoutFormData>({
-    fullName:
-      user?.firstName && user?.lastName
-        ? `${user.firstName} ${user.lastName}`
-        : "",
-    email: user?.email || "",
-    phoneNumber: "", // Initialize as empty, user needs to provide it or it comes from saved address
+    fullName: user?.firstName && user?.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : '',
+    email: user?.email || '',
+    phoneNumber: '',
     shippingAddress: {
-      addressLine1: "",
-      addressLine2: "",
-      city: "",
-      state: "",
-      postalCode: "",
-      country: "Nigeria",
+      addressLine1: '',
+      addressLine2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+      country: 'Nigeria'
     },
     billingAddress: {
-      addressLine1: "",
-      addressLine2: "",
-      city: "",
-      state: "",
-      postalCode: "",
-      country: "Nigeria",
+      addressLine1: '',
+      addressLine2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+      country: 'Nigeria'
     },
-    useSameForBilling: true,
-    shippingRateId: "",
-    notes: "",
-    couponCode: "", // Ensure couponCode is always a string
+    shippingRateId: '',
+    notes: '',
+    couponCode: '',
+    useSameForBilling: true
   });
+  
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   // Calculate subtotal
   const subtotal =
@@ -76,13 +116,11 @@ const CheckoutPage = () => {
       setIsLoading(true);
       try {
         // Fetch shipping methods
-        // const methods = await checkoutService.getShippingMethods();
-        // TODO: Make countryCode dynamic based on selected shipping address country
         const countryCode =
           formData.shippingAddress.country === "Nigeria"
             ? "NG"
             : formData.shippingAddress.country;
-        const methods = await checkoutService.getShippingMethods(countryCode); // Pass countryCode
+        const methods = await checkoutService.getShippingMethods(countryCode); 
         setShippingMethods(methods);
 
         if (methods.length > 0) {
@@ -107,7 +145,9 @@ const CheckoutPage = () => {
         setIsLoading(false);
       }
     };
-    setCouponRes(cart);
+    if (cart) {
+      setCouponRes(cart);
+    }
     fetchInitialData();
   }, [isAuthenticated, error]);
 
@@ -117,6 +157,127 @@ const CheckoutPage = () => {
       router.push("/shop");
     }
   }, [cartItems]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (name === "couponCode") {
+      setFormData({ ...formData, [name]: value });
+      // Clear error when user starts typing
+      if (formErrors[name as keyof typeof formErrors]) {
+        setFormErrors(prev => ({
+          ...prev,
+          [name]: undefined
+        }));
+      }
+    }
+  };
+
+  // Validate individual field
+  const validateField = (name: string, value: string): string | undefined => {
+    switch (name) {
+      case "email":
+        if (!value.trim()) return "Email is required";
+        if (!/^\S+@\S+\.\S+$/.test(value)) return "Invalid email format";
+        return undefined;
+
+      case "fullName":
+        if (!value.trim()) return "Full name is required";
+        return undefined;
+
+      case "phoneNumber":
+        if (!value.trim()) return "Phone number is required";
+        try {
+          // Use libphonenumber-js for robust validation
+          if (!isValidPhoneNumber(value)) {
+            return "Invalid phone number format";
+          }
+          // Additional validation for Nigerian numbers if needed
+          const phoneNumber = parsePhoneNumber(value);
+          if (phoneNumber.country !== 'NG') {
+            // If specific country validation is needed
+            // return "Please enter a Nigerian phone number";
+          }
+        } catch (err) {
+          return "Invalid phone number format";
+        }
+        return undefined;
+
+      case "shippingAddress.addressLine1":
+      case "billingAddress.addressLine1":
+        if (!value.trim()) return "Address line 1 is required";
+        return undefined;
+
+      case "shippingAddress.city":
+      case "billingAddress.city":
+        if (!value.trim()) return "City is required";
+        return undefined;
+
+      case "shippingAddress.state":
+      case "billingAddress.state":
+        if (!value.trim()) return "State is required";
+        return undefined;
+
+      case "shippingAddress.postalCode":
+      case "billingAddress.postalCode":
+        if (!value.trim()) return "Postal code is required";
+        // For Nigerian postal codes, additional validation could be added
+        if (value.trim() && !/^\d{6}$/.test(value.trim())) {
+          return "Nigerian postal code should be 6 digits";
+        }
+        return undefined;
+
+      case "shippingAddress.country":
+      case "billingAddress.country":
+        if (!value.trim()) return "Country is required";
+        return undefined;
+
+      case "shippingRateId":
+        if (!value.trim()) return "Please select a shipping method";
+        return undefined;
+
+      default:
+        return undefined;
+    }
+  };
+
+  // Handle field blur for real-time validation
+  const handleFieldBlur = (name: string, value: string) => {
+    const error = validateField(name, value);
+    setFormErrors((prev: FormErrors) => ({
+      ...prev,
+      [name]: error
+    }));
+  };
+
+  // Handle blur event for address field
+  const handleAddressFieldBlur = (
+    type: 'shipping' | 'billing',
+    field: string,
+    value: string
+  ) => {
+    const fullFieldName = `${type}Address.${field}`;
+    const error = validateField(fullFieldName, value);
+    
+    setFormErrors((prev: FormErrors) => {
+      // Create a copy of the existing address errors or initialize an empty object
+      const addressErrors = { ...((prev[`${type}Address`] as Record<string, string | undefined>) || {}) };
+      
+      // Update the specific field error
+      return {
+        ...prev,
+        [`${type}Address`]: {
+          ...addressErrors,
+          [field]: error
+        }
+      };
+    });
+  };
+
+  // Handle blur event from input elements
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    handleFieldBlur(name, value);
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -130,7 +291,7 @@ const CheckoutPage = () => {
     if (name === "useSameForBilling") {
       const isNowSameAsShipping =
         checked === undefined ? formData.useSameForBilling : checked;
-      setFormData((prev) => ({
+      setFormData((prev: CheckoutFormData) => ({
         ...prev,
         [name]: isNowSameAsShipping,
       }));
@@ -141,7 +302,7 @@ const CheckoutPage = () => {
       }
       // If isNowSameAsShipping is true, the billing form section is hidden, so setShowBillingForm's value doesn't affect display then.
     } else {
-      setFormData((prev) => ({
+      setFormData((prev: CheckoutFormData) => ({
         ...prev,
         [name]: type === "checkbox" ? checked : value,
       }));
@@ -149,35 +310,87 @@ const CheckoutPage = () => {
   };
 
   const handleAddressChange = (
-    addressType: "shippingAddress" | "billingAddress",
+    type: "shipping" | "billing",
     field: string,
     value: string
   ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [addressType]: {
-        ...prev[addressType],
-        [field]: value,
-      },
-    }));
+    // Update form data
+    if (type === "shipping") {
+      setFormData((prev: CheckoutFormData) => {
+        const newShippingAddress = { ...prev.shippingAddress };
+        newShippingAddress[field as keyof Address] = value;
+        return {
+          ...prev,
+          shippingAddress: newShippingAddress
+        };
+      });
+    } else {
+      setFormData((prev: CheckoutFormData) => {
+        const newBillingAddress = { ...prev.billingAddress };
+        newBillingAddress[field as keyof Address] = value;
+        return {
+          ...prev,
+          billingAddress: newBillingAddress
+        };
+      });
+    }
+    
+    // Clear error when user makes a change
+    const addressErrors = formErrors[`${type}Address`];
+    if (addressErrors && (addressErrors as Record<string, string | undefined>)[field]) {
+      setFormErrors((prev: FormErrors) => {
+        const newErrors = { ...prev };
+        const addressErrorKey = `${type}Address`;
+        
+        if (newErrors[addressErrorKey]) {
+          const updatedAddressErrors = { ...(newErrors[addressErrorKey] as Record<string, string | undefined>) };
+          updatedAddressErrors[field] = undefined;
+          newErrors[addressErrorKey] = updatedAddressErrors;
+        }
+        
+        return newErrors;
+      });
+    }
   };
 
   const handleSavedAddressSelect = (
     addressId: string,
     addressType: "shipping" | "billing"
   ) => {
+    // Find the selected address from saved addresses
+    const selectedAddress = savedAddresses.find((addr: SavedAddress) => addr.id === addressId);
+    
+    if (!selectedAddress) return;
+    
     if (addressType === "shipping") {
-      setFormData((prev) => ({
+      // Update shipping address with saved address details
+      setFormData((prev: CheckoutFormData) => ({
         ...prev,
-        shippingAddressId: addressId,
+        shippingAddress: {
+          addressLine1: selectedAddress.addressLine1,
+          addressLine2: selectedAddress.addressLine2 || '',
+          city: selectedAddress.city,
+          state: selectedAddress.state,
+          postalCode: selectedAddress.postalCode,
+          country: selectedAddress.country,
+        }
       }));
     } else {
-      setFormData((prev) => ({
+      // Update billing address with saved address details
+      setFormData((prev: CheckoutFormData) => ({
         ...prev,
-        billingAddressId: addressId,
+        billingAddress: {
+          addressLine1: selectedAddress.addressLine1,
+          addressLine2: selectedAddress.addressLine2 || '',
+          city: selectedAddress.city,
+          state: selectedAddress.state,
+          postalCode: selectedAddress.postalCode,
+          country: selectedAddress.country,
+        }
       }));
     }
   };
+
   const applyCoupon = async (couponCode: string) => {
     try {
       setIsApplyingCoupon(true);
@@ -191,6 +404,7 @@ const CheckoutPage = () => {
       setIsApplyingCoupon(false);
     }
   };
+
   const removeCoupon = async () => {
     try {
       setIsApplyingCoupon(true);
@@ -206,295 +420,295 @@ const CheckoutPage = () => {
     }
   };
 
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+    
+    // Validate personal information
+    const fullNameError = validateField('fullName', formData.fullName);
+    if (fullNameError) newErrors.fullName = fullNameError;
+    
+    const emailError = validateField('email', formData.email);
+    if (emailError) newErrors.email = emailError;
+    
+    const phoneError = validateField('phoneNumber', formData.phoneNumber);
+    if (phoneError) newErrors.phoneNumber = phoneError;
+    
+    // Validate shipping address
+    const shippingErrors: Record<string, string | undefined> = {};
+    const shippingAddress = formData.shippingAddress;
+    
+    if (validateField('shippingAddress.addressLine1', shippingAddress.addressLine1)) {
+      shippingErrors.addressLine1 = validateField('shippingAddress.addressLine1', shippingAddress.addressLine1);
+    }
+    
+    if (validateField('shippingAddress.city', shippingAddress.city)) {
+      shippingErrors.city = validateField('shippingAddress.city', shippingAddress.city);
+    }
+    
+    if (validateField('shippingAddress.state', shippingAddress.state)) {
+      shippingErrors.state = validateField('shippingAddress.state', shippingAddress.state);
+    }
+    
+    if (validateField('shippingAddress.postalCode', shippingAddress.postalCode)) {
+      shippingErrors.postalCode = validateField('shippingAddress.postalCode', shippingAddress.postalCode) || '';
+    }
+    
+    if (Object.keys(shippingErrors).length > 0) {
+      newErrors.shippingAddress = shippingErrors;
+    }
+    
+    // Validate billing address if different from shipping
+    if (!formData.useSameForBilling && formData.billingAddress) {
+      const billingErrors: Record<string, string> = {};
+      const billingAddress = formData.billingAddress;
+      
+      if (validateField('billingAddress.addressLine1', billingAddress.addressLine1)) {
+        billingErrors.addressLine1 = validateField('billingAddress.addressLine1', billingAddress.addressLine1) || '';
+      }
+      
+      if (validateField('billingAddress.city', billingAddress.city)) {
+        billingErrors.city = validateField('billingAddress.city', billingAddress.city) || '';
+      }
+      
+      if (validateField('billingAddress.state', billingAddress.state)) {
+        billingErrors.state = validateField('billingAddress.state', billingAddress.state) || '';
+      }
+      
+      if (validateField('billingAddress.postalCode', billingAddress.postalCode)) {
+        billingErrors.postalCode = validateField('billingAddress.postalCode', billingAddress.postalCode) || '';
+      }
+      
+      if (Object.keys(billingErrors).length > 0) {
+        newErrors.billingAddress = billingErrors;
+      }
+    }
+    
+    // Validate shipping method
+    const shippingMethodError = validateField('shippingRateId', formData.shippingRateId);
+    if (shippingMethodError) newErrors.shippingRateId = shippingMethodError;
+    
+    setFormErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      error("Please fill in all required fields correctly.");
+      return;
+    }
 
     setIsLoading(true);
     try {
-      // 1. Get cartId if user is authenticated
-      let cartId: string | undefined;
-      if (isAuthenticated) {
-        try {
-          const cartResponse = await cartService.getCart();
-          cartId = cartResponse.id;
-        } catch (cartErr) {
-          console.error("Error fetching cart ID:", cartErr);
-          error("Could not retrieve your cart information. Please try again.");
-          setIsLoading(false);
-          return;
-        }
-      }
-
-      // 2. Create order
-      const guestId = !isAuthenticated
-        ? localStorage.getItem("forvrmurr_guest_id") || undefined
-        : undefined;
-      const orderResponse = await checkoutService.createOrder(
-        formData,
-        cartId,
-        guestId
-      );
-
-      success("Order created! Redirecting to payment...");
-
-      // 3. Initiate payment
-      const paymentResponse = await checkoutService.initiatePayment(
-        orderResponse.id
-      );
-
-      // 4. Clear cart since order is created
-
-      // 5. Redirect to Paystack payment page
-      if (paymentResponse.paymentUrl) {
-        window.location.href = paymentResponse.paymentUrl;
+      // Create order with all required fields
+      const order = await checkoutService.createOrder({
+        fullName: formData.fullName,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        shippingAddress: formData.shippingAddress,
+        billingAddress: formData.useSameForBilling ? formData.shippingAddress : formData.billingAddress,
+        shippingRateId: formData.shippingRateId,
+        notes: formData.notes,
+        useSameForBilling: formData.useSameForBilling,
+      });
+      
+      // Initiate payment
+      const paymentResult = await checkoutService.initiatePayment(order.id);
+      
+      // Redirect to payment page or confirmation
+      if (paymentResult.paymentUrl) {
+        router.push(paymentResult.paymentUrl);
+      } else {
+        success("Order placed successfully!");
+        router.push(`/shop/orders/${order.id}`);
       }
     } catch (err) {
       console.error("Checkout error:", err);
-      error(
-        "Failed to process your order. Please check your information and try again."
-      );
+      error("Failed to process your order. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
-  useEffect(() => {
-    const selectedShippingMethod = shippingMethods.find(
-      (method) => method.id === formData.shippingRateId
-    );
-
-    const shippingCost = selectedShippingMethod
-      ? parseInt(selectedShippingMethod.amount)
-      : 0; // Use .amount instead of .price
-
-    const totalAmount =
-      (subtotal as number) +
-      (cart?.hasFreeShipping ? 0 : shippingCost) -
-      (couponRes?.discount || 0);
-    setShippingCost(cart?.hasFreeShipping ? 0 : shippingCost);
-    setTotal(totalAmount);
-  }, [couponRes, formData, shippingMethods]);
-
-  if (itemCount === 0) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
 
-      <main className="flex-grow py-8 bg-[#f8f5f2]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between mb-8">
-            <h1 className="text-3xl font-serif text-center">Checkout</h1>
-            <div className="text-sm breadcrumbs">
-              <ul className="flex items-center space-x-2">
-                <li>
-                  <a href="/" className="text-gray-500 hover:text-gray-700">
-                    Home
-                  </a>
-                </li>
-                <li className="text-gray-500 before:content-['>'] before:mx-2">
-                  <a href="/shop" className="text-gray-500 hover:text-gray-700">
-                    Shop
-                  </a>
-                </li>
-                <li className="text-gray-900 before:content-['>'] before:mx-2">
-                  Checkout
-                </li>
-              </ul>
-            </div>
-          </div>
-
+      <main className="flex-grow py-8 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <h1 className="text-3xl font-serif mb-8 text-center">Checkout</h1>
+          
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Left side: Checkout form */}
-            <div className="flex-grow lg:w-2/3">
-              <div className=" pr-8 rounded-lg mb-6">
-                <h2 className="text-xl font-serif mb-4">
-                  Shipping Information
-                </h2>
-
+            <div className="lg:w-2/3">
+              <div className="bg-white p-6 rounded-xl shadow-md">
                 <form onSubmit={handleSubmit}>
                   <div className="space-y-6">
-                    {/* Contact Information */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label
-                          htmlFor="fullName"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
-                          Full Name
-                        </label>
-                        <input
-                          type="text"
-                          id="fullName"
-                          name="fullName"
-                          value={formData.fullName}
-                          onChange={handleInputChange}
-                          className="w-full p-2 border border-gray-300 rounded bg-white"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="email"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
-                          Email Address
-                        </label>
-                        <input
-                          type="email"
-                          id="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          className={`w-full p-2 border bg-white border-gray-300 rounded ${
-                            isAuthenticated && user?.email ? "bg-gray-100" : ""
-                          }`}
-                          required
-                          readOnly={isAuthenticated && !!user?.email} // Make readOnly if authenticated and email exists
-                        />
+                    {/* Personal Information */}
+                    <div>
+                      <h3 className="text-lg font-medium mb-3">Personal Information</h3>
+                      <div className="grid grid-cols-1 gap-4">
+                        <div>
+                          <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+                            Full Name*
+                          </label>
+                          <input
+                            type="text"
+                            id="fullName"
+                            name="fullName"
+                            value={formData.fullName}
+                            onChange={handleInputChange}
+                            onBlur={handleBlur}
+                            className={`w-full p-2 border ${formErrors.fullName ? 'border-red-500' : 'border-gray-300'} rounded`}
+                            required
+                          />
+                          {formErrors.fullName && (
+                            <p className="text-red-500 text-sm mt-1">{formErrors.fullName}</p>
+                          )}
+                        </div>
+                        
+                        <div>
+                          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                            Email Address*
+                          </label>
+                          <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            onBlur={handleBlur}
+                            className={`w-full p-2 border ${formErrors.email ? 'border-red-500' : 'border-gray-300'} rounded`}
+                            required
+                          />
+                          {formErrors.email && (
+                            <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
+                          )}
+                        </div>
+                        
+                        <div>
+                          <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                            Phone Number*
+                          </label>
+                          <input
+                            type="tel"
+                            id="phoneNumber"
+                            name="phoneNumber"
+                            value={formData.phoneNumber}
+                            onChange={handleInputChange}
+                            onBlur={handleBlur}
+                            placeholder="+1 123 456 7890"
+                            className={`w-full p-2 border ${formErrors.phoneNumber ? 'border-red-500' : 'border-gray-300'} rounded`}
+                            required
+                          />
+                          {formErrors.phoneNumber && (
+                            <p className="text-red-500 text-sm mt-1">{formErrors.phoneNumber}</p>
+                          )}
+                        </div>
                       </div>
                     </div>
-
+                    
                     {/* Shipping Address */}
                     <div>
-                      <h3 className="text-lg font-medium mb-3">
-                        Shipping Address
-                      </h3>
-
-                      {/* {isAuthenticated && savedAddresses.length > 0 && (
+                      <h3 className="text-lg font-medium mb-3">Shipping Address</h3>
+                      
+                      {isAuthenticated && savedAddresses.length > 0 && (
                         <div className="mb-4">
-                          <div className="flex items-center mb-3">
-                            <input
-                              type="checkbox"
-                              id="useSavedAddress"
-                              checked={useSavedAddress}
-                              onChange={() =>
-                                setUseSavedAddress(!useSavedAddress)
-                              }
-                              className="h-4 w-4 bg-white border-gray-300 text-[#a0001e] rounded"
-                            />
-                            <label
-                              htmlFor="useSavedAddress"
-                              className="ml-2 text-sm text-gray-700"
-                            >
-                              Use a saved address
+                          <div className="flex items-center justify-between">
+                            <label className="text-sm font-medium text-gray-700">
+                              Select a saved address
                             </label>
+                            <button
+                              type="button"
+                              className="text-sm text-[#a0001e] hover:underline"
+                              onClick={() => setUseSavedAddress(!useSavedAddress)}
+                            >
+                              {useSavedAddress ? "Enter new address" : "Use saved address"}
+                            </button>
                           </div>
-
+                          
                           {useSavedAddress && (
                             <SavedAddressList
                               addresses={savedAddresses}
-                              onSelect={(id) =>
-                                handleSavedAddressSelect(id, "shipping")
-                              }
-                              selectedAddressId={formData.shippingAddressId}
+                              onSelect={(id) => handleSavedAddressSelect(id, "shipping")}
+                              selectedAddressId={""}
                             />
                           )}
                         </div>
-                      )} */}
-
-                      {!useSavedAddress && (
+                      )}
+                      
+                      {(!isAuthenticated || !useSavedAddress || savedAddresses.length === 0) && (
                         <AddressForm
                           type="shipping"
                           address={formData.shippingAddress}
-                          onChange={(field, value) =>
-                            handleAddressChange("shippingAddress", field, value)
-                          }
+                          onChange={(field, value) => handleAddressChange("shipping", field, value)}
+                          errors={formErrors.shippingAddress}
+                          onBlur={(field, value) => handleAddressFieldBlur("shipping", field, value)}
                         />
                       )}
-
-                      {/* Phone Number */}
-                      <div className="mt-4">
-                        <label
-                          htmlFor="phoneNumber"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
-                          Phone Number (for delivery)
-                        </label>
-                        <input
-                          type="tel"
-                          id="phoneNumber"
-                          name="phoneNumber"
-                          value={formData.phoneNumber}
-                          onChange={handleInputChange}
-                          className="w-full p-2 border border-gray-300 rounded bg-white"
-                          required
-                          placeholder="+1234567890"
-                        />
-                      </div>
                     </div>
-
+                    
                     {/* Billing Address */}
-                    <div className="mt-8">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-medium">Billing Address</h3>
+                    <div>
+                      <div className="flex items-center mb-4">
+                        <input
+                          type="checkbox"
+                          id="useSameForBilling"
+                          name="useSameForBilling"
+                          checked={formData.useSameForBilling}
+                          onChange={handleInputChange}
+                          className="mr-2"
+                        />
+                        <label htmlFor="useSameForBilling" className="text-sm font-medium text-gray-700">
+                          Billing address same as shipping
+                        </label>
                       </div>
-
+                      
                       {!formData.useSameForBilling && (
-                        <div className="mt-4">
-                          <h3 className="text-lg font-medium mb-3">
-                            Billing Address
-                          </h3>
-
+                        <div>
+                          <h3 className="text-lg font-medium mb-3">Billing Address</h3>
+                          
                           {isAuthenticated && savedAddresses.length > 0 && (
                             <div className="mb-4">
-                              <div className="flex items-center mb-3">
-                                <input
-                                  type="checkbox"
-                                  id="useSavedBillingAddress"
-                                  className="h-4 w-4 rounded border-gray-300"
-                                  checked={showBillingForm}
-                                  onChange={() =>
-                                    setShowBillingForm(!showBillingForm)
-                                  }
-                                />
-                                <label
-                                  htmlFor="useSavedBillingAddress"
-                                  className="ml-2 text-sm text-gray-700"
-                                >
-                                  Use a saved address
+                              <div className="flex items-center justify-between">
+                                <label className="text-sm font-medium text-gray-700">
+                                  Select a saved address
                                 </label>
+                                <button
+                                  type="button"
+                                  className="text-sm text-[#a0001e] hover:underline"
+                                  onClick={() => setShowBillingForm(!showBillingForm)}
+                                >
+                                  {showBillingForm ? "Enter new address" : "Use saved address"}
+                                </button>
                               </div>
-
-                              {showBillingForm && (
+                              
+                              {!showBillingForm && (
                                 <SavedAddressList
                                   addresses={savedAddresses}
                                   onSelect={(id) =>
                                     handleSavedAddressSelect(id, "billing")
                                   }
-                                  selectedAddressId={formData.billingAddressId}
+                                  selectedAddressId={""}
                                 />
                               )}
                             </div>
                           )}
-
-                          {!showBillingForm && (
+                          
+                          {(showBillingForm || !isAuthenticated || savedAddresses.length === 0) && (
                             <AddressForm
                               type="billing"
-                              address={
-                                formData.billingAddress || {
-                                  addressLine1: "",
-                                  addressLine2: "",
-                                  city: "",
-                                  state: "",
-                                  postalCode: "",
-                                  country: "Nigeria",
-                                }
-                              }
+                              address={formData.billingAddress}
                               onChange={(field, value) =>
-                                handleAddressChange(
-                                  "billingAddress",
-                                  field,
-                                  value
-                                )
+                                handleAddressChange("billing", field, value)
                               }
+                              errors={formErrors.billingAddress}
                             />
                           )}
                         </div>
                       )}
                     </div>
-
+                    
                     {/* Shipping Method */}
                     <div>
                       <h3 className="text-lg font-medium mb-3">
@@ -510,13 +724,16 @@ const CheckoutPage = () => {
                           }))
                         }
                       />
+                      {formErrors.shippingRateId && (
+                        <p className="text-red-500 text-sm mt-1">{formErrors.shippingRateId}</p>
+                      )}
                     </div>
 
                     {/* Order Notes */}
                     <div className="mt-6">
                       <label
                         htmlFor="notes"
-                        className="block text-sm font-medium text-gray-700  mb-1"
+                        className="block text-sm font-medium text-gray-700 mb-1"
                       >
                         Order Notes (Optional)
                       </label>
@@ -530,15 +747,17 @@ const CheckoutPage = () => {
                         placeholder="Any special instructions for your order?"
                       />
                     </div>
-                    <div className="bg-white  p-5 rounded-xl shadow-md">
+                    
+                    {/* Promo Code */}
+                    <div className="bg-white p-5 rounded-xl shadow-md">
                       <div className="flex w-full items-center justify-between">
                         <p className="text">Add a promo code</p>
                         <button
                           type="button"
-                          // disabled={isLoading}
-                          className={`px-3 py-2 bg-[#a0001e] text-white font-serif rounded hover:bg-[#8a0019] transition-colors`}
+                          disabled={isLoading}
+                          className={`px-3 py-2 bg-[#a0001e] text-white font-serif rounded hover:bg-[#8a0019] transition-colors ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
                           onClick={() => {
-                            if (addingCOupon) {
+                            if (addingCoupon) {
                               removeCoupon();
                               setCouponApplied(false);
                               setAddingCoupon(false);
@@ -547,13 +766,14 @@ const CheckoutPage = () => {
                             }
                           }}
                         >
-                          {addingCOupon ? "cancel" : "Add"}
+                          {addingCoupon ? "Cancel" : "Add"}
                         </button>
                       </div>
-                      {addingCOupon && !couponApplied ? (
-                        <div className="flex flex-col gap-3 ">
+                      
+                      {addingCoupon && !couponApplied ? (
+                        <div className="flex flex-col gap-3 mt-3">
                           <label
-                            htmlFor="fullName"
+                            htmlFor="couponCode"
                             className="block text-sm font-medium text-gray-700"
                           >
                             Coupon Code
@@ -564,30 +784,23 @@ const CheckoutPage = () => {
                             name="couponCode"
                             placeholder="Enter your coupon code"
                             value={formData.couponCode}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                             className="w-full p-2 border border-gray-300 rounded"
-                            // required
                           />
-                          <div className="flex w-full ">
+                          <div className="flex w-full">
                             <button
                               type="button"
-                              disabled={isapplyingCOupon}
-                              className={`px-5 py-2 bg-[#a0001e] text-white font-serif rounded-xl hover:bg-[#8a0019] transition-colors ${
-                                isapplyingCOupon
-                                  ? "opacity-75 cursor-not-allowed"
-                                  : ""
-                              }`}
+                              disabled={isApplyingCoupon}
+                              className={`px-5 py-2 bg-[#a0001e] text-white font-serif rounded-xl hover:bg-[#8a0019] transition-colors ${isApplyingCoupon ? 'opacity-75 cursor-not-allowed' : ''}`}
                               onClick={() => {
                                 if ((formData.couponCode || "").trim() === "") {
                                   error("Please enter a coupon code.");
                                   return;
                                 }
-                                applyCoupon(formData.couponCode as string);
+                                applyCoupon(formData.couponCode);
                               }}
                             >
-                              {isapplyingCOupon
-                                ? "Processing..."
-                                : "Apply Coupon"}
+                              {isApplyingCoupon ? "Processing..." : "Apply Coupon"}
                             </button>
                           </div>
                         </div>
@@ -605,11 +818,9 @@ const CheckoutPage = () => {
                               </p>
                               <button
                                 type="button"
-                                className=" bg-[#a0001e] text-white px-3 rounded-xl py-1 cursor-pointer mt-2"
+                                className="bg-[#a0001e] text-white px-3 rounded-xl py-1 cursor-pointer mt-2"
                                 onClick={() => {
                                   removeCoupon();
-                                  // setCouponApplied(false);
-                                  // setCouponRes(undefined);
                                 }}
                               >
                                 Remove
@@ -641,13 +852,13 @@ const CheckoutPage = () => {
             </div>
 
             {/* Right side: Order summary */}
-            <div className="lg:w-1/3 flex  flex-col gap-6">
+            <div className="lg:w-1/3 flex flex-col gap-6">
               <CheckoutSummary
                 cartItems={cartItems}
                 subtotal={subtotal as number}
                 shippingCost={shippingCost}
                 total={totalAmount}
-                cart={couponRes}
+                cart={couponRes || undefined}
               />
             </div>
           </div>

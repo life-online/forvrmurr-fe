@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import AuthLayout from "@/components/auth/AuthLayout";
 import { useToast } from "@/context/ToastContext";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { parsePhoneNumberFromString, isValidPhoneNumber } from 'libphonenumber-js';
 
 interface RegisterFormData {
   firstName: string;
@@ -77,9 +78,21 @@ export default function Register() {
         return value !== formData.password ? "Passwords do not match" : null;
       
       case 'phoneNumber':
-        return (value as string).trim() && !/^\+[1-9]\d{1,14}$/.test(value as string)
-          ? "Phone number must be a valid international phone number (e.g., +12125552368)"
-          : null;
+        // If empty, it's optional so return null (no error)
+        if (!value || !(value as string).trim()) return null;
+        
+        try {
+          // Try to parse the phone number
+          const phoneNumber = parsePhoneNumberFromString(value as string);
+          
+          // Check if the phone number is valid
+          if (!phoneNumber || !phoneNumber.isValid()) {
+            return "Please enter a valid international phone number with country code (e.g., +12125552368)";
+          }
+          return null;
+        } catch (error) {
+          return "Please enter a valid international phone number with country code (e.g., +12125552368)";
+        }
       
       case 'acceptTerms':
         return !value ? "You must accept the terms and conditions" : null;

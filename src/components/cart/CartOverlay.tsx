@@ -192,6 +192,8 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
       addToCart(carddata);
     }
   };
+
+  console.log(cartItems)
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
@@ -241,7 +243,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
 
         {/* Cart Content */}
         <div className="flex-1 overflow-y-auto p-4">
-          {cartItems !== null && cartItems.length === 0 ? (
+          {cartItems == null || cartItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center h-full">
               <h3 className="text-xl font-medium mb-2">
                 Your cart is looking a little too empty.

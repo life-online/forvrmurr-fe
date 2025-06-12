@@ -9,6 +9,8 @@ interface AddressFormProps {
   type: AddressType;
   address: Address;
   onChange: (field: string, value: string) => void;
+  onBlur?: (field: string, value: string) => void;
+  errors?: Record<string, string | undefined>;
 }
 
 const nigerianStates = [
@@ -19,10 +21,17 @@ const nigerianStates = [
   'Yobe', 'Zamfara'
 ];
 
-const AddressForm: React.FC<AddressFormProps> = ({ type, address, onChange }) => {
+const AddressForm: React.FC<AddressFormProps> = ({ type, address, onChange, onBlur, errors }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     onChange(name, value);
+  };
+  
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (onBlur) {
+      const { name, value } = e.target;
+      onBlur(name, value);
+    }
   };
 
   return (
@@ -37,9 +46,13 @@ const AddressForm: React.FC<AddressFormProps> = ({ type, address, onChange }) =>
           name="addressLine1"
           value={address.addressLine1}
           onChange={handleChange}
-          className="w-full p-2 border bg-white border-gray-300 rounded"
+          onBlur={handleBlur}
+          className={`w-full p-2 border bg-white ${errors?.addressLine1 ? 'border-red-500' : 'border-gray-300'} rounded`}
           required
         />
+        {errors?.addressLine1 && (
+          <p className="text-red-500 text-sm mt-1">{errors.addressLine1}</p>
+        )}
       </div>
       
       <div className="md:col-span-2">
@@ -52,6 +65,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ type, address, onChange }) =>
           name="addressLine2"
           value={address.addressLine2 || ''}
           onChange={handleChange}
+          onBlur={handleBlur}
           className="w-full p-2 border bg-white border-gray-300 rounded"
         />
       </div>
@@ -66,9 +80,13 @@ const AddressForm: React.FC<AddressFormProps> = ({ type, address, onChange }) =>
           name="city"
           value={address.city}
           onChange={handleChange}
-          className="w-full p-2 border bg-white border-gray-300 rounded"
+          onBlur={handleBlur}
+          className={`w-full p-2 border bg-white ${errors?.city ? 'border-red-500' : 'border-gray-300'} rounded`}
           required
         />
+        {errors?.city && (
+          <p className="text-red-500 text-sm mt-1">{errors.city}</p>
+        )}
       </div>
       
       <div>
@@ -80,7 +98,8 @@ const AddressForm: React.FC<AddressFormProps> = ({ type, address, onChange }) =>
           name="state"
           value={address.state}
           onChange={handleChange}
-          className="w-full p-2 border bg-white border-gray-300 rounded"
+          onBlur={handleBlur}
+          className={`w-full p-2 border bg-white ${errors?.state ? 'border-red-500' : 'border-gray-300'} rounded`}
           required
         >
           <option value="">Select State</option>
@@ -90,6 +109,9 @@ const AddressForm: React.FC<AddressFormProps> = ({ type, address, onChange }) =>
             </option>
           ))}
         </select>
+        {errors?.state && (
+          <p className="text-red-500 text-sm mt-1">{errors.state}</p>
+        )}
       </div>
       
       <div>
@@ -102,9 +124,13 @@ const AddressForm: React.FC<AddressFormProps> = ({ type, address, onChange }) =>
           name="postalCode"
           value={address.postalCode}
           onChange={handleChange}
-          className="w-full p-2 border bg-white border-gray-300 rounded"
+          onBlur={handleBlur}
+          className={`w-full p-2 border bg-white ${errors?.postalCode ? 'border-red-500' : 'border-gray-300'} rounded`}
           required
         />
+        {errors?.postalCode && (
+          <p className="text-red-500 text-sm mt-1">{errors.postalCode}</p>
+        )}
       </div>
       
       <div>
@@ -116,6 +142,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ type, address, onChange }) =>
           name="country"
           value={address.country}
           onChange={handleChange}
+          onBlur={handleBlur}
           className="w-full p-2 border bg-white border-gray-300 rounded"
           required
         >
