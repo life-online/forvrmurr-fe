@@ -66,7 +66,7 @@ const ShippingMethodsSelector: React.FC<ShippingMethodsSelectorProps> = ({
       onChange(methods[0].id);
     }
   };
-  
+
   // Select the first delivery method by default when no method is selected
   useEffect(() => {
     setDefaultMethod();
