@@ -15,8 +15,6 @@ const ShippingMethodsSelector: React.FC<ShippingMethodsSelectorProps> = ({
   onChange
 }) => {
 
-  console.log(methods);
-
   if (methods.length === 0) {
     return <p className="text-gray-500 text-sm">No shipping methods available</p>;
   }

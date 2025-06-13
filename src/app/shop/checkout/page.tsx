@@ -21,6 +21,7 @@ import taxService, { TaxConfiguration } from "@/services/tax";
 import { isValidPhoneNumber, parsePhoneNumber } from 'libphonenumber-js';
 
 interface Address {
+  id?: string;
   addressLine1: string;
   addressLine2?: string;
   city: string;
@@ -52,8 +53,8 @@ type FormErrors = {
 };
 
 const CheckoutPage = () => {
-  const { cartItems, itemCount, cart } = useCart();
-  const { isAuthenticated, user } = useAuth();
+  const { cartItems, cart, refreshCart } = useCart();
+  const { isAuthenticated } = useAuth();
   const { error, success } = useToast();
   const router = useRouter();
 
@@ -67,22 +68,97 @@ const CheckoutPage = () => {
   const [taxAmount, setTaxAmount] = useState<number>(0);
   
   // UI control state
-  const [showBillingForm, setShowBillingForm] = useState(false);
-  const [useSavedAddress, setUseSavedAddress] = useState(false);
-  const [addingCoupon, setAddingCoupon] = useState(false);
+  // Use string-based state for both shipping and billing address selection mode
+  const [billingAddressMode, setBillingAddressMode] = useState<'new' | 'saved'>('new');
   
+  // Helper for readability
+  const isUsingSavedBillingAddress = billingAddressMode === 'saved';
+  // Use string-based state to avoid any potential object reference issues
+  const [addressSelectionMode, setAddressSelectionMode] = useState<'new' | 'saved'>('new');
+  
+  // Helper for readability
+  const isUsingSavedAddress = addressSelectionMode === 'saved';
+  
+  // Toggle between new and saved address modes safely with additional safeguards
+  // Helper to ensure an address property is a string
+  const sanitizeAddressProperty = (value: any): string => {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (typeof value === 'object') {
+      const obj = value as any; // Cast to any to check for properties
+      // Prioritize name, then code, for objects that might represent country/state
+      if (typeof obj.name === 'string' && obj.name.trim() !== '') {
+        return obj.name;
+      }
+      if (typeof obj.code === 'string' && obj.code.trim() !== '') {
+        return obj.code;
+      }
+      // Fallback for other objects to prevent React child error
+      try {
+        // Only stringify if it's not an empty object or has some identifiable content
+        if (Object.keys(obj).length > 0) {
+          return JSON.stringify(value);
+        }
+        return ''; // Empty object can be represented as empty string
+      } catch (e) {
+        // In case JSON.stringify fails (e.g., circular references, though unlikely for simple address data)
+        return ''; 
+      }
+    }
+    return String(value); // For numbers, booleans, etc.
+  };
+
+  // Helper to ensure all properties of an Address object are strings
+  const sanitizeAddressObject = (address: Address): Address => {
+    return {
+      id: address.id, // Preserve the ID if it exists
+      addressLine1: sanitizeAddressProperty(address.addressLine1),
+      addressLine2: address.addressLine2 ? sanitizeAddressProperty(address.addressLine2) : '',
+      city: sanitizeAddressProperty(address.city),
+      state: sanitizeAddressProperty(address.state),
+      postalCode: sanitizeAddressProperty(address.postalCode),
+      country: sanitizeAddressProperty(address.country),
+    };
+  };
+
+  const toggleAddressSelectionMode = () => {
+    setFormData(prev => {
+      const sanitizedShippingAddress = sanitizeAddressObject(prev.shippingAddress);
+      const sanitizedBillingAddress = sanitizeAddressObject(prev.billingAddress);
+
+      const newState = {
+        ...prev,
+        shippingAddress: sanitizedShippingAddress,
+        billingAddress: sanitizedBillingAddress,
+      };
+      return newState;
+    });
+    // Then toggle the mode for shipping address
+    setAddressSelectionMode(prevMode => (prevMode === 'saved' ? 'new' : 'saved'));
+  };
+  
+  // Similar safety function for billing address toggle
+  const toggleBillingAddressMode = () => {
+    setFormData(prev => ({
+      ...prev,
+      billingAddress: sanitizeAddressObject(prev.billingAddress),
+    }));
+    // Then toggle the mode for billing address
+    setBillingAddressMode(prevMode => (prevMode === 'saved' ? 'new' : 'saved'));
+  };
   // Coupon related state
-  const [couponCode, setCouponCode] = useState('');
-  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
-  const [couponApplied, setCouponApplied] = useState(false);
-  const [couponRes, setCouponRes] = useState<CartResponseDto | null>(null);
+  const [couponCode, setCouponCode] = useState<string>('');
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState<boolean>(false);
+  const [couponApplied, setCouponApplied] = useState<boolean>(false);
   
   // Form state
   const [formData, setFormData] = useState<CheckoutFormData>({
-    fullName: user?.firstName && user?.lastName
-      ? `${user.firstName} ${user.lastName}`
-      : '',
-    email: user?.email || '',
+    fullName: '',
+    email: '',
     phoneNumber: '',
     shippingAddress: {
       addressLine1: '',
@@ -109,41 +185,38 @@ const CheckoutPage = () => {
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   // Calculate subtotal
-  const subtotal = cartItems !== null
-    ? cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
-    : 0;
+  const subtotal = cartItems?.reduce((total, item) => total + item.price * item.quantity, 0) || 0;
     
   // Centralized function to calculate the order total
-  const calculateOrderTotal = (options: {
-    subtotal: number;
-    shippingCost: number;
-    taxAmount: number;
-    hasFreeShipping?: boolean;
-    discountAmount?: number;
-  }) => {
-    const { subtotal, shippingCost, taxAmount, hasFreeShipping = false, discountAmount = 0 } = options;
+  const calculateOrderTotal = () => {
+    const { subtotal, discountAmount, shippingCost, total } = calculateOrderTotalHelper();
+    setTotal(total);
+  };
+
+  const calculateOrderTotalHelper = () => {
+    const subtotal = cartItems?.reduce((total, item) => total + item.price * item.quantity, 0) || 0;
+    const discountAmount = cart?.discount || 0;
+    const hasFreeShipping = cart?.hasFreeShipping || false;
+    const shippingCost = calculateShippingCost(formData.shippingRateId, hasFreeShipping);
+    const total = subtotal - discountAmount + shippingCost + (taxAmount || 0);
+    return { subtotal, discountAmount, shippingCost, total };
+  };
+  
+  // Calculate shipping cost based on selected shipping method and free shipping status
+  const calculateShippingCost = (shippingRateId: string, hasFreeShipping: boolean): number => {
+    if (hasFreeShipping) return 0;
     
-    // Calculate the final shipping cost (0 if free shipping)
-    const finalShippingCost = hasFreeShipping ? 0 : shippingCost;
+    const selectedShippingMethod = shippingMethods.find(
+      (method) => method.id === shippingRateId
+    );
     
-    // Calculate the total amount
-    return subtotal + finalShippingCost + taxAmount - discountAmount;
+    return selectedShippingMethod ? parseInt(selectedShippingMethod.amount) : 0;
   };
   
   // Update the total amount whenever relevant values change
   const updateTotalAmount = () => {
-    const discountAmount = couponRes?.discount || 0;
-    const hasFreeShipping = couponRes?.hasFreeShipping || false;
-    
-    const newTotal = calculateOrderTotal({
-      subtotal,
-      shippingCost,
-      taxAmount,
-      hasFreeShipping,
-      discountAmount
-    });
-    
-    setTotal(newTotal);
+    const { total } = calculateOrderTotalHelper();
+    setTotal(total);
   };
   
   // Fetch tax configuration based on country
@@ -175,6 +248,7 @@ const CheckoutPage = () => {
   };
 
   // Fetch shipping methods and saved addresses
+  // Initial data loading for shipping methods and addresses
   useEffect(() => {
     const fetchInitialData = async () => {
       setIsLoading(true);
@@ -201,7 +275,9 @@ const CheckoutPage = () => {
           // If there's a default address, pre-fill it
           const defaultAddress = addresses.find((addr) => addr.isDefault);
           if (defaultAddress) {
-            setUseSavedAddress(true);
+            setAddressSelectionMode('saved');
+            // Automatically select the default address
+            handleSavedAddressSelect(defaultAddress.id, "shipping");
           }
         }
       } catch (err) {
@@ -211,11 +287,28 @@ const CheckoutPage = () => {
         setIsLoading(false);
       }
     };
-    if (cart) {
-      setCouponRes(cart);
-    }
+
     fetchInitialData();
   }, [isAuthenticated, error]);
+  
+  // Separate effect to handle coupon code synchronization with cart
+  useEffect(() => {
+    if (cart) {
+      // Check if cart has an applied coupon
+      if (cart.appliedCouponCode) {
+        // Update form data with the coupon code from cart
+        setFormData(prev => ({
+          ...prev,
+          couponCode: cart.appliedCouponCode || ''
+        }));
+        // Set coupon as applied to show the coupon UI
+        setCouponApplied(true);
+      } else {
+        // If no coupon on cart, make sure the UI reflects that
+        setCouponApplied(false);
+      }
+    }
+  }, [cart]); // Only run when cart changes
 
   // If cart is empty, redirect to cart page
   useEffect(() => {
@@ -226,22 +319,13 @@ const CheckoutPage = () => {
   
   // Update shipping cost and total amount when relevant values change
   useEffect(() => {
-    const selectedShippingMethod = shippingMethods.find(
-      (method) => method.id === formData.shippingRateId
-    );
+    const hasFreeShipping = cart?.hasFreeShipping || false;
+    const shippingCost = calculateShippingCost(formData.shippingRateId, hasFreeShipping);
+    setShippingCost(shippingCost);
 
-    const newShippingCost = selectedShippingMethod
-      ? parseInt(selectedShippingMethod.amount)
-      : 0;
-      
-    const hasFreeShipping = couponRes?.hasFreeShipping || false;
-    // Update shipping cost state
-    setShippingCost(hasFreeShipping ? 0 : newShippingCost);
-    
-    // Update total amount
     updateTotalAmount();
     
-  }, [formData.shippingRateId, shippingMethods, couponRes, subtotal, taxAmount]);
+  }, [formData.shippingRateId, shippingMethods, cart, subtotal, taxAmount]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -380,12 +464,11 @@ const CheckoutPage = () => {
         ...prev,
         [name]: isNowSameAsShipping,
       }));
-      // If user unchecks 'Same as shipping', default to showing the new billing address form.
-      // So, showBillingForm (which controls showing the saved list) should be false.
+      // If user unchecks 'Same as shipping', default to showing the new billing address form
       if (!isNowSameAsShipping) {
-        setShowBillingForm(false);
+        setBillingAddressMode('new');
       }
-      // If isNowSameAsShipping is true, the billing form section is hidden, so setShowBillingForm's value doesn't affect display then.
+      // If isNowSameAsShipping is true, the billing form section is hidden
     } else {
       setFormData((prev: CheckoutFormData) => ({
         ...prev,
@@ -403,7 +486,7 @@ const CheckoutPage = () => {
     if (type === "shipping") {
       setFormData((prev: CheckoutFormData) => {
         const newShippingAddress = { ...prev.shippingAddress };
-        newShippingAddress[field as keyof Address] = value;
+        newShippingAddress[field as keyof Address] = sanitizeAddressProperty(value);
         return {
           ...prev,
           shippingAddress: newShippingAddress
@@ -417,7 +500,7 @@ const CheckoutPage = () => {
     } else {
       setFormData((prev: CheckoutFormData) => {
         const newBillingAddress = { ...prev.billingAddress };
-        newBillingAddress[field as keyof Address] = value;
+        newBillingAddress[field as keyof Address] = sanitizeAddressProperty(value);
         return {
           ...prev,
           billingAddress: newBillingAddress
@@ -453,48 +536,60 @@ const CheckoutPage = () => {
     addressType: "shipping" | "billing"
   ) => {
     // Find the selected address from saved addresses
-    const selectedAddress = savedAddresses.find((addr: SavedAddress) => addr.id === addressId);
+    const selectedAddress = savedAddresses.find((addr: any) => addr.id === addressId);
     
     if (!selectedAddress) return;
     
+    // Map backend address structure to our form's expected Address structure
+    // The backend schema has some inconsistencies that we need to handle
+    // Some endpoints return streetAddress, others might return addressLine1/2
+    // We use the non-null assertion with type assertion to safely handle this
+    const newAddressDataRaw = {
+      id: selectedAddress.id, // Copy the ID from the saved address
+      // Use streetAddress as primary, fall back to addressLine1 if available
+      addressLine1: selectedAddress.streetAddress || (selectedAddress as any).addressLine1 || '',
+      // addressLine2 might not exist in all address objects
+      addressLine2: (selectedAddress as any).addressLine2 || '',
+      city: selectedAddress.city || '',
+      state: selectedAddress.state || '',
+      postalCode: selectedAddress.postalCode || '',
+      country: selectedAddress.country || '',
+    };
+
+    // Sanitize the raw address data (which might contain objects for state/country)
+    // The 'as Address' cast is used because newAddressDataRaw structurally matches Address,
+    // and sanitizeAddressObject expects an Address-like object where fields might not yet be strings.
+    const newAddressDataSanitized = { ...sanitizeAddressObject(newAddressDataRaw as Address), id: selectedAddress.id };
+    
     if (addressType === "shipping") {
-      // Update shipping address with saved address details
       setFormData((prev: CheckoutFormData) => ({
         ...prev,
-        shippingAddress: {
-          addressLine1: selectedAddress.addressLine1,
-          addressLine2: selectedAddress.addressLine2 || '',
-          city: selectedAddress.city,
-          state: selectedAddress.state,
-          postalCode: selectedAddress.postalCode,
-          country: selectedAddress.country,
-        }
+        shippingAddress: newAddressDataSanitized
       }));
     } else {
-      // Update billing address with saved address details
       setFormData((prev: CheckoutFormData) => ({
         ...prev,
-        billingAddress: {
-          addressLine1: selectedAddress.addressLine1,
-          addressLine2: selectedAddress.addressLine2 || '',
-          city: selectedAddress.city,
-          state: selectedAddress.state,
-          postalCode: selectedAddress.postalCode,
-          country: selectedAddress.country,
-        }
+        billingAddress: newAddressDataSanitized
       }));
     }
+  };
+  
+  // Handle updates to the saved addresses (e.g., when setting a default address)
+  const handleAddressesUpdated = (updatedAddresses: SavedAddress[]) => {
+    // Update the saved addresses in state
+    setSavedAddresses(updatedAddresses);
   };
 
   const applyCoupon = async (couponCode: string) => {
     try {
       setIsApplyingCoupon(true);
       const response = await cartService.applycoupon(couponCode);
-      setCouponApplied(true);
-      setCouponRes(response);
       
-      // Update total amount after coupon is applied
-      updateTotalAmount();
+      // Refresh cart data to get updated state
+      await refreshCart();
+      
+      // Show success message
+      success("Discount code applied");
     } catch (err) {
       console.error("Checkout error:", err);
       error("Failed to apply coupon. Please try again.");
@@ -506,14 +601,15 @@ const CheckoutPage = () => {
   const removeCoupon = async () => {
     try {
       setIsApplyingCoupon(true);
-      const response = await cartService.removecoupon();
+      await cartService.removecoupon();
       setCouponApplied(false);
-      setCouponRes(response);
       
-      // Update total amount after coupon is removed
-      updateTotalAmount();
-    } catch (err) {
-      console.error("Checkout error:", err);
+      // Refresh cart data to get updated state
+      await refreshCart();
+      
+      // Show success message
+      success("Discount code removed");
+    } catch (err: any) {
       error("Failed to remove coupon. Please try again.");
     } finally {
       setIsApplyingCoupon(false);
@@ -723,23 +819,26 @@ const CheckoutPage = () => {
                             <button
                               type="button"
                               className="text-sm text-[#a0001e] hover:underline"
-                              onClick={() => setUseSavedAddress(!useSavedAddress)}
+                              onClick={() => {
+                                toggleAddressSelectionMode();
+                              }}
                             >
-                              {useSavedAddress ? "Enter new address" : "Use saved address"}
+                              {addressSelectionMode === 'saved' ? "Enter new address" : "Use saved address"}
                             </button>
                           </div>
                           
-                          {useSavedAddress && (
+                          {addressSelectionMode === 'saved' && (
                             <SavedAddressList
                               addresses={savedAddresses}
                               onSelect={(id) => handleSavedAddressSelect(id, "shipping")}
-                              selectedAddressId={""}
+                              selectedAddressId={formData.shippingAddress?.id}
+                              onAddressesUpdated={handleAddressesUpdated}
                             />
                           )}
                         </div>
                       )}
                       
-                      {(!isAuthenticated || !useSavedAddress || savedAddresses.length === 0) && (
+                      {(!isAuthenticated || addressSelectionMode !== 'saved' || savedAddresses.length === 0) && (
                         <AddressForm
                           type="shipping"
                           address={formData.shippingAddress}
@@ -779,25 +878,25 @@ const CheckoutPage = () => {
                                 <button
                                   type="button"
                                   className="text-sm text-[#a0001e] hover:underline"
-                                  onClick={() => setShowBillingForm(!showBillingForm)}
+                                  onClick={() => toggleBillingAddressMode()}
                                 >
-                                  {showBillingForm ? "Enter new address" : "Use saved address"}
+                                  {billingAddressMode === 'saved' ? "Enter new address" : "Use saved address"}
                                 </button>
                               </div>
                               
-                              {!showBillingForm && (
+                              {billingAddressMode === 'saved' && (
                                 <SavedAddressList
                                   addresses={savedAddresses}
                                   onSelect={(id) =>
                                     handleSavedAddressSelect(id, "billing")
                                   }
-                                  selectedAddressId={""}
+                                  selectedAddressId=""
                                 />
                               )}
                             </div>
                           )}
                           
-                          {(showBillingForm || !isAuthenticated || savedAddresses.length === 0) && (
+                          {(billingAddressMode !== 'saved' || !isAuthenticated || savedAddresses.length === 0) && (
                             <AddressForm
                               type="billing"
                               address={formData.billingAddress}
@@ -818,7 +917,7 @@ const CheckoutPage = () => {
                       </h3>
                       <ShippingMethodsSelector
                         methods={shippingMethods}
-                        selectedMethodId={formData.shippingRateId}
+                        selectedMethodId={formData.shippingRateId || ''}
                         onChange={(id) =>
                           setFormData((prev) => ({
                             ...prev,
@@ -851,88 +950,71 @@ const CheckoutPage = () => {
                     </div>
                     
                     {/* Promo Code */}
-                    <div className="bg-white p-5 rounded-xl shadow-md">
-                      <div className="flex w-full items-center justify-between">
-                        <p className="text">Add a promo code</p>
-                        <button
-                          type="button"
-                          disabled={isLoading}
-                          className={`px-3 py-2 bg-[#a0001e] text-white font-serif rounded hover:bg-[#8a0019] transition-colors ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
-                          onClick={() => {
-                            if (addingCoupon) {
-                              removeCoupon();
-                              setCouponApplied(false);
-                              setAddingCoupon(false);
-                            } else {
-                              setAddingCoupon(true);
-                            }
-                          }}
-                        >
-                          {addingCoupon ? "Cancel" : "Add"}
-                        </button>
-                      </div>
+                    <div className="border-t border-gray-200 pt-5">
+                      <p className="text-lg font-medium mb-3">Discount Code</p>
                       
-                      {addingCoupon && !couponApplied ? (
-                        <div className="flex flex-col gap-3 mt-3">
-                          <label
-                            htmlFor="couponCode"
-                            className="block text-sm font-medium text-gray-700"
-                          >
-                            Coupon Code
-                          </label>
-                          <input
-                            type="text"
-                            id="couponCode"
-                            name="couponCode"
-                            placeholder="Enter your coupon code"
-                            value={formData.couponCode}
-                            onChange={handleChange}
-                            className="w-full p-2 border border-gray-300 rounded"
-                          />
-                          <div className="flex w-full">
-                            <button
-                              type="button"
-                              disabled={isApplyingCoupon}
-                              className={`px-5 py-2 bg-[#a0001e] text-white font-serif rounded-xl hover:bg-[#8a0019] transition-colors ${isApplyingCoupon ? 'opacity-75 cursor-not-allowed' : ''}`}
-                              onClick={() => {
-                                if ((formData.couponCode || "").trim() === "") {
-                                  error("Please enter a coupon code.");
-                                  return;
-                                }
-                                applyCoupon(formData.couponCode);
-                              }}
-                            >
-                              {isApplyingCoupon ? "Processing..." : "Apply Coupon"}
-                            </button>
+                      {!couponApplied ? (
+                        <div>
+                          <div className="flex items-center">
+                            <div className="relative flex-1">
+                              <input
+                                type="text"
+                                id="couponCode"
+                                name="couponCode"
+                                placeholder="Enter discount code"
+                                value={formData.couponCode}
+                                onChange={handleChange}
+                                className="w-full p-2 border border-gray-300 rounded"
+                                disabled={isApplyingCoupon}
+                              />
+                              {formData.couponCode.trim() && (
+                                <div className="absolute right-0 top-0 h-full flex items-center pr-1">
+                                  <button
+                                    type="button"
+                                    disabled={isApplyingCoupon}
+                                    className={`px-4 py-[6px] bg-[#a0001e] text-white font-serif rounded hover:bg-[#8a0019] transition-all transform duration-300 ease-in-out origin-right ${isApplyingCoupon ? 'opacity-75 cursor-not-allowed' : ''}`}
+                                    onClick={() => {
+                                      applyCoupon(formData.couponCode);
+                                    }}
+                                  >
+                                    {isApplyingCoupon ? "Applying..." : "Apply"}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           </div>
+                          <p className="text-xs text-gray-500 mt-1">Enter a valid discount code to receive special offers</p>
                         </div>
                       ) : (
-                        <div className="mt-3">
-                          {couponApplied && couponRes ? (
-                            <div className="text-green-600 flex items-center gap-5">
-                              <p>
-                                Coupon applied! You saved{" "}
-                                {couponRes.discount.toLocaleString("en-NG", {
-                                  style: "currency",
-                                  currency: "NGN",
-                                })}
-                                .
-                              </p>
-                              <button
-                                type="button"
-                                className="bg-[#a0001e] text-white px-3 rounded-xl py-1 cursor-pointer mt-2"
-                                onClick={() => {
-                                  removeCoupon();
-                                }}
-                              >
-                                Remove
-                              </button>
+                        <div className="flex items-center justify-between p-3 rounded-md bg-gray-50 border-l-4 border-[#a0001e]">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                              </svg>
+                              <span className="font-medium">{formData.couponCode}</span>
+                              <br />
+                              <span className="font-normal text-sm">Discount: ₦
+                              {(cart?.discount || 0).toLocaleString("en-NG", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}</span>
+                              {cart?.hasFreeShipping && (
+                                <span className="block font-normal text-sm">Free Shipping</span>
+                              )}
                             </div>
-                          ) : (
-                            <p className="text-gray-500">
-                              No coupon applied yet.
-                            </p>
-                          )}
+                          </div>
+                          <button
+                            type="button"
+                            className="text-[#a0001e] hover:text-[#8a0019] font-medium text-sm"
+                            onClick={() => {
+                              removeCoupon();
+                              setCouponApplied(false);
+                              setFormData(prev => ({ ...prev, couponCode: '' }));
+                            }}
+                          >
+                            Remove
+                          </button>
                         </div>
                       )}
                     </div>
@@ -960,7 +1042,7 @@ const CheckoutPage = () => {
                 subtotal={subtotal as number}
                 shippingCost={shippingCost}
                 total={totalAmount}
-                cart={couponRes || undefined}
+                cart={cart}
                 taxConfig={taxConfig}
                 taxAmount={taxAmount}
               />

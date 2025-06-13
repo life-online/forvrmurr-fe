@@ -119,7 +119,6 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
       fetchProduct();
     }
 
-    console.log(cartItems, "carttt");
   }, [cartItems]);
 
   if (!isOpen) return null;

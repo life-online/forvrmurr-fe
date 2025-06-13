@@ -65,15 +65,9 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           <span className="text-gray-600">Subtotal</span>
           <span>₦{subtotal.toLocaleString()}</span>
         </div>
-        {/* Shipping cost */}
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Shipping</span>
-          <span>
-            {shippingCost === 0 ? "Free" : `₦${shippingCost.toLocaleString()}`}
-          </span>
-        </div>
-        {/* Discount */}
-        {cart &&
+
+         {/* Discount */}
+         {cart &&
           cart.appliedDiscounts
             .filter((item) => item.title != "FM-FREESHIPPING40")
             .map((discount, index) => (
@@ -84,6 +78,15 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                 <span>{`₦${discount.amountDeducted.toLocaleString()}`}</span>
               </div>
             ))}
+            
+        {/* Shipping cost */}
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">Shipping</span>
+          <span>
+            {shippingCost === 0 ? "Free" : `₦${shippingCost.toLocaleString()}`}
+          </span>
+        </div>
+       
         {/* Tax */}
         {taxConfig && taxAmount !== undefined && (
           <div className="flex justify-between text-sm">

@@ -35,10 +35,28 @@ export interface CheckoutFormData {
   couponCode?: string;
 }
 
-export interface SavedAddress extends Address {
+export interface CountryOrState {
+  code: string;
+  name: string;
+}
+
+// This interface represents what actually comes from the backend
+export interface SavedAddress {
   id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  streetAddress: string;
+  city: string;
+  state: string | CountryOrState;
+  postalCode: string;
+  country: string | CountryOrState;
   isDefault: boolean;
-  label: string; // e.g., "Home", "Work"
+  type: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CheckoutResponse {
@@ -75,6 +93,14 @@ const checkoutService = {
   // Get saved addresses for the logged-in user
   getSavedAddresses: async (): Promise<SavedAddress[]> => {
     return apiRequest<SavedAddress[]>("/addresses", { requiresAuth: true });
+  },
+  
+  // Set address as default
+  setAddressAsDefault: async (addressId: string): Promise<SavedAddress> => {
+    return apiRequest<SavedAddress>(`/addresses/${addressId}/set-default`, { 
+      method: 'PATCH',
+      requiresAuth: true 
+    });
   },
 
   // Create order
