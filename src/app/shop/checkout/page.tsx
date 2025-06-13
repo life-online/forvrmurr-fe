@@ -54,7 +54,7 @@ type FormErrors = {
 
 const CheckoutPage = () => {
   const { cartItems, cart, refreshCart } = useCart();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { error, success } = useToast();
   const router = useRouter();
 
@@ -269,12 +269,30 @@ const CheckoutPage = () => {
         
         // Fetch saved addresses if authenticated
         if (isAuthenticated) {
+          // Pre-populate user information from their account
+          if (user) {
+            setFormData(prev => ({
+              ...prev,
+              fullName: `${user.firstName} ${user.lastName}`.trim(),
+              email: user.email || prev.email
+              // Phone number may come from saved addresses
+            }));
+          }
+          
           const addresses = await checkoutService.getSavedAddresses();
           setSavedAddresses(addresses);
 
           // If there's a default address, pre-fill it
           const defaultAddress = addresses.find((addr) => addr.isDefault);
           if (defaultAddress) {
+            // Try to get phone number from default address if available
+            if (defaultAddress.phoneNumber) {
+              setFormData(prev => ({
+                ...prev,
+                phoneNumber: defaultAddress.phoneNumber || ''
+              }));
+            }
+            
             setAddressSelectionMode('saved');
             // Automatically select the default address
             handleSavedAddressSelect(defaultAddress.id, "shipping");
@@ -289,7 +307,7 @@ const CheckoutPage = () => {
     };
 
     fetchInitialData();
-  }, [isAuthenticated, error]);
+  }, [isAuthenticated, error, user]);
   
   // Separate effect to handle coupon code synchronization with cart
   useEffect(() => {
