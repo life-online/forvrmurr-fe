@@ -25,6 +25,10 @@ export const metadata: Metadata = {
   title: "ForvrMurr | Luxury Perfume Samples",
   description:
     "Explore coveted fragrances in 8ml portions. Smell rich. Explore more. No full bottle pressure.",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 // Basic fallback component for the root layout suspense
