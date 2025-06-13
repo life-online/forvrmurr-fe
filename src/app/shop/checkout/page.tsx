@@ -759,7 +759,7 @@ const CheckoutPage = () => {
         shippingRateId: formData.shippingRateId,
         notes: formData.notes,
         useSameForBilling: formData.useSameForBilling,
-      });
+      }, taxConfig?.id, cart?.id);
       
       // Initiate payment
       const paymentResult = await checkoutService.initiatePayment(order.id);

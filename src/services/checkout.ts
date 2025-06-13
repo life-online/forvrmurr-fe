@@ -106,6 +106,7 @@ const checkoutService = {
   // Create order
   createOrder: async (
     checkoutData: CheckoutFormData,
+    taxConfigId?: string,
     cartId?: string,
     guestId?: string
   ): Promise<CheckoutResponse> => {
@@ -118,6 +119,7 @@ const checkoutService = {
     const apiPayload = {
       cartId,
       shippingRateId: checkoutData.shippingRateId,
+      taxConfigurationId: taxConfigId,
       notes: checkoutData.notes,
       shippingAddress: {
         firstName: checkoutData.fullName.split(" ")[0],
