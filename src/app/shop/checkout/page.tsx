@@ -191,6 +191,12 @@ const CheckoutPage = () => {
   const calculateOrderTotal = () => {
     const { subtotal, discountAmount, shippingCost, total } = calculateOrderTotalHelper();
     setTotal(total);
+    
+    // Update tax whenever subtotal changes and we have tax config
+    if (taxConfig && subtotal > 0) {
+      const calculatedTaxAmount = taxService.calculateTaxAmount(subtotal, taxConfig.rate);
+      setTaxAmount(calculatedTaxAmount);
+    }
   };
 
   const calculateOrderTotalHelper = () => {
@@ -215,9 +221,20 @@ const CheckoutPage = () => {
   
   // Update the total amount whenever relevant values change
   const updateTotalAmount = () => {
-    const { total } = calculateOrderTotalHelper();
+    const { subtotal, total } = calculateOrderTotalHelper();
     setTotal(total);
+    
+    // Recalculate tax if tax config is available
+    if (taxConfig && subtotal > 0) {
+      const calculatedTaxAmount = taxService.calculateTaxAmount(subtotal, taxConfig.rate);
+      setTaxAmount(calculatedTaxAmount);
+    }
   };
+  
+  // Recalculate order total whenever cart or shipping changes
+  useEffect(() => {
+    updateTotalAmount();
+  }, [cartItems, formData.shippingRateId, cart, taxConfig]);
   
   // Fetch tax configuration based on country
   const fetchTaxConfiguration = async (countryCode: string) => {
@@ -225,13 +242,9 @@ const CheckoutPage = () => {
       const taxConfigs = await taxService.getTaxConfigurationByCountry(countryCode);
       if (taxConfigs && taxConfigs.length > 0) {
         setTaxConfig(taxConfigs[0]);
-        // Calculate tax amount
-        if (subtotal) {
-          const calculatedTaxAmount = taxService.calculateTaxAmount(subtotal, taxConfigs[0].rate);
-          setTaxAmount(calculatedTaxAmount);
-          // Update total through the centralized function
-          updateTotalAmount();
-        }
+        // Tax config is now set - updateTotalAmount will handle tax calculation
+        // and order total recalculation based on current subtotal
+        updateTotalAmount();
       } else {
         setTaxConfig(undefined);
         setTaxAmount(0);
@@ -293,9 +306,30 @@ const CheckoutPage = () => {
               }));
             }
             
+            // Ensure address selection mode is set to saved addresses
             setAddressSelectionMode('saved');
-            // Automatically select the default address
-            handleSavedAddressSelect(defaultAddress.id, "shipping");
+            
+            // Map the address data for form using the same approach as handleSavedAddressSelect
+            const addressData = {
+              id: defaultAddress.id,
+              addressLine1: defaultAddress.streetAddress || (defaultAddress as any).addressLine1 || '',
+              addressLine2: (defaultAddress as any).addressLine2 || '',
+              city: defaultAddress.city || '',
+              state: defaultAddress.state || '',
+              postalCode: defaultAddress.postalCode || '',
+              country: defaultAddress.country || '',
+            };
+            
+            // Sanitize the address data and preserve the ID
+            const sanitizedAddress = { ...sanitizeAddressObject(addressData as Address), id: defaultAddress.id };
+            
+            // Set the default address in form data with its ID preserved
+            setFormData(prev => ({
+              ...prev,
+              shippingAddress: sanitizedAddress
+            }));
+            
+            console.log('Default address selected:', defaultAddress.id);
           }
         }
       } catch (err) {
@@ -751,7 +785,7 @@ const CheckoutPage = () => {
       <Navbar />
 
       <main className="flex-grow py-8 bg-gray-50">
-        <div className="container mx-auto px-4">
+        <div className="container max-w-7xl mx-auto px-4 mb-14">
           <h1 className="text-3xl font-serif mb-8 text-center">Checkout</h1>
           
           <div className="flex flex-col lg:flex-row gap-8">
@@ -761,7 +795,7 @@ const CheckoutPage = () => {
                 <form onSubmit={handleSubmit}>
                   <div className="space-y-6">
                     {/* Personal Information */}
-                    <div>
+                    <div className="pb-4">
                       <h3 className="text-lg font-medium mb-3">Personal Information</h3>
                       <div className="grid grid-cols-1 gap-4">
                         <div>
@@ -825,7 +859,7 @@ const CheckoutPage = () => {
                     </div>
                     
                     {/* Shipping Address */}
-                    <div>
+                    <div className="border-t border-gray-200 pt-6 pb-4">
                       <h3 className="text-lg font-medium mb-3">Shipping Address</h3>
                       
                       {isAuthenticated && savedAddresses.length > 0 && (
@@ -868,7 +902,7 @@ const CheckoutPage = () => {
                     </div>
                     
                     {/* Billing Address */}
-                    <div>
+                    <div className="pb-4">
                       <div className="flex items-center mb-4">
                         <input
                           type="checkbox"
@@ -908,7 +942,8 @@ const CheckoutPage = () => {
                                   onSelect={(id) =>
                                     handleSavedAddressSelect(id, "billing")
                                   }
-                                  selectedAddressId=""
+                                  selectedAddressId={formData.billingAddress?.id}
+                                  onAddressesUpdated={handleAddressesUpdated}
                                 />
                               )}
                             </div>
@@ -929,7 +964,7 @@ const CheckoutPage = () => {
                     </div>
                     
                     {/* Shipping Method */}
-                    <div>
+                    <div className="border-t border-gray-200 pt-6 pb-4">
                       <h3 className="text-lg font-medium mb-3">
                         Shipping Method
                       </h3>
@@ -968,7 +1003,7 @@ const CheckoutPage = () => {
                     </div>
                     
                     {/* Promo Code */}
-                    <div className="border-t border-gray-200 pt-5">
+                    <div className="border-t border-gray-200 pt-6">
                       <p className="text-lg font-medium mb-3">Discount Code</p>
                       
                       {!couponApplied ? (

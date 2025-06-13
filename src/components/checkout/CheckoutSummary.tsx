@@ -69,22 +69,33 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
          {/* Discount */}
          {cart &&
           cart.appliedDiscounts
-            .filter((item) => item.title != "FM-FREESHIPPING40")
+            .filter((item) => item.title != "FM-FREESHIPPING")
             .map((discount, index) => (
               <div className="flex justify-between text-sm" key={index}>
                 <div className="">
-                  <span className="text-gray-600">{discount.title}</span>
+                  <span className="text-gray-600">Discount</span>
                 </div>
-                <span>{`₦${discount.amountDeducted.toLocaleString()}`}</span>
+                <span>({`₦${discount.amountDeducted.toLocaleString()}`})</span>
               </div>
             ))}
             
-        {/* Shipping cost */}
-        <div className="flex justify-between text-sm">
+        {/* Shipping cost with subtle indicator */}
+        <div className="flex justify-between text-sm items-center">
           <span className="text-gray-600">Shipping</span>
-          <span>
-            {shippingCost === 0 ? "Free" : `₦${shippingCost.toLocaleString()}`}
-          </span>
+          {cart?.hasFreeShipping ? (
+            <div className="flex items-center">
+              <span className="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-sm bg-gradient-to-r from-amber-50 to-red-50 text-[#a0001e] border border-amber-100">
+                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Free Shipping Applied
+              </span>
+            </div>
+          ) : (
+            <span className="font-medium">
+              ₦{shippingCost.toLocaleString()}
+            </span>
+          )}
         </div>
        
         {/* Tax */}
