@@ -11,15 +11,8 @@ import productService, { Product, ProductAttribute } from "@/services/product";
 import ProductBadge from "@/components/ui/ProductBadge";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import ProductCard from "@/components/ui/ProductCard";
+import QuantitySelector from "@/components/ui/QuantitySelector";
 import { findNotesImageLocally } from "@/utils/helpers";
-
-// Type assertion function to help with type comparisons
-// const isPremiumType = (type: any): boolean => {
-//   if (typeof type === "string") {
-//     return type.toUpperCase() === "PREMIUM";
-//   }
-//   return false;
-// };
 
 // Fallback image paths
 const FALLBACK_IMAGE = "/images/hero/hero_image.png";
@@ -71,6 +64,8 @@ export default function ProductDetailsPage() {
           await productService.getProductrelatedProductsById(data.id, {
             limit: 4,
           });
+
+        console.log(relatedProductsResponse, "relatedProductsResponse");
         setRelatedProducts(relatedProductsResponse);
         const descriptionsByOthers =
           await productService.getProductDescriptionByOthers(data.id);
@@ -159,7 +154,7 @@ export default function ProductDetailsPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-white pb-3">
+      <div className="min-h-screen bg-white pb-24">
         <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
         <Navbar />
         {/* Top Section */}
@@ -247,146 +242,129 @@ export default function ProductDetailsPage() {
                   {product.description}
                 </div>
                 {/* Quantity and Price Row */}
-
-                {/* Forvr Murr Pricing Section */}
-
-                <div className="mt-8 flex flex-col gap-5">
-                  <div className="text-lg font-serif ">Forvr Murr Pricing</div>
-                  <div className="flex flex-col gap-1">
-                    <div className="text-xs md:text-sm  text-nowrap flex md:hidden items-center gap-2 font-serif font-bold mb-1">
-                      <p className="">8ml Bottle Price:</p>{" "}
-                    </div>
-                    <div className="flex justify-between gap-4 md:gap-8">
-                      {/* Left: Bottle, Price label, Price */}
-                      <div className="flex  gap-1 md:gap-4">
-                        <div className="h-10 w-10 lg:h-24 lg:w-24 overflow-hidden">
-                          <Image
-                            src="/images/products/grand_soir.png"
-                            alt="Bottle"
-                            width={80}
-                            height={100}
-                            className=""
-                          />
-                        </div>
-                        <div className="flex flex-col items-center md:items-start">
-                          <div className="text-xs md:text-sm  text-nowrap md:flex hidden items-center gap-2 font-serif font-bold mb-1">
-                            <p className="">8ml Bottle Price:</p>{" "}
-                          </div>
-                          <div className="flex items-center justify-between  flex-wrap gap-1 md:gap-4">
-                            <div className="flex px-3 justify-center w-full sm:w-fit gap-2 items-center border border-[#a0001e] rounded-full text-[#a0001e] font-serif text-sm py-[px]">
-                              <button
-                                onClick={decreaseQuantity}
-                                className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-l-full text-lg"
-                                aria-label="Decrease quantity"
-                              >
-                                -
-                              </button>
-                              <span className="text-sm">
-                                No: {mainQuantity}
-                              </span>
-                              <button
-                                onClick={increaseQuantity}
-                                className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-r-full text-lg"
-                                aria-label="Increase quantity"
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
-                          <div className="text-xs md:text-sm font-serif text-[#a0001e] mt-2 font-bold">
-                            <span className="hidden md:inline">
-                              ₦{Number(product.nairaPrice).toLocaleString()} ×{" "}
-                              {mainQuantity} =
-                            </span>
-                            ₦
-                            {(
-                              Number(product.nairaPrice) * mainQuantity
-                            ).toLocaleString()}
-                          </div>
-                          {/* {product.priceFullBottle && (
-                            <div className="text-xs hidden md:inline text-gray-600 mt-1">
-                              Full bottle: ₦
-                              {Number(product.priceFullBottle).toLocaleString()}
-                            </div>
-                          )} */}
-                        </div>
+                <div className="mt-8 space-y-8">
+                  {/* Main Product Section */}
+                  <div className="border-b border-gray-200 pb-8">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-12 h-16 relative">
+                        <Image
+                          src="/images/products/grand_soir.png"
+                          alt="8ml Bottle"
+                          fill
+                          className="object-contain"
+                        />
                       </div>
-                      {/* Right: Add to cart button */}
+                      <div>
+                        <h3 className="font-serif text-lg font-semibold text-gray-900">
+                          8ml Bottle
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          Forvr Murr Pricing
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-6">
+                        {/* Price Display */}
+                        <div className="text-2xl font-bold text-gray-900">
+                          ₦{Number(product.nairaPrice).toLocaleString()}
+                        </div>
+                        
+                        {/* Quantity Selector */}
+                        <QuantitySelector
+                          quantity={mainQuantity}
+                          onIncrease={increaseQuantity}
+                          onDecrease={decreaseQuantity}
+                        />
+                      </div>
+
+                      {/* Add to Cart Button */}
                       <AddToCartButton
                         product={product}
-                        className="text-nowrap h-fit"
+                        className="bg-[#a0001e] text-white px-8 py-3 rounded-lg hover:bg-[#800018] transition-colors font-medium"
                         quantity={mainQuantity}
                       />
                     </div>
-                  </div>
-                  <div className="text-lg font-serif ">Add-On</div>
-                  {featuredProducts?.map((item, index) => (
-                    <div key={index} className="flex flex-col gap-1">
-                      <div className="text-xs md:text-sm md:hidden   flex items-center gap-2 font-serif font-bold mb-1">
-                        <p className="">{item.name}</p>{" "}
+
+                    {/* Total Price (only show if quantity > 1) */}
+                    {mainQuantity > 1 && (
+                      <div className="mt-4 text-right">
+                        <p className="text-sm text-gray-600">
+                          Total: <span className="font-semibold text-gray-900">
+                            ₦{(Number(product.nairaPrice) * mainQuantity).toLocaleString()}
+                          </span>
+                        </p>
                       </div>
-                      <div className="flex  justify-between gap-4 md:gap-8">
-                        {/* Left: Bottle, Price label, Price */}
-                        <div className="flex  gap-1 md:gap-4">
-                          <div className="h-10 w-10 lg:h-24 lg:w-24 overflow-hidden">
-                            <Image
-                              src="/images/products/TVC_1.png"
-                              alt="Bottle"
-                              width={80}
-                              height={100}
-                              className=""
-                            />
-                          </div>
-                          <div className="flex  flex-col  items-center md:items-start">
-                            <div className="text-xs md:text-sm hidden   md:flex items-center gap-2 font-serif font-bold mb-1">
-                              <p className="">{item.name}</p>{" "}
-                            </div>
-                            <div className="flex items-center justify-between  flex-wrap gap-1 md:gap-4">
-                              <div className="flex px-3 justify-center w-full sm:w-fit gap-2 items-center border border-[#a0001e] rounded-full text-[#a0001e] font-serif text-sm py-[px]">
-                                <button
-                                  onClick={() => decreaseFeaturedQty(item.id)}
-                                  className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-l-full text-lg"
-                                  aria-label="Decrease quantity"
-                                >
-                                  -
-                                </button>
-                                <span className="text-sm">
-                                  No: {getFeaturedQty(item.id)}
-                                </span>
-                                <button
-                                  onClick={() => increaseFeaturedQty(item.id)}
-                                  className=" cursor-pointer focus:outline-none hover:bg-red-50 rounded-r-full text-lg"
-                                  aria-label="Increase quantity"
-                                >
-                                  +
-                                </button>
+                    )}
+                  </div>
+
+                  {/* Add-On Products Section */}
+                  {featuredProducts && featuredProducts.length > 0 && (
+                    <div>
+                      <h3 className="font-serif text-xl font-semibold text-gray-900 mb-6">
+                        Add-On Products
+                      </h3>
+                      <div className="space-y-6">
+                        {featuredProducts.map((item, index) => (
+                          <div key={index} className="border border-gray-200 rounded-lg p-4">
+                            <div className="flex items-center gap-3 mb-4">
+                              <div className="w-10 h-12 relative">
+                                <Image
+                                  src="/images/products/TVC_1.png"
+                                  alt={item.name}
+                                  fill
+                                  className="object-contain"
+                                />
+                              </div>
+                              <div>
+                                <h4 className="font-medium text-gray-900">
+                                  {item.name}
+                                </h4>
+                                <p className="text-sm text-gray-600">
+                                  {item.brand?.name}
+                                </p>
                               </div>
                             </div>
-                            <div className="text-xs md:text-sm font-serif text-[#a0001e] mt-2 font-bold">
-                              <span className="hidden md:inline">
-                                {" "}
-                                ₦{Number(
-                                  item.nairaPrice
-                                ).toLocaleString()} × {getFeaturedQty(item.id)}{" "}
-                                ={" "}
-                              </span>{" "}
-                              ₦
-                              {(
-                                Number(item.nairaPrice) *
-                                getFeaturedQty(item.id)
-                              ).toLocaleString()}
+
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-6">
+                                {/* Price Display */}
+                                <div className="text-lg font-semibold text-gray-900">
+                                  ₦{Number(item.nairaPrice).toLocaleString()}
+                                </div>
+                                
+                                {/* Quantity Selector */}
+                                <QuantitySelector
+                                  quantity={getFeaturedQty(item.id)}
+                                  onIncrease={() => increaseFeaturedQty(item.id)}
+                                  onDecrease={() => decreaseFeaturedQty(item.id)}
+                                />
+                              </div>
+
+                              {/* Add to Cart Button */}
+                              <AddToCartButton
+                                product={item}
+                                className="bg-gray-100 text-gray-900 px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium border border-gray-300"
+                                quantity={getFeaturedQty(item.id)}
+                              />
                             </div>
+
+                            {/* Total Price (only show if quantity > 1) */}
+                            {getFeaturedQty(item.id) > 1 && (
+                              <div className="mt-3 text-right">
+                                <p className="text-sm text-gray-600">
+                                  Total: <span className="font-semibold text-gray-900">
+                                    ₦{(Number(item.nairaPrice) * getFeaturedQty(item.id)).toLocaleString()}
+                                  </span>
+                                </p>
+                              </div>
+                            )}
                           </div>
-                        </div>
-                        {/* Right: Add to cart button */}
-                        <AddToCartButton
-                          product={item}
-                          className="text-nowrap h-fit"
-                          quantity={getFeaturedQty(item.id)}
-                        />
+                        ))}
                       </div>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             </div>
@@ -394,11 +372,11 @@ export default function ProductDetailsPage() {
         </div>
 
         {/* Fragrance Story */}
-        <div className="max-w-3xl mx-auto text-center mt-24 px-4">
-          <h2 className="text-3xl font-serif text-[#a0001e] mb-2">
-            FRAGRANCE STORY
+        <div className="max-w-[55%] mx-auto text-center mt-24 px-4">
+          <h2 className="text-3xl font-serif text-[#a0001e] mb-12">
+            Fragrance Story
           </h2>
-          <div className="text-xl md:text-2xl font-serif text-black my-8">
+          <div className="text-xl md:text-2xl font-serif text-black mb-8">
             {product.fragranceStory || product.description}
           </div>
           <div className="text-gray-800 my-4">
@@ -408,29 +386,26 @@ export default function ProductDetailsPage() {
         </div>
 
         {/* Notes Section */}
-        <div className="max-w-2xl mx-auto mt-16 pb-8 mb-24 px-4">
-          <div className="flex flex-col justify-center gap-8">
+        <div className="max-w-4xl mx-auto mt-16 pb-8 mb-24 px-4">
+          <div className="flex flex-col justify-center gap-12">
             {/* Top Notes */}
             {product.topNotes && product.topNotes.length > 0 && (
-              <div className="flex-1">
-                <div className="text-center text-[#a0001e] font-serif font-semibold mb-10">
-                  TOP
+              <div className="flex-1 mb-8">
+                <div className="text-center text-[#a0001e] text-xl font-serif mb-10">
+                  Top
                 </div>
-                <div className="flex justify-center gap-6 flex-wrap">
+                <div className="flex flex-wrap justify-center gap-x-8 gap-y-8">
                   {product.topNotes.map((note) => (
-                    <div key={note.id} className="flex flex-col items-center">
-                      <div className="relative w-12 h-12 mb-1">
+                    <div key={note.id} className="flex flex-col items-center text-center w-24">
+                      <div className="relative w-16 h-16 mb-2">
                         <Image
-                          src={
-                            findNotesImageLocally(note.name) ||
-                            FALLBACK_NOTE_IMAGE
-                          }
+                          src={note?.iconUrl || FALLBACK_NOTE_IMAGE}
                           alt={note.name}
                           fill
                           className="object-contain"
                         />
                       </div>
-                      <span className="text-xs font-serif text-gray-700">
+                      <span className="font-serif text-gray-700 break-words">
                         {note.name}
                       </span>
                     </div>
@@ -441,25 +416,22 @@ export default function ProductDetailsPage() {
 
             {/* Middle Notes */}
             {product.middleNotes && product.middleNotes.length > 0 && (
-              <div className="flex-1">
-                <div className="text-center text-[#a0001e] font-serif font-semibold mb-10">
-                  MIDDLE
+              <div className="flex-1 mb-8">
+                <div className="text-center text-[#a0001e] text-xl font-serif mb-10">
+                  Middle
                 </div>
-                <div className="flex justify-center gap-6 flex-wrap">
+                <div className="flex flex-wrap justify-center gap-x-8 gap-y-8">
                   {product.middleNotes.map((note) => (
-                    <div key={note.id} className="flex flex-col items-center">
-                      <div className="relative w-12 h-12 mb-1">
+                    <div key={note.id} className="flex flex-col items-center text-center w-24">
+                      <div className="relative w-16 h-16 mb-2">
                         <Image
-                          src={
-                            findNotesImageLocally(note.name) ||
-                            FALLBACK_NOTE_IMAGE
-                          }
+                          src={note?.iconUrl || FALLBACK_NOTE_IMAGE}
                           alt={note.name}
                           fill
                           className="object-contain"
                         />
                       </div>
-                      <span className="text-xs font-serif text-gray-700">
+                      <span className="font-serif text-gray-700 break-words">
                         {note.name}
                       </span>
                     </div>
@@ -470,25 +442,22 @@ export default function ProductDetailsPage() {
 
             {/* Base Notes */}
             {product.baseNotes && product.baseNotes.length > 0 && (
-              <div className="flex-1">
-                <div className="text-center text-[#a0001e] font-serif font-semibold mb-10">
-                  BASE
+              <div className="flex-1 mb-8">
+                <div className="text-center text-[#a0001e] text-xl font-serif mb-10">
+                  Base
                 </div>
-                <div className="flex justify-center gap-6 flex-wrap">
+                <div className="flex flex-wrap justify-center gap-x-8 gap-y-8">
                   {product.baseNotes.map((note) => (
-                    <div key={note.id} className="flex flex-col items-center">
-                      <div className="relative w-12 h-12 mb-1">
+                    <div key={note.id} className="flex flex-col items-center text-center w-24">
+                      <div className="relative w-16 h-16 mb-2">
                         <Image
-                          src={
-                            findNotesImageLocally(note.name) ||
-                            FALLBACK_NOTE_IMAGE
-                          }
+                          src={note?.iconUrl || FALLBACK_NOTE_IMAGE}
                           alt={note.name}
                           fill
                           className="object-contain"
                         />
                       </div>
-                      <span className="text-xs font-serif text-gray-700">
+                      <span className="font-serif text-gray-700 break-words">
                         {note.name}
                       </span>
                     </div>
@@ -501,8 +470,8 @@ export default function ProductDetailsPage() {
 
         {/* User Description Tags */}
         <div className="max-w-4xl mx-auto mt-16 pt-16mb-24 pb-24">
-          <h3 className="text-3xl font-serif text-[#a0001e] text-center mb-10">
-            HERE&apos;S HOW OTHERS DESCRIBED THE SCENT
+          <h3 className="text-3xl font-serif text-[#a0001e] text-center mb-16">
+            Here&apos;s How Others Described the Scent
           </h3>
           <div className="flex flex-wrap justify-center gap-4 mb-4">
             {prodDescriptions.map((tag) => (
@@ -527,9 +496,9 @@ export default function ProductDetailsPage() {
         {/* People Also Loved */}
         {relatedProducts.length > 0 && (
           <div className="max-w-7xl  mx-auto mt-16 mb-16 px-4">
-            <h3 className="text-xl font-serif text-center mb-6 font-semibold">
-              PEOPLE ALSO LOVED
-            </h3>
+            <h3 className="text-3xl font-serif text-[#a0001e] text-center mb-16">
+            People Also Loved
+          </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               {relatedProducts.map((prod, index) => (
                 <ProductCard

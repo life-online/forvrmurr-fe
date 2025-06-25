@@ -34,11 +34,22 @@ export default function ShopContent() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  // const [totalProducts, setTotalProducts] = useState(0);
+  const [totalProducts, setTotalProducts] = useState(0);
   const [currentPage, setCurrentPage] = useState(pageFromUrl);
   const [totalPages, setTotalPages] = useState(1);
 
   const [activeTab, setActiveTab] = useState<FilterTabValue>(typeFromUrl);
+
+  // Filter drawer state
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<{
+    [key: string]: string | null;
+  }>({
+    "Scent Type": scentTypeSlugs || null,
+    Occasion: occasionSlugs || null,
+    "Fragrance Family": fragranceFamilySlugs || null,
+    Mood: moodSlugs || null,
+  });
 
   const initialFilters: ProductFilterParams = {
     page: pageFromUrl,
@@ -55,8 +66,7 @@ export default function ShopContent() {
       try {
         const response = await productService.getComprehensiveProducts(filters);
         setProducts(response.data);
-
-        // setTotalProducts(response.meta.total);
+        setTotalProducts(response.meta.total);
         setCurrentPage(response.meta.page);
         setTotalPages(response.meta.totalPages);
       } catch (err) {
@@ -108,19 +118,55 @@ export default function ShopContent() {
       moodSlugs: (moodSlugs as string) || undefined,
     };
     setFilters(newFilters);
-    // updateUrl(newFilters);
+
+    // Update selected filters state
+    setSelectedFilters({
+      "Scent Type": scentTypeSlugs || null,
+      Occasion: occasionSlugs || null,
+      "Fragrance Family": fragranceFamilySlugs || null,
+      Mood: moodSlugs || null,
+    });
   }, [scentTypeSlugs, occasionSlugs, fragranceFamilySlugs, moodSlugs]);
 
-  // const handleSearch = (searchTerm: string) => {
-  //   setSearch(searchTerm);
-  //   const newFilters = {
-  //     ...filters,
-  //     search: searchTerm || undefined,
-  //     page: 1,
-  //   };
-  //   setFilters(newFilters);
-  //   updateUrl(newFilters);
-  // };
+  // Update search params function for filters
+  const updateSearchParams = (updatedFilters: {
+    [key: string]: string | null;
+  }) => {
+    const params = new URLSearchParams(window.location.search);
+
+    if (updatedFilters["Scent Type"]) {
+      params.set("scentTypeSlugs", updatedFilters["Scent Type"]!);
+    } else {
+      params.delete("scentTypeSlugs");
+    }
+
+    if (updatedFilters["Fragrance Family"]) {
+      params.set("fragranceFamilySlugs", updatedFilters["Fragrance Family"]!);
+    } else {
+      params.delete("fragranceFamilySlugs");
+    }
+
+    if (updatedFilters["Mood"]) {
+      params.set("moodSlugs", updatedFilters["Mood"]!);
+    } else {
+      params.delete("moodSlugs");
+    }
+
+    if (updatedFilters["Occasion"]) {
+      params.set("occasionSlugs", updatedFilters["Occasion"]!);
+    } else {
+      params.delete("occasionSlugs");
+    }
+
+    // Preserve other params like page, type
+    if (activeTab !== "all") {
+      params.set("type", activeTab);
+    }
+    params.set("page", "1"); // Reset to first page when filtering
+
+    const newUrl = `/shop?${params.toString()}`;
+    router.push(newUrl, { scroll: false });
+  };
 
   const handlePageChange = (page: number) => {
     const newFilters = {
@@ -138,11 +184,6 @@ export default function ShopContent() {
     <>
       {/* Breadcrumb and Title */}
       <div className="max-w-7xl mx-auto w-full px-4 pt-8">
-        {/* <div className="text-xs mb-2">
-          <span className="mr-2">New Release</span>
-          <span className="mr-2">›</span>
-          <span>Shop All</span>
-        </div> */}
         <h1 className=" sm:text-xl md:text-2xl font-serif font-medium mb-4 text-black">
           MEET YOUR NEXT OBSESSION
         </h1>
@@ -167,7 +208,15 @@ export default function ShopContent() {
           </button>
         ))}
       </div>
-      <FragranceSelector />
+      <FragranceSelector
+        drawerOpen={drawerOpen}
+        setDrawerOpen={setDrawerOpen}
+        selectedFilters={selectedFilters}
+        setSelectedFilters={setSelectedFilters}
+        updateSearchParams={updateSearchParams}
+        filteredProductCount={totalProducts}
+        isLoading={loading}
+      />
       {/* Loading State */}
       {loading && (
         <div className="text-center py-10 min-h-[70vh]">

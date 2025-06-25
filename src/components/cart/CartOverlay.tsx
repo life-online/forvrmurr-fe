@@ -8,6 +8,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import cartService from "../../services/cart";
 import productService, { Discount, Product } from "@/services/product";
+import QuantitySelector from "../ui/QuantitySelector";
 
 // Types
 export interface CartItem {
@@ -319,9 +320,9 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
                   cartItems.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center py-4 border-b border-gray-100"
+                      className="flex gap-4 py-4 border-b border-gray-100"
                     >
-                      <div className="h-20 w-20 relative mr-4">
+                      <div className="h-20 w-20 relative flex-shrink-0">
                         <Image
                           src={
                             item.imageUrl && item.imageUrl !== null
@@ -333,41 +334,49 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
                           style={{ objectFit: "contain" }}
                         />
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium">{item.brand}</h4>
-                        <p className="text-sm text-gray-600">{item.name}</p>
-                        <p className="text-sm font-medium mt-1">
-                          ₦ {item.price.toLocaleString()}
-                        </p>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col gap-2">
+                          <div>
+                            <h4 className="font-medium text-gray-900">{item.brand}</h4>
+                            <p className="text-sm text-gray-600 truncate">{item.name}</p>
+                          </div>
+                          
+                          <div className="flex items-center justify-between">
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium text-gray-900">
+                                ₦{item.price.toLocaleString()}
+                              </span>
+                              {item.quantity > 1 && (
+                                <span className="text-xs text-gray-500">
+                                  Total: ₦{(item.price * item.quantity).toLocaleString()}
+                                </span>
+                              )}
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                              <QuantitySelector
+                                quantity={item.quantity}
+                                onIncrease={() => updateItemQuantity(item.id, item.quantity + 1)}
+                                onDecrease={() => {
+                                  if (item.quantity > 1) {
+                                    updateItemQuantity(item.id, item.quantity - 1);
+                                  } else {
+                                    removeFromCart(item.id);
+                                  }
+                                }}
+                                className="scale-90"
+                              />
+                              <button
+                                onClick={() => removeFromCart(item.id)}
+                                className="text-[#8b0000] text-xs font-medium border border-[#8b0000] rounded px-2 py-1 hover:bg-[#8b0000] hover:text-white transition-colors"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center border border-gray-300 rounded-full">
-                        <button
-                          onClick={() => {
-                            if (item.quantity > 1) {
-                              updateItemQuantity(item.id, item.quantity - 1);
-                            }
-                          }}
-                          className="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-[#8b0000]"
-                          disabled={item.quantity <= 1}
-                        >
-                          <FiMinus size={16} />
-                        </button>
-                        <span className="w-8 text-center">{item.quantity}</span>
-                        <button
-                          onClick={() =>
-                            updateItemQuantity(item.id, item.quantity + 1)
-                          }
-                          className="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-[#8b0000]"
-                        >
-                          <FiPlus size={16} />
-                        </button>
-                      </div>
-                      <button
-                        onClick={() => removeFromCart(item.id)}
-                        className="ml-4 text-[#8b0000] text-sm font-medium border border-[#8b0000] rounded px-3 py-1 hover:bg-[#8b0000] hover:text-white transition-colors"
-                      >
-                        Remove
-                      </button>
                     </div>
                   ))}
               </div>
@@ -382,63 +391,65 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
                     {filteredFeaturedProducts.map((prod, index) => (
                       <div
                         key={index}
-                        className="bg-[#faf0e2] flex flex-col gap-3 rounded-lg p-4 relative"
+                        className="border border-gray-200 rounded-lg p-4 bg-white"
                       >
-                        <div className="inline-block bg-[#f3d5b5] w-fit text-[#8b0000] px-3 py-1 rounded-full text-xs font-medium mb-2">
-                          ✨{prod.name}
-                        </div>
-
-                        <div className="flex gap-3 items-start">
-                          <input
-                            type="checkbox"
-                            className="p-3 h-4 w-4"
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                handleAddFeaturedProduct(prod);
-                              } else {
-                                removeFromCart(prod.id);
-                              }
-                            }}
-                          />
-                          <div className="flex-1">
-                            {/* <p className="font-medium">{prod.description}</p> */}
-                            <div className="flex items-center justify-between  flex-wrap gap-4">
-                              <div className="flex items-center border border-[#a0001e] rounded-full text-[#a0001e] font-serif text-sm py-1">
-                                <button
-                                  onClick={() => decreaseFeaturedQty(prod.id)}
-                                  className="px-3 cursor-pointer focus:outline-none hover:bg-red-50 rounded-l-full"
-                                  aria-label="Decrease quantity"
-                                >
-                                  -
-                                </button>
-                                <span className="mx-2">
-                                  No: {getFeaturedQty(prod.id)}
-                                </span>
-                                <button
-                                  onClick={() => increaseFeaturedQty(prod.id)}
-                                  className="px-3 cursor-pointer focus:outline-none hover:bg-red-50 rounded-r-full"
-                                  aria-label="Increase quantity"
-                                >
-                                  +
-                                </button>
-                              </div>
-                            </div>
-                            <div className="text-sm font-serif text-[#a0001e] font-bold">
-                              ₦{Number(prod.nairaPrice).toLocaleString()} ×{" "}
-                              {getFeaturedQty(prod.id)} = ₦
-                              {(
-                                Number(prod.nairaPrice) *
-                                getFeaturedQty(prod.id)
-                              ).toLocaleString()}
-                            </div>
-                          </div>
-                          <div className="ml-4 relative h-16 w-16">
+                        <div className="flex gap-4">
+                          {/* Product Image */}
+                          <div className="relative h-20 w-20 flex-shrink-0">
                             <Image
                               src={prod.imageUrls[0]}
                               alt={prod.name}
                               fill
                               style={{ objectFit: "contain" }}
                             />
+                          </div>
+                          
+                          {/* Product Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="mb-2">
+                              <div className="inline-block bg-[#f3d5b5] text-[#8b0000] px-2 py-1 rounded-full text-xs font-medium mb-2">
+                                ✨ {prod.name}
+                              </div>
+                              <h4 className="font-medium text-gray-900 truncate">{prod.brand?.name || 'ForvrMurr'}</h4>
+                              <p className="text-sm text-gray-600 truncate">{prod.name}</p>
+                            </div>
+                            
+                            {/* Price and Controls */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex flex-col">
+                                <span className="text-sm font-semibold text-gray-900">
+                                  ₦{Number(prod.nairaPrice).toLocaleString()}
+                                </span>
+                                {getFeaturedQty(prod.id) > 1 && (
+                                  <span className="text-xs text-[#a0001e] font-medium">
+                                    Total: ₦{(Number(prod.nairaPrice) * getFeaturedQty(prod.id)).toLocaleString()}
+                                  </span>
+                                )}
+                              </div>
+                              
+                              <div className="flex items-center gap-3">
+                                <QuantitySelector
+                                  quantity={getFeaturedQty(prod.id)}
+                                  onIncrease={() => increaseFeaturedQty(prod.id)}
+                                  onDecrease={() => {
+                                    if (getFeaturedQty(prod.id) > 1) {
+                                      decreaseFeaturedQty(prod.id);
+                                    } else {
+                                      decreaseFeaturedQty(prod.id);
+                                      removeFromCart(prod.id);
+                                    }
+                                  }}
+                                  className="scale-90"
+                                />
+                                
+                                <button
+                                  onClick={() => handleAddFeaturedProduct(prod)}
+                                  className="bg-[#8b0000] text-white px-3 py-2 rounded text-xs font-medium hover:bg-[#6b0000] transition-colors"
+                                >
+                                  Add
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>

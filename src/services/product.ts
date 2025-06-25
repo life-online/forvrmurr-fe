@@ -40,6 +40,7 @@ export interface DescriptionResponse {
 export interface Note {
   id: string;
   name: string;
+  iconUrl: string;
 }
 
 export interface Product {
