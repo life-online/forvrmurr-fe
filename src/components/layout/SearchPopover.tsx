@@ -1,20 +1,31 @@
 "use client";
 
-import * as Dialog from "@radix-ui/react-dialog";
+import * as Popover from "@radix-ui/react-popover";
 import { IoMdClose } from "react-icons/io";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FiSearch } from "react-icons/fi";
 import productService, { Product } from "@/services/product";
-import ProductCard from "../ui/ProductCard";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-export default function SearchPopup() {
+export default function SearchPopover() {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
+  // Focus input when popover opens
+  useEffect(() => {
+    if (open && inputRef.current) {
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
+  }, [open]);
+
+  // Handle search query changes
   useEffect(() => {
     if (searchQuery.trim() === "") {
       setProducts([]);
@@ -26,6 +37,7 @@ export default function SearchPopup() {
       try {
         const response = await productService.getProducts({
           search: searchQuery,
+          limit: 6, // Limit to 6 products for dropdown
         });
         setProducts(response?.data || []);
       } catch (error) {
@@ -38,96 +50,145 @@ export default function SearchPopup() {
     const debounceTimeout = setTimeout(fetchProducts, 300); // Debounce search
     return () => clearTimeout(debounceTimeout);
   }, [searchQuery]);
+  
+  // Navigate to product page and close popover
+  const handleProductClick = (slug: string) => {
+    router.push(`/shop/${slug}`);
+    setOpen(false);
+    setSearchQuery("");
+  };
+  
+  // Handle search form submission
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/shop?search=${encodeURIComponent(searchQuery)}`);
+      setOpen(false);
+    }
+  };
 
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
+    <Popover.Root open={open} onOpenChange={setOpen}>
+      <Popover.Trigger asChild>
         <button
           aria-label="Search"
-          className="hover:opacity-70 transition-opacity"
+          className="hover:opacity-70 transition-opacity flex items-center"
+          onClick={() => setOpen(true)}
         >
           <FiSearch size={18} />
         </button>
-      </Dialog.Trigger>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50 z-40" />
-        <Dialog.Title className="sr-only"></Dialog.Title>
-        <Dialog.Content className="fixed top-0 left-0 right-0 bg-white z-50 max-h-[95vh] overflow-y-auto shadow-lg border-b border-gray-200">
-          <div className="py-3 px-4">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <Link href="/" className="mb-4 sm:mb-0">
-                <Image
-                  src="/images/logo/logo_black.png"
-                  alt="Forvr Murr"
-                  width={180}
-                  height={60}
-                  className="h-auto w-auto"
-                />
-              </Link>
+      </Popover.Trigger>
+      
+      <Popover.Portal>
+        <Popover.Content 
+          className="bg-white rounded-md shadow-lg border border-gray-200 z-50 w-[380px] max-w-[95vw] overflow-hidden animate-fade-in" 
+          side="bottom"
+          sideOffset={8}
+          align="end"
+        >
+          <form onSubmit={handleSearchSubmit} className="w-full">
+            <div className="flex items-center border-b border-gray-200 p-3">
+              <FiSearch size={18} className="text-gray-400 mr-2" />
               <input
+                ref={inputRef}
                 type="text"
-                placeholder="Search..."
+                placeholder="Search fragrances..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full sm:max-w-xl border-b-2 text-black border-yellow-500 focus:outline-none py-3"
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+                className="flex-1 focus:outline-none text-sm"
               />
-              <Dialog.Close asChild>
-                <button aria-label="Close" className="mt-2 sm:mt-0">
-                  <IoMdClose size={34} />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="ml-2 text-gray-400 hover:text-gray-600"
+                >
+                  <IoMdClose size={18} />
                 </button>
-              </Dialog.Close>
+              )}
             </div>
-
+          </form>
+          
+          {/* Search results */}
+          <div className="max-h-[400px] overflow-y-auto p-2">
             {loading && (
-              <p className="text-center text-gray-500 mt-4">Loading...</p>
-            )}
-
-            {!loading && products.length > 0 && (
-              <div className="max-w-7xl mx-auto w-full px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
-                {products?.map((product, index) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    priorityLoading={index < 4}
-                  />
-                ))}
+              <div className="flex justify-center py-4">
+                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-[#a0001e]"></div>
               </div>
             )}
-
+            
+            {!loading && products.length > 0 && (
+              <div className="divide-y divide-gray-100">
+                {products.map((product) => (
+                  <div 
+                    key={product.id}
+                    className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer transition-colors rounded-md"
+                    onClick={() => handleProductClick(product.slug)}
+                  >
+                    <div className="relative h-14 w-14 flex-shrink-0 bg-gray-50 rounded overflow-hidden">
+                      <Image
+                        src={product.imageUrls?.[0] || "/images/hero/hero_image.png"}
+                        alt={product.name}
+                        fill
+                        sizes="56px"
+                        className="object-contain"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-gray-500 font-medium">{product.brand?.name}</p>
+                      <h4 className="text-sm font-medium text-gray-800 truncate">{product.name}</h4>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs text-[#a0001e] font-semibold">
+                          ₦{parseInt(product.nairaPrice).toLocaleString()}
+                        </span>
+                        {product.type && (
+                          <span className="text-[9px] uppercase px-1.5 py-0.5 bg-gray-100 rounded-full text-gray-600">
+                            {product.type}
+                          </span>
+                        )}
+                        {product.inventoryQuantity <= 0 && (
+                          <span className="text-[9px] uppercase px-1.5 py-0.5 bg-gray-800 text-white rounded-full">
+                            Out of stock
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {/* View all results button */}
+                {products.length > 0 && (
+                  <div className="p-2">
+                    <button 
+                      onClick={() => {
+                        router.push(`/shop?search=${encodeURIComponent(searchQuery)}`);
+                        setOpen(false);
+                      }}
+                      className="w-full text-center text-[#a0001e] text-xs py-2 hover:underline"
+                    >
+                      View all {products.length}+ results
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+            
             {!loading && products.length === 0 && searchQuery.trim() !== "" && (
-              <p className="text-center text-gray-500 mt-4">
-                No products found.
+              <p className="text-center text-gray-500 py-4 text-sm">
+                No products found for "{searchQuery}"
               </p>
             )}
 
-            {/* {!loading && products.length === 0 && searchQuery.trim() === '' && (
-                            <div className="relative h-[300px] sm:h-[500px] w-full flex items-center justify-center bg-black bg-opacity-70 text-center mt-6">
-                                <div className="absolute inset-0">
-                                    <img
-                                        src="/brand-background.svg"
-                                        alt="Perfume background"
-                                        className="object-cover w-full h-full blur-sm opacity-30"
-                                    />
-                                </div>
-
-                                <div className="relative z-10 max-w-2xl px-4">
-                                    <h1 className="text-2xl sm:text-3xl md:text-5xl font-semibold text-[#E9B873] leading-snug cinzel-font">
-                                        PERFUME IS PERSONAL.
-                                        <br />
-                                        LET’S GET YOURS RIGHT
-                                    </h1>
-                                    <p className="text-[#E9B873] leading-[23px] mt-4 sm:mt-6 text-lg sm:text-2xl libre-baskerville-regular">
-                                        Let your preferences guide your perfume journey. Take our quiz to uncover which mood, vibe, and fragrance tier (Prime or Premium) best suits you.
-                                    </p>
-                                    <button className="mt-4 sm:mt-6 bg-[#8B0000] hover:bg-[#8e1413] text-white py-2 sm:py-3 px-6 sm:px-8 rounded-[12px] text-sm font-medium transition duration-300">
-                                        Start the Quiz
-                                    </button>
-                                </div>
-                            </div>
-                        )} */}
+            {!loading && searchQuery.trim() === "" && (
+              <div className="p-4 text-center">
+                <p className="text-sm text-gray-500">Start typing to search</p>
+              </div>
+            )}
           </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
   );
 }
