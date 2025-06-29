@@ -11,12 +11,8 @@ interface FragranceFilterProps {
   selectedFilters: {
     [key: string]: string | null;
   };
-  setSelectedFilters: (filters: {
-    [key: string]: string | null;
-  }) => void;
-  updateSearchParams: (filters: {
-    [key: string]: string | null;
-  }) => void;
+  setSelectedFilters: (filters: { [key: string]: string | null }) => void;
+  updateSearchParams: (filters: { [key: string]: string | null }) => void;
   filteredProductCount?: number;
   isLoading?: boolean;
 }
@@ -108,24 +104,24 @@ export default function FragranceSelector({
   }, [drawerOpen, selectedCategory]);
 
   return (
-    <div className="p-4 sm:p-6">
-      <div className="flex flex-wrap justify-center gap-4">
+    <div className="max-w-7xl mx-auto w-full px-4 sm:p-6 mb-2">
+      <div className="flex justify-between items-start gap-6">
         {categories.map((cat, idx) => (
           <div
             key={idx}
-            className="text-center cursor-pointer"
+            className="text-center cursor-pointer flex-1"
             onClick={() => {
               setDrawerOpen(true);
               setSelectedCategory(cat.label);
             }}
           >
-            <div className="w-20 h-16 sm:w-36 sm:h-20 rounded-md flex items-center justify-center">
+            <div className="w-full h-32 sm:h-26 rounded-md flex items-center justify-center">
               <Image
                 src={cat.imageUrl}
                 alt="pic"
-                width={140}
-                height={120}
-                className="object-cover rounded-md h-full"
+                width={600}
+                height={300}
+                className="object-cover rounded-md h-full w-full"
               />
             </div>
             <p className="text-xs sm:text-sm text-gray-600 mt-1">{cat.label}</p>
@@ -149,19 +145,19 @@ export default function FragranceSelector({
             }}
           >
             {/* Header - Scrollable */}
-            <div className="flex justify-between items-center p-4 border-b border-gray-100 overflow-x-auto">
-              <Drawer.Title className="sm:text-xl md:text-xl font-serif font-medium text-black">
-                PERSONALIZE
+            <div className="flex justify-between items-center p-6 border-b border-gray-100 overflow-x-auto">
+              <Drawer.Title className="text-xl font-medium text-black">
+                Personalize
               </Drawer.Title>
               <IoMdClose
                 size={24}
                 onClick={() => setDrawerOpen(false)}
-                className="cursor-pointer"
+                className="cursor-pointer text-gray-500 hover:text-gray-700"
               />
             </div>
 
             {/* Scrollable content */}
-            <div className="flex-1 overflow-y-auto p-4 overscroll-y-contain">
+            <div className="flex-1 overflow-y-auto p-6 overscroll-y-contain">
               {Object.entries({
                 "Scent Type": scentTypes,
                 "Fragrance Family": fragranceFamilies,
@@ -169,41 +165,47 @@ export default function FragranceSelector({
                 Occasion: productOccasions,
               }).map(([section, items]) => (
                 <div key={section} id={`${section}`} className="md:mb-12 mb-8">
-                  <h3 className="text text-gray-700 mb-3">
-                    {section}
-                  </h3>
+                  <h3 className="text text-gray-700 mb-3">{section}</h3>
                   <div className="flex flex-wrap gap-2">
                     {items.map((item) => (
-                      <div className={`p-[0.1em] rounded-lg border-3 ${
-                        selectedFilters[section] === item.slug
-                          ? "border-[#8B0000]"
-                          : "border-transparent"
-                      } ${
-                        selectedFilters[section] && selectedFilters[section] !== item.slug
-                          ? "opacity-50"
-                          : ""
-                      }`}>
                       <div
-                        key={item.slug}
-                        onClick={() => handleSubcategoryClick(section, item.slug)}
-                        className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-md overflow-hidden cursor-pointer transition-all duration-200`}
+                        className={`p-[0.1em] rounded-lg border-3 ${
+                          selectedFilters[section] === item.slug
+                            ? "border-[#8B0000]"
+                            : "border-transparent"
+                        } ${
+                          selectedFilters[section] &&
+                          selectedFilters[section] !== item.slug
+                            ? "opacity-50"
+                            : ""
+                        }`}
                       >
-                        <Image
-                          src={item.iconUrl || "/images/shop/occassion.jpg"}
-                          alt={item.slug}
-                          width={1000}
-                          height={1000}
-                          className="object-cover h-full rounded-md"
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 text-xs text-white bg-black/50 text-center py-1">
-                          {item.slug
-                            .replace(/_/g, " ")
-                            .replace(/\b\w/g, (char: any) => char.toUpperCase())}
+                        <div
+                          key={item.slug}
+                          onClick={() =>
+                            handleSubcategoryClick(section, item.slug)
+                          }
+                          className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-md overflow-hidden cursor-pointer transition-all duration-200`}
+                        >
+                          <Image
+                            src={item.iconUrl || "/images/shop/occassion.jpg"}
+                            alt={item.slug}
+                            width={1000}
+                            height={1000}
+                            className="object-cover h-full rounded-md"
+                          />
+                          <div className="absolute bottom-0 left-0 right-0 text-xs text-white bg-black/50 text-center py-1">
+                            {item.slug
+                              .replace(/_/g, " ")
+                              .replace(/\b\w/g, (char: any) =>
+                                char.toUpperCase()
+                              )}
+                          </div>
+                          {selectedFilters[section] &&
+                            selectedFilters[section] !== item.slug && (
+                              <div className="absolute inset-0 bg-white/40 rounded-md"></div>
+                            )}
                         </div>
-                        {selectedFilters[section] && selectedFilters[section] !== item.slug && (
-                          <div className="absolute inset-0 bg-white/40 rounded-md"></div>
-                        )}
-                      </div>
                       </div>
                     ))}
                   </div>
@@ -211,19 +213,21 @@ export default function FragranceSelector({
               ))}
             </div>
 
-            {/* Fixed bottom section with reset button and product count */}
-            <div className="border-t border-gray-100 p-4 bg-white">
-              <p className="text-sm text-gray-600 mb-2">
-                {isLoading ? (
-                  "Loading..."
-                ) : Object.values(selectedFilters).filter((filter) => filter !== null).length === 0 ? (
-                  "No filters applied"
-                ) : (
-                  `Showing ${filteredProductCount} results`
-                )}
-              </p>
+            {/* Bottom Actions */}
+            <div className="border-t border-gray-100 p-6 space-y-3">
               <button
-                className="w-full py-3 px-4 text-[#600000] border border-[#600000] rounded-md hover:bg-[#600000] hover:text-white transition-colors duration-200"
+                onClick={() => setDrawerOpen(false)}
+                className="w-full py-3 px-4 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+              >
+                {isLoading
+                  ? "LOADING..."
+                  : Object.values(selectedFilters).filter(
+                      (filter) => filter !== null
+                    ).length === 0
+                  ? "NO FILTERS APPLIED"
+                  : `SHOWING ${filteredProductCount} PRODUCT RESULTS`}
+              </button>
+              <button
                 onClick={() => {
                   const cleared = {
                     "Scent Type": null,
@@ -234,6 +238,7 @@ export default function FragranceSelector({
                   setSelectedFilters(cleared);
                   updateSearchParams(cleared);
                 }}
+                className="w-full py-3 px-4 text-gray-600 font-medium hover:text-gray-800 transition-colors"
               >
                 Clear Filters
               </button>

@@ -394,10 +394,10 @@ export default function ProductDetailsPage() {
                 <div className="text-center text-[#a0001e] text-xl font-serif mb-10">
                   Top
                 </div>
-                <div className="flex flex-wrap justify-center gap-x-8 gap-y-8">
+                <div className="flex flex-wrap justify-center gap-x-10 gap-y-10">
                   {product.topNotes.map((note) => (
                     <div key={note.id} className="flex flex-col items-center text-center w-24">
-                      <div className="relative w-16 h-16 mb-2">
+                      <div className="relative w-20 h-20 mb-2">
                         <Image
                           src={note?.iconUrl || FALLBACK_NOTE_IMAGE}
                           alt={note.name}
@@ -420,10 +420,10 @@ export default function ProductDetailsPage() {
                 <div className="text-center text-[#a0001e] text-xl font-serif mb-10">
                   Middle
                 </div>
-                <div className="flex flex-wrap justify-center gap-x-8 gap-y-8">
+                <div className="flex flex-wrap justify-center gap-x-10 gap-y-10">
                   {product.middleNotes.map((note) => (
                     <div key={note.id} className="flex flex-col items-center text-center w-24">
-                      <div className="relative w-16 h-16 mb-2">
+                      <div className="relative w-20 h-20 mb-2">
                         <Image
                           src={note?.iconUrl || FALLBACK_NOTE_IMAGE}
                           alt={note.name}
@@ -446,10 +446,10 @@ export default function ProductDetailsPage() {
                 <div className="text-center text-[#a0001e] text-xl font-serif mb-10">
                   Base
                 </div>
-                <div className="flex flex-wrap justify-center gap-x-8 gap-y-8">
+                <div className="flex flex-wrap justify-center gap-x-10 gap-y-10">
                   {product.baseNotes.map((note) => (
                     <div key={note.id} className="flex flex-col items-center text-center w-24">
-                      <div className="relative w-16 h-16 mb-2">
+                      <div className="relative w-20 h-20 mb-2">
                         <Image
                           src={note?.iconUrl || FALLBACK_NOTE_IMAGE}
                           alt={note.name}

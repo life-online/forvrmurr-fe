@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 import productService, {
   Product,
@@ -10,6 +11,7 @@ import productService, {
 import { useToast } from "@/context/ToastContext";
 import ProductCard from "@/components/ui/ProductCard";
 import FragranceSelector from "@/components/shop/FragranceFilter";
+import FilterSortBar from "@/components/shop/FilterSortBar";
 
 type FilterTabValue = "all" | ProductType;
 
@@ -50,6 +52,30 @@ export default function ShopContent() {
     "Fragrance Family": fragranceFamilySlugs || null,
     Mood: moodSlugs || null,
   });
+
+  // Filter and Sort state
+  const [currentSort, setCurrentSort] = useState('default');
+  const [shopFilters, setShopFilters] = useState({
+    minPrice: '',
+    maxPrice: '',
+    bestSeller: false,
+    concentrations: [],
+    brands: [],
+    notes: [],
+    onSale: false,
+  });
+
+  const handleSortChange = (sort: string) => {
+    setCurrentSort(sort);
+    // TODO: Implement actual sorting logic
+    console.log('Sort changed to:', sort);
+  };
+
+  const handleFiltersChange = (newFilters: any) => {
+    setShopFilters(newFilters);
+    // TODO: Implement actual filtering logic
+    console.log('Filters changed:', newFilters);
+  };
 
   const initialFilters: ProductFilterParams = {
     page: pageFromUrl,
@@ -192,12 +218,12 @@ export default function ShopContent() {
       {/* Tabs */}
       <div
         data-cur="cursor"
-        className="max-w-7xl mx-auto w-full px-4 flex gap-2 mb-6"
+        className="max-w-7xl mx-auto w-full px-4 flex gap-2 mb-4"
       >
         {filterTabs.map((tab) => (
           <button
             key={tab.value}
-            className={`px-4 py-1 rounded-full border text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
               activeTab === tab.value
                 ? "bg-[#faf0e2] border-[#e6c789] text-[#600000]"
                 : "bg-white border-gray-300 text-gray-700 hover:bg-gray-100"
@@ -217,6 +243,15 @@ export default function ShopContent() {
         filteredProductCount={totalProducts}
         isLoading={loading}
       />
+      
+      {/* Filter and Sort Bar */}
+      <FilterSortBar
+        totalProducts={totalProducts}
+        currentSort={currentSort}
+        onSortChange={handleSortChange}
+        filters={shopFilters}
+        onFiltersChange={handleFiltersChange}
+      />
       {/* Loading State */}
       {loading && (
         <div className="text-center py-10 min-h-[70vh]">
@@ -227,7 +262,7 @@ export default function ShopContent() {
 
       {/* Product Grid */}
       {!loading && products?.length > 0 && (
-        <div className="max-w-7xl mx-auto w-full px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+        <div className="max-w-7xl mx-auto w-full px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4 mb-12">
           {products?.map((product, index) => (
             <ProductCard
               key={product.id}
@@ -247,23 +282,96 @@ export default function ShopContent() {
 
       {/* Pagination */}
       {!loading && totalPages > 1 && (
-        <div className="max-w-7xl mx-auto w-full px-4 flex justify-center items-center gap-2 mb-12">
+        <div className="max-w-7xl mx-auto w-full px-4 flex justify-center items-center gap-6 mb-32 mt-8">
+          {/* Previous Button */}
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-3 py-1 border rounded-md disabled:opacity-50"
+            className={`transition-all duration-200 flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full text-sm font-medium ${
+              currentPage === 1
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+            }`}
           >
-            Previous
+            <FiChevronLeft size={18} />
+            <span className="hidden sm:inline">Previous</span>
           </button>
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
+
+          {/* Page Numbers */}
+          <div className="flex items-center gap-2">
+            {/* Show first page if not in range */}
+            {currentPage > 3 && (
+              <>
+                <button
+                  onClick={() => handlePageChange(1)}
+                  className="w-10 h-10 flex items-center justify-center rounded-full text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  1
+                </button>
+                {currentPage > 4 && (
+                  <span className="text-gray-400 px-2">...</span>
+                )}
+              </>
+            )}
+
+            {/* Show page numbers around current page */}
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = currentPage - 2 + i;
+              }
+
+              if (pageNum < 1 || pageNum > totalPages) return null;
+
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => handlePageChange(pageNum)}
+                  className={`w-10 h-10 flex items-center justify-center rounded-full font-medium transition-all duration-200 ${
+                    currentPage === pageNum
+                      ? 'bg-[#a0001e] text-white shadow-lg'
+                      : 'text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+
+            {/* Show last page if not in range */}
+            {currentPage < totalPages - 2 && (
+              <>
+                {currentPage < totalPages - 3 && (
+                  <span className="text-gray-400 px-2">...</span>
+                )}
+                <button
+                  onClick={() => handlePageChange(totalPages)}
+                  className="w-10 h-10 flex items-center justify-center rounded-full text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  {totalPages}
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Next Button */}
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-3 py-1 border rounded-md disabled:opacity-50"
+            className={`transition-all duration-200 flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full text-sm font-medium ${
+              currentPage === totalPages
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+            }`}
           >
-            Next
+            <span className="hidden sm:inline">Next</span>
+            <FiChevronRight size={18} />
           </button>
         </div>
       )}
