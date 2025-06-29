@@ -34,7 +34,7 @@ export default function ShopPage() {
     <div className="min-h-screen bg-white text-black flex flex-col">
       <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
       <Navbar />
-      <div className="max-w-7xl mx-auto w-full px-4 pt-8 mb-24">
+      <div className="max-w-7xl mx-auto w-full px-4 pt-8 md:mb-24 mb-16">
       <Suspense fallback={<LoadingShop />}>
         <ShopContent />
       </Suspense>

@@ -231,15 +231,15 @@ export default function FilterSortBar({
 
   return (
     <>
-      <div className="max-w-7xl mx-auto w-full px-4 flex flex-col bg-white pb-6">
+      <div className="max-w-7xl mx-auto w-full px-2 sm:px-4 flex flex-col bg-white pb-4 sm:pb-6">
         {/* Top row - Product count and action buttons */}
-        <div className="flex items-center justify-between pb-4">
+        <div className="flex items-center justify-between pb-3">
           {/* Left side - Product count */}
-          <div className="text-sm md:text-base">
+          <div className="text-sm md:text-base whitespace-nowrap pr-2">
             {isLoading ? (
-              <span className="text-gray-500 flex items-center gap-2">
-                <span className="h-4 w-4 rounded-full border-2 border-t-transparent border-gray-300 animate-spin"></span>
-                <span>Loading products...</span>
+              <span className="text-gray-500 flex items-center gap-1 sm:gap-2">
+                <span className="h-3 w-3 sm:h-4 sm:w-4 rounded-full border-2 border-t-transparent border-gray-300 animate-spin"></span>
+                <span className="truncate">Loading products...</span>
               </span>
             ) : (
               <span>
@@ -249,16 +249,16 @@ export default function FilterSortBar({
           </div>
 
           {/* Right side - Filter and Sort buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
           {/* Filter Button */}
           <button
             onClick={() => setFilterDrawerOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full text-sm font-medium hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 border border-gray-300 rounded-full text-xs sm:text-sm font-medium hover:bg-gray-50 transition-colors min-w-[70px] justify-center"
           >
-            <FiFilter size={16} />
-            <span>Filter</span>
+            <FiFilter size={14} className="flex-shrink-0" />
+            <span className="hidden xs:inline">Filter</span>
             {getActiveFiltersCount() > 0 && (
-              <span className="bg-[#a0001e] text-white text-xs rounded-full px-2 py-0.5 ml-1">
+              <span className="bg-[#a0001e] text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 inline-flex items-center justify-center">
                 {getActiveFiltersCount()}
               </span>
             )}
@@ -267,34 +267,42 @@ export default function FilterSortBar({
           {/* Sort Button */}
           <button
             onClick={() => setSortDrawerOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full text-sm font-medium hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 border border-gray-300 rounded-full text-xs sm:text-sm font-medium hover:bg-gray-50 transition-colors truncate max-w-[130px] sm:max-w-none"
           >
-            <span>Sort by</span>
-            <span className="text-gray-500">|</span>
-            <span className="text-[#a0001e]">{getSortLabel(currentSortBy, currentSortOrder)}</span>
-            <FiChevronDown size={16} />
+            <span className="hidden xs:inline">Sort</span>
+            <span className="text-gray-500 hidden sm:inline">|</span>
+            <span className="text-[#a0001e] truncate">{getSortLabel(currentSortBy, currentSortOrder)}</span>
+            <FiChevronDown size={14} className="flex-shrink-0" />
           </button>
         </div>
         </div>
         
-        {/* Filter chips row */}
+        {/* Filter chips row - scrollable on mobile */}
         {filterChips.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 mt-2">
+          <div 
+            className="flex overflow-x-auto pb-2 -mx-2 px-2 sm:flex-wrap sm:mx-0 sm:px-0 items-center gap-2 mt-1"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            <style jsx>{`
+              div::-webkit-scrollbar {
+                display: none;
+              }
+            `}</style>
             {filterChips.map((chip) => (
               <button
                 key={chip.key}
                 onClick={() => handleRemoveFilter(chip)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-sm font-medium text-gray-800 transition-colors group"
+                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-xs sm:text-sm font-medium text-gray-800 transition-colors group whitespace-nowrap flex-shrink-0"
               >
-                {chip.label}
-                <FiX size={14} className="text-gray-400 group-hover:text-[#a0001e]" />
+                <span className="truncate max-w-[100px] sm:max-w-[150px]">{chip.label}</span>
+                <FiX size={12} className="text-gray-400 group-hover:text-[#a0001e] flex-shrink-0" />
               </button>
             ))}
             
             {filterChips.length > 1 && (
               <button
                 onClick={clearAllFilters}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[#a0001e] hover:text-[#7a0016] transition-colors ml-2"
+                className="flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:py-1.5 text-xs sm:text-sm font-medium text-[#a0001e] hover:text-[#7a0016] transition-colors whitespace-nowrap flex-shrink-0"
               >
                 Clear all
               </button>

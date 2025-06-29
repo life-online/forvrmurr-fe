@@ -401,51 +401,63 @@ export default function ShopContent() {
   return (
     <>
       {/* Breadcrumb and Title */}
-      <div className="max-w-7xl mx-auto w-full px-4 pt-8">
-        <h1 className=" sm:text-xl md:text-2xl font-serif font-medium mb-4 text-black">
+      <div className="max-w-7xl mx-auto w-full px-4 pt-6 md:pt-8">
+        <h1 className="text-xl md:text-2xl font-serif font-medium mb-3 md:mb-4 text-black">
           MEET YOUR NEXT OBSESSION
         </h1>
       </div>
 
-      {/* Tabs */}
-      <div
-        data-cur="cursor"
-        className="max-w-7xl mx-auto w-full px-4 flex gap-2 mb-4"
-      >
-        {filterTabs.map((tab) => (
-          <button
-            key={tab.value}
-            className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-              activeTab === tab.value
-                ? "bg-[#faf0e2] border-[#e6c789] text-[#600000]"
-                : "bg-white border-gray-300 text-gray-700 hover:bg-gray-100"
-            }`}
-            onClick={() => handleTabChange(tab.value)}
-          >
-            {tab.label}
-          </button>
-        ))}
+      {/* Tabs - Scrollable on mobile */}
+      <div className="max-w-7xl mx-auto w-full px-4 mb-3 md:mb-4">
+        <div 
+          data-cur="cursor"
+          className="flex overflow-x-auto pb-1 scrollbar-hide gap-2 -mx-1 px-1"
+        >
+          {filterTabs.map((tab) => (
+            <button
+              key={tab.value}
+              className={`px-3 md:px-4 py-2 rounded-full border text-xs md:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+                activeTab === tab.value
+                  ? "bg-[#faf0e2] border-[#e6c789] text-[#600000]"
+                  : "bg-white border-gray-300 text-gray-700 hover:bg-gray-100"
+              }`}
+              onClick={() => handleTabChange(tab.value)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
-      <FragranceSelector
-        drawerOpen={drawerOpen}
-        setDrawerOpen={setDrawerOpen}
-        selectedFilters={selectedFilters}
-        setSelectedFilters={setSelectedFilters}
-        updateSearchParams={updateSearchParams}
-        filteredProductCount={totalProducts}
-        isLoading={loading}
-      />
-      
-      {/* Filter and Sort Bar */}
-      <FilterSortBar
-        totalProducts={totalProducts}
-        currentSortBy={currentSortBy}
-        currentSortOrder={currentSortOrder}
-        onSortChange={handleSortChange}
-        filters={shopFilters}
-        onFiltersChange={handleFiltersChange}
-        isLoading={loading}
-      />
+      {/* Mobile-optimized filters and sorting layout */}
+      <div className="max-w-7xl mx-auto w-full px-4">
+        <div className="flex flex-col gap-y-2 sm:gap-y-0 sm:gap-x-4 mb-3 md:mb-4">
+          {/* Fragrance Selector */}
+          <div className="w-full sm:w-auto">
+            <FragranceSelector
+              drawerOpen={drawerOpen}
+              setDrawerOpen={setDrawerOpen}
+              selectedFilters={selectedFilters}
+              setSelectedFilters={setSelectedFilters}
+              updateSearchParams={updateSearchParams}
+              filteredProductCount={totalProducts}
+              isLoading={loading}
+            />
+          </div>
+          
+          {/* Filter and Sort Bar */}
+          <div className="w-full">
+            <FilterSortBar
+              totalProducts={totalProducts}
+              currentSortBy={currentSortBy}
+              currentSortOrder={currentSortOrder}
+              onSortChange={handleSortChange}
+              filters={shopFilters}
+              onFiltersChange={handleFiltersChange}
+              isLoading={loading}
+            />
+          </div>
+        </div>
+      </div>
       {/* Loading State */}
       {loading && (
         <div className="text-center py-10 min-h-[70vh]">
@@ -495,23 +507,23 @@ export default function ShopContent() {
 
       {/* Pagination */}
       {!loading && totalPages > 1 && (
-        <div className="max-w-7xl mx-auto w-full px-4 flex justify-center items-center gap-6 mb-12 mt-12 pt-4">
+        <div className="max-w-7xl mx-auto w-full px-2 sm:px-4 flex justify-center items-center gap-2 sm:gap-4 md:gap-6 mb-8 sm:mb-12 mt-4 sm:mt-12 pt-2 overflow-x-auto">
           {/* Previous Button */}
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`transition-all duration-200 flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full text-sm font-medium ${
+            className={`transition-all duration-200 flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 border border-gray-300 rounded-full text-xs sm:text-sm font-medium flex-shrink-0 ${
               currentPage === 1
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300'
             }`}
           >
-            <FiChevronLeft size={18} />
+            <FiChevronLeft size={16} className="sm:text-lg" />
             <span className="hidden sm:inline">Previous</span>
           </button>
 
           {/* Page Numbers */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-center">
             {/* Different rendering logic based on total number of pages */}
             {totalPages <= 5 ? (
               // Simple case: 5 or fewer total pages - just show all page numbers
@@ -519,7 +531,7 @@ export default function ShopContent() {
                 <button
                   key={i + 1}
                   onClick={() => handlePageChange(i + 1)}
-                  className={`w-10 h-10 flex items-center justify-center rounded-full font-medium transition-all duration-200 ${
+                  className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full text-xs sm:text-sm font-medium transition-all duration-200 flex-shrink-0 ${
                     currentPage === i + 1
                       ? 'bg-[#a0001e] text-white shadow-lg'
                       : 'text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300'
@@ -536,12 +548,12 @@ export default function ShopContent() {
                   <>
                     <button
                       onClick={() => handlePageChange(1)}
-                      className="w-10 h-10 flex items-center justify-center rounded-full text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300 transition-colors"
+                      className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full text-xs sm:text-sm text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300 transition-colors flex-shrink-0"
                     >
                       1
                     </button>
                     {currentPage > 4 && (
-                      <span className="text-gray-400 px-2">...</span>
+                      <span className="text-gray-400 px-1 sm:px-2 text-xs sm:text-sm flex-shrink-0">...</span>
                     )}
                   </>
                 )}
@@ -563,7 +575,7 @@ export default function ShopContent() {
                     <button
                       key={pageNum}
                       onClick={() => handlePageChange(pageNum)}
-                      className={`w-10 h-10 flex items-center justify-center rounded-full font-medium transition-all duration-200 ${
+                      className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full text-xs sm:text-sm font-medium transition-all duration-200 flex-shrink-0 ${
                         currentPage === pageNum
                           ? 'bg-[#a0001e] text-white shadow-lg'
                           : 'text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300'
@@ -578,11 +590,11 @@ export default function ShopContent() {
                 {currentPage < totalPages - 2 && (
                   <>
                     {currentPage < totalPages - 3 && (
-                      <span className="text-gray-400 px-2">...</span>
+                      <span className="text-gray-400 px-1 sm:px-2 text-xs sm:text-sm flex-shrink-0">...</span>
                     )}
                     <button
                       onClick={() => handlePageChange(totalPages)}
-                      className="w-10 h-10 flex items-center justify-center rounded-full text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300 transition-colors"
+                      className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full text-xs sm:text-sm text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300 transition-colors flex-shrink-0"
                     >
                       {totalPages}
                     </button>
@@ -596,14 +608,14 @@ export default function ShopContent() {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`transition-all duration-200 flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full text-sm font-medium ${
+            className={`transition-all duration-200 flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 border border-gray-300 rounded-full text-xs sm:text-sm font-medium flex-shrink-0 ${
               currentPage === totalPages
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300'
             }`}
           >
             <span className="hidden sm:inline">Next</span>
-            <FiChevronRight size={18} />
+            <FiChevronRight size={16} className="sm:text-lg" />
           </button>
         </div>
       )}

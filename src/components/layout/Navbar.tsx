@@ -139,46 +139,47 @@ const Navbar: React.FC = () => {
       {/* Main Navigation */}
       <nav className="w-full bg-black text-white pt-4 pb-6 px-4 md:px-6 relative">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between">
-          {/* Currency Selector - Hidden on mobile, visible on desktop */}
-          <div
-            className="relative hidden md:flex items-center"
-            ref={currencyDropdownRef}
-          >
-            <button
-              className="flex items-center cursor-pointer hover:opacity-80 focus:outline-none"
-              onClick={() => setShowCurrencyDropdown((prev) => !prev)}
-              aria-haspopup="listbox"
-              aria-expanded={showCurrencyDropdown}
-              type="button"
+          <div className="flex items-center grow">
+            {/* Currency Selector - Hidden on mobile, visible on desktop */}
+            <div
+              className="relative hidden md:flex items-center"
+              ref={currencyDropdownRef}
             >
-              <span className="text-xl mr-1">
-                {selectedCurrency === "NGN" ? "🇳🇬" : "🇬🇧"}
-              </span>
-              <span className="text-base mr-1">
-                {selectedCurrency === "NGN" ? "₦" : "£"}
-              </span>
-              <span className="text-base">▼</span>
-            </button>
-            {showCurrencyDropdown && (
-              <ul
-                className="absolute left-0 mt-2 w-32 bg-white border border-gray-200 rounded shadow-lg z-50 text-black"
-                role="listbox"
+              <button
+                className="flex items-center cursor-pointer hover:opacity-80 focus:outline-none"
+                onClick={() => setShowCurrencyDropdown((prev) => !prev)}
+                aria-haspopup="listbox"
+                aria-expanded={showCurrencyDropdown}
+                type="button"
               >
-                <li
-                  className={`flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100 ${
-                    selectedCurrency === "NGN" ? "font-bold" : ""
-                  }`}
-                  onClick={() => {
-                    setSelectedCurrency("NGN");
-                    setShowCurrencyDropdown(false);
-                  }}
-                  role="option"
-                  aria-selected={selectedCurrency === "NGN"}
+                <span className="text-xl mr-1">
+                  {selectedCurrency === "NGN" ? "🇳🇬" : "🇬🇧"}
+                </span>
+                <span className="text-base mr-1">
+                  {selectedCurrency === "NGN" ? "₦" : "£"}
+                </span>
+                <span className="text-base">▼</span>
+              </button>
+              {showCurrencyDropdown && (
+                <ul
+                  className="absolute left-0 mt-2 w-32 bg-white border border-gray-200 rounded shadow-lg z-50 text-black"
+                  role="listbox"
                 >
-                  <span className="text-lg mr-2">🇳🇬</span> ₦
-                </li>
-                {/* Add GBP option if needed */}
-                {/* <li
+                  <li
+                    className={`flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100 ${
+                      selectedCurrency === "NGN" ? "font-bold" : ""
+                    }`}
+                    onClick={() => {
+                      setSelectedCurrency("NGN");
+                      setShowCurrencyDropdown(false);
+                    }}
+                    role="option"
+                    aria-selected={selectedCurrency === "NGN"}
+                  >
+                    <span className="text-lg mr-2">🇳🇬</span> ₦
+                  </li>
+                  {/* Add GBP option if needed */}
+                  {/* <li
                   className={`flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100 ${
                     selectedCurrency === "GBP" ? "font-bold" : ""
                   }`}
@@ -191,135 +192,138 @@ const Navbar: React.FC = () => {
                 >
                   <span className="text-lg mr-2">🇬🇧</span> GB | £
                 </li> */}
-              </ul>
-            )}
-          </div>
+                </ul>
+              )}
+            </div>
 
-          {/* Mobile hamburger menu button */}
-          <button
-            className="md:hidden flex items-center p-1 text-white focus:outline-none"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle mobile menu"
-          >
-            {isMobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-          </button>
+            {/* Mobile hamburger menu button */}
+            <button
+              className="md:hidden flex items-center p-1 text-white focus:outline-none"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle mobile menu"
+            >
+              {isMobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+            </button>
 
-          {/* Logo - Centered on desktop, left-aligned on mobile */}
-          <div className="mx-auto md:mx-0 md:flex md:flex-col md:items-center order-2 md:order-none">
-            {/* Logo */}
-            <Link href="/" className="mb-4">
-              <Image
-                src="/images/logo/logo_white.png"
-                alt="Forvr Murr"
-                width={180}
-                height={60}
-                className="h-auto w-auto"
-              />
-            </Link>
+            {/* Logo - Centered on desktop, left-aligned on mobile */}
+            <div className="grow ml-4 mx-auto md:mx-0 md:flex md:flex-col md:items-center order-2 md:order-none">
+              {/* Logo */}
+              <Link href="/" className="mb-4">
+                <Image
+                  src="/images/logo/logo_white.png"
+                  alt="Forvr Murr"
+                  width={180}
+                  height={60}
+                  className="h-auto w-[120px] sm:w-[180px]"
+                />
+              </Link>
 
-            {/* Desktop Navigation Links - Hidden on mobile */}
-            <div className="hidden md:flex gap-8">
-              {navItems.map((item) => {
-                const isActive =
-                  pathname === item.path ||
-                  (item.path !== "/" && pathname?.startsWith(item.path));
+              {/* Desktop Navigation Links - Hidden on mobile */}
+              <div className="hidden md:flex gap-8">
+                {navItems.map((item) => {
+                  const isActive =
+                    pathname === item.path ||
+                    (item.path !== "/" && pathname?.startsWith(item.path));
 
-                // Special handling for DISCOVER dropdown
-                if (item.name === "DISCOVER") {
+                  // Special handling for DISCOVER dropdown
+                  if (item.name === "DISCOVER") {
+                    return (
+                      <div
+                        key={item.path}
+                        className="relative"
+                        ref={discoverDropdownRef}
+                      >
+                        <button
+                          onClick={() =>
+                            setShowDiscoverDropdown(!showDiscoverDropdown)
+                          }
+                          className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${
+                            isActive
+                              ? "bg-[#f7ede1] text-black font-medium"
+                              : "hover:opacity-70"
+                          }`}
+                          aria-expanded={showDiscoverDropdown}
+                          aria-haspopup="menu"
+                        >
+                          {item.name}
+                        </button>
+
+                        {/* Discover Dropdown */}
+                        {showDiscoverDropdown && (
+                          <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg z-50 text-black">
+                            {discoverSubroutes.map((subroute) => (
+                              <Link
+                                key={subroute.path}
+                                href={subroute.path}
+                                className="block px-4 py-2 hover:bg-gray-100 text-sm"
+                                onClick={() => setShowDiscoverDropdown(false)}
+                              >
+                                {subroute.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  // Special handling for ABOUT dropdown
+                  if (item.name === "ABOUT") {
+                    return (
+                      <div
+                        key={item.path}
+                        className="relative"
+                        ref={aboutDropdownRef} // Use the dedicated ref for About
+                      >
+                        <button
+                          onClick={() =>
+                            setShowAboutDropdown(!showAboutDropdown)
+                          }
+                          className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${
+                            isActive
+                              ? "bg-[#f7ede1] text-black font-medium"
+                              : "hover:opacity-70"
+                          }`}
+                          aria-expanded={showAboutDropdown}
+                          aria-haspopup="menu"
+                        >
+                          {item.name}
+                        </button>
+
+                        {/* About Dropdown */}
+                        {showAboutDropdown && (
+                          <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg z-50 text-black">
+                            {aboutSubroutes.map((subroute) => (
+                              <Link
+                                key={subroute.path}
+                                href={subroute.path}
+                                className="block px-4 py-2 hover:bg-gray-100 text-sm"
+                                onClick={() => setShowAboutDropdown(false)} // Close dropdown on click
+                              >
+                                {subroute.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
                   return (
-                    <div
-                      key={item.path}
-                      className="relative"
-                      ref={discoverDropdownRef}
-                    >
-                      <button
-                        onClick={() =>
-                          setShowDiscoverDropdown(!showDiscoverDropdown)
-                        }
+                    <Link key={item.path} href={item.path}>
+                      <span
                         className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${
                           isActive
                             ? "bg-[#f7ede1] text-black font-medium"
                             : "hover:opacity-70"
                         }`}
-                        aria-expanded={showDiscoverDropdown}
-                        aria-haspopup="menu"
                       >
                         {item.name}
-                      </button>
-
-                      {/* Discover Dropdown */}
-                      {showDiscoverDropdown && (
-                        <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg z-50 text-black">
-                          {discoverSubroutes.map((subroute) => (
-                            <Link
-                              key={subroute.path}
-                              href={subroute.path}
-                              className="block px-4 py-2 hover:bg-gray-100 text-sm"
-                              onClick={() => setShowDiscoverDropdown(false)}
-                            >
-                              {subroute.name}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                      </span>
+                    </Link>
                   );
-                }
-
-                // Special handling for ABOUT dropdown
-                if (item.name === "ABOUT") {
-                  return (
-                    <div
-                      key={item.path}
-                      className="relative"
-                      ref={aboutDropdownRef} // Use the dedicated ref for About
-                    >
-                      <button
-                        onClick={() => setShowAboutDropdown(!showAboutDropdown)}
-                        className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${
-                          isActive
-                            ? "bg-[#f7ede1] text-black font-medium"
-                            : "hover:opacity-70"
-                        }`}
-                        aria-expanded={showAboutDropdown}
-                        aria-haspopup="menu"
-                      >
-                        {item.name}
-                      </button>
-
-                      {/* About Dropdown */}
-                      {showAboutDropdown && (
-                        <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg z-50 text-black">
-                          {aboutSubroutes.map((subroute) => (
-                            <Link
-                              key={subroute.path}
-                              href={subroute.path}
-                              className="block px-4 py-2 hover:bg-gray-100 text-sm"
-                              onClick={() => setShowAboutDropdown(false)} // Close dropdown on click
-                            >
-                              {subroute.name}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-
-                return (
-                  <Link key={item.path} href={item.path}>
-                    <span
-                      className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${
-                        isActive
-                          ? "bg-[#f7ede1] text-black font-medium"
-                          : "hover:opacity-70"
-                      }`}
-                    >
-                      {item.name}
-                    </span>
-                  </Link>
-                );
-              })}
+                })}
+              </div>
             </div>
           </div>
 

@@ -788,7 +788,7 @@ const CheckoutPage = () => {
         <div className="container max-w-7xl mx-auto px-4 mb-14">
           <h1 className="text-3xl font-serif mb-8 text-center">Checkout</h1>
           
-          <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex flex-col-reverse lg:flex-row gap-8">
             {/* Left side: Checkout form */}
             <div className="lg:w-2/3">
               <div className="bg-white p-6 rounded-xl shadow-md">

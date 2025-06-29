@@ -20,7 +20,7 @@ interface FragranceFilterProps {
 const categories = [
   { label: "Scent Type", imageUrl: "/images/scent_notes/face.png" },
   { label: "Occasion", imageUrl: "/images/scent_notes/daytime.jpg" },
-  { label: "Fragrance Family", imageUrl: "/images/scent_notes/woody.jpg" },
+  { label: "Family", imageUrl: "/images/scent_notes/woody.jpg" },
   { label: "Mood", imageUrl: "/images/scent_notes/main_character.jpg" },
 ];
 
@@ -104,27 +104,35 @@ export default function FragranceSelector({
   }, [drawerOpen, selectedCategory]);
 
   return (
-    <div className="max-w-7xl mx-auto w-full px-4 sm:p-6 mb-2">
-      <div className="flex justify-between items-start gap-6">
+    <div className="max-w-7xl mx-auto w-full px-2 sm:px-4 sm:p-6 mb-2">
+      <div 
+        className="flex overflow-x-auto pb-2 -mx-2 md:px-2 items-start gap-3 sm:gap-6 sm:justify-between"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        <style jsx>{`
+          div::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
         {categories.map((cat, idx) => (
           <div
             key={idx}
-            className="text-center cursor-pointer flex-1"
+            className="text-center cursor-pointer min-w-[90px] sm:min-w-0 sm:flex-1 flex-shrink-0"
             onClick={() => {
               setDrawerOpen(true);
               setSelectedCategory(cat.label);
             }}
           >
-            <div className="w-full h-32 sm:h-26 rounded-md flex items-center justify-center">
+            <div className="w-[90px] sm:w-full h-[120px] sm:h-26 rounded-md flex items-center justify-center overflow-hidden">
               <Image
                 src={cat.imageUrl}
-                alt="pic"
-                width={600}
-                height={300}
-                className="object-cover rounded-md h-full w-full"
+                alt={cat.label}
+                width={300}
+                height={200}
+                className="object-cover rounded-md h-full w-full transition-transform hover:scale-105 duration-300"
               />
             </div>
-            <p className="text-xs sm:text-sm text-gray-600 mt-1">{cat.label}</p>
+            <p className="text-sm text-gray-700 mt-1 font-medium">{cat.label}</p>
           </div>
         ))}
       </div>
@@ -145,19 +153,23 @@ export default function FragranceSelector({
             }}
           >
             {/* Header - Scrollable */}
-            <div className="flex justify-between items-center p-6 border-b border-gray-100 overflow-x-auto">
-              <Drawer.Title className="text-xl font-medium text-black">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b border-gray-100">
+              <Drawer.Title className="text-lg sm:text-xl font-medium text-black">
                 Personalize
               </Drawer.Title>
-              <IoMdClose
-                size={24}
+              <button
                 onClick={() => setDrawerOpen(false)}
-                className="cursor-pointer text-gray-500 hover:text-gray-700"
-              />
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+              >
+                <IoMdClose
+                  size={20}
+                  className="text-gray-500 hover:text-gray-700"
+                />
+              </button>
             </div>
 
             {/* Scrollable content */}
-            <div className="flex-1 overflow-y-auto p-6 overscroll-y-contain">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 overscroll-y-contain">
               {Object.entries({
                 "Scent Type": scentTypes,
                 "Fragrance Family": fragranceFamilies,
@@ -169,7 +181,7 @@ export default function FragranceSelector({
                   <div className="flex flex-wrap gap-2">
                     {items.map((item) => (
                       <div
-                        className={`p-[0.1em] rounded-lg border-3 ${
+                        className={`p-[0.1em] rounded-lg border-2 ${
                           selectedFilters[section] === item.slug
                             ? "border-[#8B0000]"
                             : "border-transparent"
@@ -185,7 +197,7 @@ export default function FragranceSelector({
                           onClick={() =>
                             handleSubcategoryClick(section, item.slug)
                           }
-                          className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-md overflow-hidden cursor-pointer transition-all duration-200`}
+                          className={`relative w-[65px] h-[65px] sm:w-24 sm:h-24 rounded-md overflow-hidden cursor-pointer transition-all duration-200`}
                         >
                           <Image
                             src={item.iconUrl || "/images/shop/occassion.jpg"}
@@ -194,7 +206,7 @@ export default function FragranceSelector({
                             height={1000}
                             className="object-cover h-full rounded-md"
                           />
-                          <div className="absolute bottom-0 left-0 right-0 text-xs text-white bg-black/50 text-center py-1">
+                          <div className="absolute bottom-0 left-0 right-0 text-[10px] sm:text-xs text-white bg-black/60 text-center py-0.5 sm:py-1 line-clamp-1">
                             {item.slug
                               .replace(/_/g, " ")
                               .replace(/\b\w/g, (char: any) =>
@@ -214,7 +226,7 @@ export default function FragranceSelector({
             </div>
 
             {/* Bottom Actions */}
-            <div className="border-t border-gray-100 p-6 space-y-3">
+            <div className="border-t border-gray-100 p-4 sm:p-6 space-y-3 safe-area-pb">
               <button
                 onClick={() => setDrawerOpen(false)}
                 className="w-full py-3 px-4 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
@@ -225,7 +237,7 @@ export default function FragranceSelector({
                       (filter) => filter !== null
                     ).length === 0
                   ? "NO FILTERS APPLIED"
-                  : `SHOWING ${filteredProductCount} PRODUCT RESULTS`}
+                  : `${filteredProductCount} ${filteredProductCount === 1 ? 'PRODUCT' : 'PRODUCTS'} FOUND`}
               </button>
               <button
                 onClick={() => {

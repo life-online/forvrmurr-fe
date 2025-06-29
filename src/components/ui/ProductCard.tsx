@@ -1,12 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/services/product";
 import ProductBadge from "./ProductBadge";
 import HoverAddToCartButton from "./HoverAddToCartButton";
 import { findNotesImageLocally } from "@/utils/helpers";
+import { useCart } from "@/context/CartContext";
 const FALLBACK_NOTE_IMAGE = "/images/scent_notes/default.png";
 
 interface ProductCardProps {
@@ -18,6 +19,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
   product,
   priorityLoading = false,
 }) => {
+  const { addToCart } = useCart();
+  const [isMobile, setIsMobile] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  
+  // Detect mobile view on client side
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768); // 768px is typically where md: breakpoint starts
+    };
+    
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+    
+    return () => window.removeEventListener('resize', checkIfMobile);
+  }, []);
   // Smart algorithm to select notes for display
   const getDisplayNotes = (product: Product, maxNotes: number = 6) => {
     const allNotes: Array<{ note: any; type: "top" | "middle" | "base" }> = [];
@@ -109,7 +125,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <Link href={`/shop/${product?.slug}`} className="block w-full group">
-      <div className="bg-[#f8f5f2] relative rounded-lg overflow-hidden p-4 transition-all duration-300 group-hover:shadow-xl pt-10 h-full">
+      <div className="bg-[#f8f5f2] relative rounded-lg overflow-hidden p-4 transition-all duration-300 group-hover:shadow-xl pt-10 h-full flex flex-col">
         {/* Product badges/tags */}
         <div className="absolute top-3 left-3">
           {product.type === "premium" ? (
@@ -135,7 +151,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </div>
 
         {/* Product info (visible when not hovering) */}
-        <div className="text-center">
+        <div className="text-center flex-grow">
           <h3 className="text-xl font-serif mb-1">{product.brand?.name}</h3>
           <p className="text-sm text-gray-700 mb-2 line-clamp-2 h-10">
             {product.name}
@@ -146,10 +162,39 @@ const ProductCard: React.FC<ProductCardProps> = ({
               ₦{parseInt(product.nairaPrice).toLocaleString()}
             </span>
           </p>
+          
+          {/* Mobile-only Add to Cart Button */}
+          <div className="mt-4 md:hidden">
+            <button 
+              onClick={(e) => {
+                e.preventDefault(); // Stop link navigation
+                e.stopPropagation(); // Stop event bubbling
+                
+                setIsAdding(true);
+                try {
+                  addToCart({
+                    id: product.id,
+                    name: product.name,
+                    brand: product.brand?.name || '',
+                    price: Number(product.nairaPrice),
+                    imageUrl: product.imageUrls?.[0] || "/images/products/fallback.png",
+                    productId: product.id,
+                    quantity: 1,
+                  });
+                } finally {
+                  setIsAdding(false);
+                }
+              }}
+              disabled={isAdding}
+              className={`bg-[#a0001e] hover:bg-[#8B0000] text-white py-2 px-4 rounded-lg text-sm font-medium w-full transition-colors duration-200 ${isAdding ? "opacity-75 cursor-not-allowed" : ""}`}
+            >
+              {isAdding ? "Adding..." : "Add to Cart"}
+            </button>
+          </div>
         </div>
 
-        {/* Hover overlay with blur effect */}
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-6 text-white z-40 rounded-lg">
+        {/* Hover overlay with blur effect - hidden on mobile, visible on hover for desktop */}
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex flex-col justify-between p-6 text-white z-40 rounded-lg">
           <div className="pt-6">
             <h4 className="text-xl font-medium text-center text-white">
               {product.brand?.name}

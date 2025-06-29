@@ -27,6 +27,28 @@ declare module "@/services/product" {
 
 // User description tags - these could come from API in the future
 
+// Format concentration from camelCase or snake_case to proper display format
+const formatConcentration = (concentration: string | null): string => {
+  if (!concentration) return '';
+  
+  // Handle snake_case format
+  if (concentration.includes('_')) {
+    return concentration
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+  
+  // Handle camelCase format
+  return concentration
+    // Insert a space before all uppercase letters
+    .replace(/([A-Z])/g, ' $1')
+    // Capitalize the first letter and join the string
+    .replace(/^./, (str) => str.toUpperCase())
+    // Capitalize 'de' in phrases like 'Eau De Parfum'
+    .replace(/ De /g, ' de ');
+};
+
 export default function ProductDetailsPage() {
   const params = useParams();
   const slug = typeof params.slug === "string" ? params.slug : "";
@@ -158,7 +180,7 @@ export default function ProductDetailsPage() {
         <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
         <Navbar />
         {/* Top Section */}
-        <div className="w-full pt-16 pb-24" style={{ background: "#F7EDE1" }}>
+        <div className="w-full pt-16 pb-16 md:pb-24" style={{ background: "#F7EDE1" }}>
           <div className="flex flex-col lg:flex-row max-w-6xl mx-auto gap-8 pt-10 pb-10 px-4">
             {/* Product Image and Thumbnails */}
             <div className="flex-1 flex flex-col items-center">
@@ -217,7 +239,7 @@ export default function ProductDetailsPage() {
               </div>
             </div>
             {/* Product Info */}
-            <div className="flex-1 bg-white rounded-xl p-5 lg:p-8 flex flex-col justify-between min-h-[400px] shadow text-black my-10">
+            <div className="flex-1 bg-white rounded-xl p-4 sm:p-5 lg:p-8 flex flex-col justify-between min-h-[400px] shadow text-black my-6 sm:my-10">
               <div>
                 <div className="mb-2 inline-block">
                   {product.type === "premium" ? (
@@ -232,11 +254,11 @@ export default function ProductDetailsPage() {
                     />
                   )}
                 </div>
-                <h1 className="text-3xl  font-serif font-bold mb-2">
+                <h1 className="text-2xl sm:text-3xl font-serif font-bold mb-2">
                   {product.brand?.name}
                 </h1>
-                <div className="text-lg font-serif mb-2">
-                  {product.name} {product.concentration}
+                <div className="text-base sm:text-lg font-serif mb-2">
+                  {product.name} {formatConcentration(product.concentration)}
                 </div>
                 <div className="text-gray-700 mb-8 leading-relaxed">
                   {product.description}
@@ -264,10 +286,10 @@ export default function ProductDetailsPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
                       <div className="flex items-center gap-6">
                         {/* Price Display */}
-                        <div className="text-2xl font-bold text-gray-900">
+                        <div className="text-xl sm:text-2xl font-bold text-gray-900">
                           ₦{Number(product.nairaPrice).toLocaleString()}
                         </div>
                         
@@ -282,7 +304,7 @@ export default function ProductDetailsPage() {
                       {/* Add to Cart Button */}
                       <AddToCartButton
                         product={product}
-                        className="bg-[#a0001e] text-white px-8 py-3 rounded-lg hover:bg-[#800018] transition-colors font-medium"
+                        className="bg-[#a0001e] text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg hover:bg-[#800018] transition-colors font-medium w-full sm:w-auto"
                         quantity={mainQuantity}
                       />
                     </div>
@@ -327,10 +349,10 @@ export default function ProductDetailsPage() {
                               </div>
                             </div>
 
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-6">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
+                              <div className="flex items-center gap-4 sm:gap-6">
                                 {/* Price Display */}
-                                <div className="text-lg font-semibold text-gray-900">
+                                <div className="text-base sm:text-lg font-semibold text-gray-900">
                                   ₦{Number(item.nairaPrice).toLocaleString()}
                                 </div>
                                 
@@ -345,7 +367,7 @@ export default function ProductDetailsPage() {
                               {/* Add to Cart Button */}
                               <AddToCartButton
                                 product={item}
-                                className="bg-gray-100 text-gray-900 px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium border border-gray-300"
+                                className="bg-gray-100 text-gray-900 px-4 sm:px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium border border-gray-300 w-full sm:w-auto"
                                 quantity={getFeaturedQty(item.id)}
                               />
                             </div>
@@ -372,8 +394,8 @@ export default function ProductDetailsPage() {
         </div>
 
         {/* Fragrance Story */}
-        <div className="max-w-[55%] mx-auto text-center mt-24 px-4">
-          <h2 className="text-3xl font-serif text-[#a0001e] mb-12">
+        <div className="max-w-[80%] md:max-w-[55%] mx-auto text-center mt-12 md:mt-24 px-4">
+          <h2 className="text-2xl md:text-3xl font-serif text-[#a0001e] mb-12">
             Fragrance Story
           </h2>
           <div className="text-xl md:text-2xl font-serif text-black mb-8">
@@ -391,13 +413,13 @@ export default function ProductDetailsPage() {
             {/* Top Notes */}
             {product.topNotes && product.topNotes.length > 0 && (
               <div className="flex-1 mb-8">
-                <div className="text-center text-[#a0001e] text-xl font-serif mb-10">
+                <div className="text-center text-[#a0001e] text-xl font-serif mb-8 md:mb-10">
                   Top
                 </div>
-                <div className="flex flex-wrap justify-center gap-x-10 gap-y-10">
+                <div className="flex flex-wrap justify-center gap-x-8 gap-y-8 md:gap-x-10 md:gap-y-10">
                   {product.topNotes.map((note) => (
                     <div key={note.id} className="flex flex-col items-center text-center w-24">
-                      <div className="relative w-20 h-20 mb-2">
+                      <div className="relative w-16 h-16 md:w-20 md:h-20 mb-2">
                         <Image
                           src={note?.iconUrl || FALLBACK_NOTE_IMAGE}
                           alt={note.name}
@@ -405,7 +427,7 @@ export default function ProductDetailsPage() {
                           className="object-contain"
                         />
                       </div>
-                      <span className="font-serif text-gray-700 break-words">
+                      <span className="font-serif text-sm md:text-base text-gray-700 break-words">
                         {note.name}
                       </span>
                     </div>
@@ -417,13 +439,13 @@ export default function ProductDetailsPage() {
             {/* Middle Notes */}
             {product.middleNotes && product.middleNotes.length > 0 && (
               <div className="flex-1 mb-8">
-                <div className="text-center text-[#a0001e] text-xl font-serif mb-10">
+                <div className="text-center text-[#a0001e] text-xl font-serif mb-8 md:mb-10">
                   Middle
                 </div>
-                <div className="flex flex-wrap justify-center gap-x-10 gap-y-10">
+                <div className="flex flex-wrap justify-center gap-x-8 gap-y-8 md:gap-x-10 md:gap-y-10">
                   {product.middleNotes.map((note) => (
                     <div key={note.id} className="flex flex-col items-center text-center w-24">
-                      <div className="relative w-20 h-20 mb-2">
+                      <div className="relative w-16 h-16 md:w-20 md:h-20 mb-2">
                         <Image
                           src={note?.iconUrl || FALLBACK_NOTE_IMAGE}
                           alt={note.name}
@@ -431,7 +453,7 @@ export default function ProductDetailsPage() {
                           className="object-contain"
                         />
                       </div>
-                      <span className="font-serif text-gray-700 break-words">
+                      <span className="font-serif text-sm md:text-base text-gray-700 break-words">
                         {note.name}
                       </span>
                     </div>
@@ -443,13 +465,13 @@ export default function ProductDetailsPage() {
             {/* Base Notes */}
             {product.baseNotes && product.baseNotes.length > 0 && (
               <div className="flex-1 mb-8">
-                <div className="text-center text-[#a0001e] text-xl font-serif mb-10">
+                <div className="text-center text-[#a0001e] text-xl font-serif mb-8 md:mb-10">
                   Base
                 </div>
-                <div className="flex flex-wrap justify-center gap-x-10 gap-y-10">
+                <div className="flex flex-wrap justify-center gap-x-8 gap-y-8 md:gap-x-10 md:gap-y-10">
                   {product.baseNotes.map((note) => (
                     <div key={note.id} className="flex flex-col items-center text-center w-24">
-                      <div className="relative w-20 h-20 mb-2">
+                      <div className="relative w-16 h-16 md:w-20 md:h-20 mb-2">
                         <Image
                           src={note?.iconUrl || FALLBACK_NOTE_IMAGE}
                           alt={note.name}
@@ -457,7 +479,7 @@ export default function ProductDetailsPage() {
                           className="object-contain"
                         />
                       </div>
-                      <span className="font-serif text-gray-700 break-words">
+                      <span className="font-serif text-sm md:text-base text-gray-700 break-words">
                         {note.name}
                       </span>
                     </div>
@@ -469,8 +491,8 @@ export default function ProductDetailsPage() {
         </div>
 
         {/* User Description Tags */}
-        <div className="max-w-4xl mx-auto mt-16 pt-16mb-24 pb-24">
-          <h3 className="text-3xl font-serif text-[#a0001e] text-center mb-16">
+        <div className="max-w-7xl mx-auto md:mt-16 mt-12 md:pt-16 md:mb-32 md:pb-12 mb-16 px-4">
+          <h3 className="text-2xl md:text-3xl font-serif text-[#a0001e] text-center md:mb-16 mb-8">
             Here&apos;s How Others Described the Scent
           </h3>
           <div className="flex flex-wrap justify-center gap-4 mb-4">
@@ -495,8 +517,8 @@ export default function ProductDetailsPage() {
 
         {/* People Also Loved */}
         {relatedProducts.length > 0 && (
-          <div className="max-w-7xl  mx-auto mt-16 mb-16 px-4">
-            <h3 className="text-3xl font-serif text-[#a0001e] text-center mb-16">
+          <div className="max-w-7xl mx-auto  mt-24 mb-16 px-4">
+            <h3 className="text-2xl md:text-3xl font-serif text-[#a0001e] text-center md:mb-16 mb-12">
             People Also Loved
           </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
