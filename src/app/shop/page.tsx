@@ -34,9 +34,11 @@ export default function ShopPage() {
     <div className="min-h-screen bg-white text-black flex flex-col">
       <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
       <Navbar />
+      <div className="max-w-7xl mx-auto w-full px-4 pt-8 mb-24">
       <Suspense fallback={<LoadingShop />}>
         <ShopContent />
       </Suspense>
+      </div>
       <CuratedExperiences showButton />
       <Footer />
     </div>

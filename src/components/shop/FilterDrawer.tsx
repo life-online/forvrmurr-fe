@@ -5,6 +5,12 @@ import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import Image from 'next/image';
 import productService, { Brand, Note } from '@/services/product';
 
+// Define concentration item interface
+interface ConcentrationItem {
+  value: string;
+  label: string;
+}
+
 export interface ShopFilters {
   minPrice: string;
   maxPrice: string;
@@ -24,13 +30,7 @@ interface FilterDrawerProps {
   isLoading?: boolean;
 }
 
-// Available fragrance concentrations
-const concentrations = [
-  { value: 'eau_de_parfum', label: 'Eau de Parfum' },
-  { value: 'eau_de_toilette', label: 'Eau de Toilette' },
-  { value: 'eau_de_cologne', label: 'Eau de Cologne' },
-  { value: 'parfum', label: 'Parfum' },
-];
+// Concentration data will be fetched from API
 
 export default function FilterDrawer({
   isOpen,
@@ -50,29 +50,106 @@ export default function FilterDrawer({
   // State for API data
   const [brands, setBrands] = useState<Brand[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
+  const [concentrationItems, setConcentrationItems] = useState<ConcentrationItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [dataFetched, setDataFetched] = useState<boolean>(false);
   
+  // This effect runs once on component mount AND when the drawer becomes visible
+  // Fetch concentrations separately
   useEffect(() => {
-    const fetchFilterData = async () => {
-      setLoading(true);
-      try {
-        // Fetch brands and notes in parallel
-        const [brandsData, notesData] = await Promise.all([
-          productService.getBrands(),
-          productService.getNotes()
-        ]);
-        
-        setBrands(brandsData);
-        setNotes(notesData);
-      } catch (error) {
-        console.error('Error fetching filter data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchFilterData();
-  }, []);
+    if (!dataFetched || isOpen) {
+      const fetchConcentrations = async () => {
+        try {
+          console.log("Fetching concentrations data...");
+          const concentrationsData = await productService.getConcentrations();
+          console.log("Concentrations from API:", concentrationsData);
+          
+          // Check if it's an array and not empty
+          if (Array.isArray(concentrationsData) && concentrationsData.length > 0) {
+            // Transform concentrations data from API to the required format
+            // Backend now sends values with underscores already: ['eau_de_parfum', 'parfum']
+            // We need to convert to [{value: 'eau_de_parfum', label: 'Eau de Parfum'}]
+            const formattedConcentrations: ConcentrationItem[] = concentrationsData.map(item => {
+              // For label: convert underscores to spaces and capitalize each word
+              const label = item
+                .split('_')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+                
+              return {
+                value: item, // Use as-is since backend already sends with underscores
+                label // The formatted label with spaces and title case
+              };
+            });
+            
+            console.log("Formatted concentrations:", formattedConcentrations);
+            setConcentrationItems(formattedConcentrations);
+          } else {
+            console.log("No concentration data received or invalid format:", concentrationsData);
+            // Use default fallback concentrations if API fails
+            const defaultConcentrations: ConcentrationItem[] = [
+              { value: 'eau_de_parfum', label: 'Eau de Parfum' },
+              { value: 'eau_de_toilette', label: 'Eau de Toilette' },
+              { value: 'parfum', label: 'Parfum' }
+            ];
+            setConcentrationItems(defaultConcentrations);
+            console.log("Using default concentrations instead");
+          }
+        } catch (error) {
+          console.error('Error fetching concentration data:', error);
+          // Fallback to defaults on error
+          const defaultConcentrations: ConcentrationItem[] = [
+            { value: 'eau_de_parfum', label: 'Eau de Parfum' },
+            { value: 'eau_de_toilette', label: 'Eau de Toilette' },
+            { value: 'parfum', label: 'Parfum' }
+          ];
+          setConcentrationItems(defaultConcentrations);
+          console.log("Using default concentrations due to error");
+        }
+      };
+      fetchConcentrations();
+    }
+  }, [isOpen, dataFetched]);
+  
+  // Fetch brands separately
+  useEffect(() => {
+    if (!dataFetched || isOpen) {
+      const fetchBrands = async () => {
+        try {
+          console.log("Fetching brands data...");
+          const brandsData = await productService.getBrands();
+          console.log("Brands from API:", brandsData);
+          setBrands(brandsData);
+        } catch (error) {
+          console.error('Error fetching brand data:', error);
+          setBrands([]);
+        }
+      };
+      fetchBrands();
+    }
+  }, [isOpen, dataFetched]);
+  
+  // Fetch notes separately
+  useEffect(() => {
+    if (!dataFetched || isOpen) {
+      const fetchNotes = async () => {
+        setLoading(true);
+        try {
+          console.log("Fetching notes data...");
+          const notesData = await productService.getNotes();
+          console.log("Notes from API:", notesData);
+          setNotes(notesData);
+          setDataFetched(true);
+        } catch (error) {
+          console.error('Error fetching notes data:', error);
+          setNotes([]);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchNotes();
+    }
+  }, [isOpen, dataFetched]);
 
   // Group brands and notes by first letter
   const groupByLetter = (items: { id: string; name: string; [key: string]: any }[]) => {
@@ -251,7 +328,7 @@ export default function FilterDrawer({
             <div>
               <h3 className="font-medium text-gray-900 mb-4">Concentrations</h3>
               <div className="space-y-2">
-                {concentrations.map((concentration) => (
+                {concentrationItems.map((concentration: ConcentrationItem) => (
                   <label key={concentration.value} className="flex items-center gap-3 cursor-pointer">
                     <input
                       type="checkbox"

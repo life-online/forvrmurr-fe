@@ -196,6 +196,7 @@ export default function ShopContent() {
     
     // Advanced filters from FilterDrawer
     if (newFilters.sortBy) params.set("sortBy", newFilters.sortBy);
+    if (newFilters.sortOrder) params.set("sortOrder", newFilters.sortOrder);
     if (newFilters.minPrice) params.set("minPrice", String(newFilters.minPrice));
     if (newFilters.maxPrice) params.set("maxPrice", String(newFilters.maxPrice));
     if (newFilters.isBestSeller) params.set("bestSeller", String(newFilters.isBestSeller));
@@ -220,6 +221,9 @@ export default function ShopContent() {
     };
     delete newFilters.categoryId; // Reset category on tab change for simplicity, or manage complex state
     setFilters(newFilters);
+    
+    // Update URL parameters to reflect the tab change
+    updateUrl(newFilters);
   };
 
   // Handle URL fragrance filter parameter changes
@@ -298,7 +302,8 @@ export default function ShopContent() {
     [key: string]: string | null;
   }) => {
     const params = new URLSearchParams(window.location.search);
-
+    
+    // Update URL parameters
     if (updatedFilters["Scent Type"]) {
       params.set("scentTypeSlugs", updatedFilters["Scent Type"]!);
     } else {
@@ -323,14 +328,28 @@ export default function ShopContent() {
       params.delete("occasionSlugs");
     }
 
-    // Preserve other params like page, type
+    // Preserve other params like type
     if (activeTab !== "all") {
       params.set("type", activeTab);
     }
     params.set("page", "1"); // Reset to first page when filtering
-
+    
+    // Update the URL
     const newUrl = `/shop?${params.toString()}`;
     router.push(newUrl, { scroll: false });
+    
+    // IMPORTANT: Also update the main filters state to trigger API call
+    const newFilters: ProductFilterParams = {
+      ...filters,
+      page: 1,
+      scentTypeSlugs: updatedFilters["Scent Type"] || undefined,
+      occasionSlugs: updatedFilters["Occasion"] || undefined,
+      fragranceFamilySlugs: updatedFilters["Fragrance Family"] || undefined,
+      moodSlugs: updatedFilters["Mood"] || undefined
+    };
+    
+    // Update filters state which will trigger API call through useEffect
+    setFilters(newFilters);
   };
 
   const handlePageChange = (page: number) => {
@@ -423,7 +442,7 @@ export default function ShopContent() {
 
       {/* Pagination */}
       {!loading && totalPages > 1 && (
-        <div className="max-w-7xl mx-auto w-full px-4 flex justify-center items-center gap-6 mb-32 mt-8">
+        <div className="max-w-7xl mx-auto w-full px-4 flex justify-center items-center gap-6 mb-12 mt-12 pt-4">
           {/* Previous Button */}
           <button
             onClick={() => handlePageChange(currentPage - 1)}
@@ -440,63 +459,82 @@ export default function ShopContent() {
 
           {/* Page Numbers */}
           <div className="flex items-center gap-2">
-            {/* Show first page if not in range */}
-            {currentPage > 3 && (
-              <>
+            {/* Different rendering logic based on total number of pages */}
+            {totalPages <= 5 ? (
+              // Simple case: 5 or fewer total pages - just show all page numbers
+              Array.from({ length: totalPages }, (_, i) => (
                 <button
-                  onClick={() => handlePageChange(1)}
-                  className="w-10 h-10 flex items-center justify-center rounded-full text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  1
-                </button>
-                {currentPage > 4 && (
-                  <span className="text-gray-400 px-2">...</span>
-                )}
-              </>
-            )}
-
-            {/* Show page numbers around current page */}
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNum;
-              if (totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (currentPage <= 3) {
-                pageNum = i + 1;
-              } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
-              } else {
-                pageNum = currentPage - 2 + i;
-              }
-
-              if (pageNum < 1 || pageNum > totalPages) return null;
-
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => handlePageChange(pageNum)}
+                  key={i + 1}
+                  onClick={() => handlePageChange(i + 1)}
                   className={`w-10 h-10 flex items-center justify-center rounded-full font-medium transition-all duration-200 ${
-                    currentPage === pageNum
+                    currentPage === i + 1
                       ? 'bg-[#a0001e] text-white shadow-lg'
                       : 'text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  {pageNum}
+                  {i + 1}
                 </button>
-              );
-            })}
-
-            {/* Show last page if not in range */}
-            {currentPage < totalPages - 2 && (
+              ))
+            ) : (
+              // Complex case: More than 5 pages - show pagination with ellipses
               <>
-                {currentPage < totalPages - 3 && (
-                  <span className="text-gray-400 px-2">...</span>
+                {/* First page */}
+                {currentPage > 3 && (
+                  <>
+                    <button
+                      onClick={() => handlePageChange(1)}
+                      className="w-10 h-10 flex items-center justify-center rounded-full text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300 transition-colors"
+                    >
+                      1
+                    </button>
+                    {currentPage > 4 && (
+                      <span className="text-gray-400 px-2">...</span>
+                    )}
+                  </>
                 )}
-                <button
-                  onClick={() => handlePageChange(totalPages)}
-                  className="w-10 h-10 flex items-center justify-center rounded-full text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  {totalPages}
-                </button>
+
+                {/* Pages around current page */}
+                {Array.from({ length: 5 }, (_, i) => {
+                  let pageNum;
+                  if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+
+                  if (pageNum < 1 || pageNum > totalPages) return null;
+
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`w-10 h-10 flex items-center justify-center rounded-full font-medium transition-all duration-200 ${
+                        currentPage === pageNum
+                          ? 'bg-[#a0001e] text-white shadow-lg'
+                          : 'text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+
+                {/* Last page */}
+                {currentPage < totalPages - 2 && (
+                  <>
+                    {currentPage < totalPages - 3 && (
+                      <span className="text-gray-400 px-2">...</span>
+                    )}
+                    <button
+                      onClick={() => handlePageChange(totalPages)}
+                      className="w-10 h-10 flex items-center justify-center rounded-full text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300 transition-colors"
+                    >
+                      {totalPages}
+                    </button>
+                  </>
+                )}
               </>
             )}
           </div>
