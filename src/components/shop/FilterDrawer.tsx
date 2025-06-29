@@ -17,7 +17,8 @@ export interface ShopFilters {
   bestSeller: boolean;
   concentrations: string[];
   brands: string[];
-  notes: string[];
+  notes: string[]; // note IDs (legacy)
+  noteSlugs: string[]; // note slugs for API filtering
   onSale: boolean;
 }
 
@@ -41,8 +42,8 @@ export default function FilterDrawer({
   isLoading = false,
 }: FilterDrawerProps) {
   const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({
-    brands: false,
-    notes: false,
+    brands: true,
+    notes: true,
   });
   const [selectedBrandLetter, setSelectedBrandLetter] = useState<string>('');
   const [selectedNoteLetter, setSelectedNoteLetter] = useState<string>('');
@@ -204,15 +205,15 @@ export default function FilterDrawer({
     });
   };
 
-  const handleNoteToggle = (noteId: string) => {
-    const currentNotes = filters.notes || [];
-    const newNotes = currentNotes.includes(noteId)
-      ? currentNotes.filter((n: string) => n !== noteId)
-      : [...currentNotes, noteId];
+  const handleNoteToggle = (noteSlug: string) => {
+    const currentNotes = filters.noteSlugs || [];
+    const newNotes = currentNotes.includes(noteSlug)
+      ? currentNotes.filter((slug: string) => slug !== noteSlug)
+      : [...currentNotes, noteSlug];
     
     onFiltersChange({
       ...filters,
-      notes: newNotes
+      noteSlugs: newNotes
     });
   };
 
@@ -224,6 +225,7 @@ export default function FilterDrawer({
       concentrations: [],
       brands: [],
       notes: [],
+      noteSlugs: [],
       onSale: false
     });
   };
@@ -423,7 +425,7 @@ export default function FilterDrawer({
                 onClick={() => toggleSection('notes')}
                 className="flex items-center justify-between w-full font-medium text-gray-900 mb-4"
               >
-                <span>FILTER BY PERFUME NOTES</span>
+                <span>FILTER BY PERFUME NOTES ({filters.noteSlugs?.length || 0})</span>
                 {expandedSections.notes ? <FiChevronUp /> : <FiChevronDown />}
               </button>
               
@@ -437,9 +439,9 @@ export default function FilterDrawer({
                         {notes.slice(0, 4).map((note) => (
                           <div
                             key={note.id}
-                            onClick={() => handleNoteToggle(note.id)}
+                            onClick={() => handleNoteToggle(note.slug)}
                             className={`p-2 border rounded-lg cursor-pointer text-center transition-colors ${
-                              filters.notes?.includes(note.id)
+                              filters.noteSlugs?.includes(note.slug)
                                 ? 'border-[#a0001e] bg-[#faf0e2]'
                                 : 'border-gray-200 hover:border-gray-300'
                             }`}
@@ -486,8 +488,8 @@ export default function FilterDrawer({
                           <label key={note.id} className="flex items-center gap-3 cursor-pointer">
                             <input
                               type="checkbox"
-                              checked={filters.notes?.includes(note.id) || false}
-                              onChange={() => handleNoteToggle(note.id)}
+                              checked={filters.noteSlugs?.includes(note.slug) || false}
+                              onChange={() => handleNoteToggle(note.slug)}
                               className="w-4 h-4 text-[#a0001e] border-gray-300 rounded focus:ring-[#a0001e]"
                             />
                             <span className="text-gray-700">{note.name}</span>
@@ -501,7 +503,7 @@ export default function FilterDrawer({
             </div>
 
             {/* Sale Toggle */}
-            <div className="bg-[#faf0e2] p-4 rounded-lg">
+            {/* <div className="bg-[#faf0e2] p-4 rounded-lg">
               <label className="flex items-center justify-between cursor-pointer">
                 <span className="font-medium text-[#8B4513]">SALE! UP TO 60% OFF</span>
                 <div className="relative">
@@ -520,7 +522,7 @@ export default function FilterDrawer({
                   </div>
                 </div>
               </label>
-            </div>
+            </div> */}
           </div>
 
           {/* Bottom Action */}

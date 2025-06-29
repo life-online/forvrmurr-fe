@@ -66,6 +66,7 @@ export default function ShopContent() {
   const concentrationsFromUrl = searchParams.get("concentrations")?.split(',') || [];
   const brandsFromUrl = searchParams.get("brands")?.split(',') || [];
   const notesFromUrl = searchParams.get("notes")?.split(',') || [];
+  const noteSlugsFromUrl = searchParams.get("noteSlugs")?.split(';') || [];
   
   const [currentSortBy, setCurrentSortBy] = useState(sortByFromUrl);
   const [currentSortOrder, setCurrentSortOrder] = useState(sortOrderFromUrl);
@@ -76,6 +77,7 @@ export default function ShopContent() {
     concentrations: concentrationsFromUrl,
     brands: brandsFromUrl,
     notes: notesFromUrl,
+    noteSlugs: noteSlugsFromUrl,
     onSale: onSaleFromUrl
   });
 
@@ -121,7 +123,7 @@ export default function ShopContent() {
       onSale: newFilters.onSale || undefined,
       concentrations: newFilters.concentrations?.length > 0 ? newFilters.concentrations : undefined,
       brandSlugs: newFilters.brands?.length > 0 ? newFilters.brands : undefined,
-      noteSlugs: newFilters.notes?.length > 0 ? newFilters.notes : undefined,
+      noteSlugs: newFilters.noteSlugs?.length > 0 ? newFilters.noteSlugs : undefined,
       sortBy: currentSortBy !== 'default' ? currentSortBy : undefined,
       sortOrder: currentSortBy !== 'default' ? currentSortOrder : undefined,
       page: 1 // Reset to first page when filters change
@@ -148,7 +150,8 @@ export default function ShopContent() {
     ...(onSaleFromUrl && { onSale: onSaleFromUrl }),
     ...(concentrationsFromUrl.length > 0 && { concentrations: concentrationsFromUrl }),
     ...(brandsFromUrl.length > 0 && { brandSlugs: brandsFromUrl }),
-    ...(notesFromUrl.length > 0 && { noteSlugs: notesFromUrl }),
+    ...(notesFromUrl.length > 0 && { notes: notesFromUrl }),
+    ...(noteSlugsFromUrl.length > 0 && { noteSlugs: noteSlugsFromUrl }),
   };
 
   const [filters, setFilters] = useState<ProductFilterParams>(initialFilters);
@@ -205,7 +208,8 @@ export default function ShopContent() {
     // Array filters - convert to comma-separated strings
     if (newFilters.concentrations?.length) params.set("concentrations", newFilters.concentrations.join(','));
     if (newFilters.brandSlugs?.length) params.set("brands", newFilters.brandSlugs.join(','));
-    if (newFilters.noteSlugs?.length) params.set("notes", newFilters.noteSlugs.join(','));
+    if (newFilters.noteSlugs?.length) params.set("noteSlugs", newFilters.noteSlugs.join(';'));
+    if (newFilters.notes?.length) params.set("notes", newFilters.notes.join(','));
     
     const newUrl = `/shop${params.toString() ? `?${params.toString()}` : ""}`;
     router.push(newUrl, { scroll: false });
@@ -255,6 +259,7 @@ export default function ShopContent() {
         concentrations: concentrationsFromUrl,
         brands: brandsFromUrl,
         notes: notesFromUrl,
+        noteSlugs: noteSlugsFromUrl,
         onSale: onSaleFromUrl
       });
       

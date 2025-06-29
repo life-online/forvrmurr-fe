@@ -33,7 +33,8 @@ export interface ProductFilterParams {
   minPrice?: string | number;
   maxPrice?: string | number;
   brandSlugs?: string[];
-  noteSlugs?: string[];
+  noteSlugs?: string[]; // Note slugs for API filtering using semicolon delimiter
+  notes?: string[];     // Legacy note IDs (to be deprecated)
   concentrations?: string[]; // Array of concentration values like ['eau_de_parfum', 'parfum']
   onSale?: boolean;
   sortBy?: string;
@@ -66,7 +67,11 @@ export interface DescriptionResponse {
 export interface Note {
   id: string;
   name: string;
+  slug: string;
+  description?: string;
   iconUrl: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Product {
@@ -184,6 +189,8 @@ const productService = {
     if (filters.isFeatured !== undefined)
       params.isFeatured = filters.isFeatured;
     if (filters.search) params.search = filters.search;
+    if (filters.noteSlugs && filters.noteSlugs.length > 0) params.noteSlugs = filters.noteSlugs.join(";"); // Using semicolons as per API requirement
+    if (filters.concentrations && filters.concentrations.length > 0) params.concentrations = filters.concentrations.join(";"); // Using semicolons as per API requirement
 
     return apiRequest<ProductsResponse>("/products", {
       params,
@@ -218,7 +225,7 @@ const productService = {
     if (filters.brandSlugs && filters.brandSlugs.length > 0) 
       params.brandSlugs = filters.brandSlugs.join(",");
     if (filters.noteSlugs && filters.noteSlugs.length > 0) 
-      params.noteSlugs = filters.noteSlugs.join(",");
+      params.noteSlugs = filters.noteSlugs.join(";"); // Using semicolons as per API requirement
     if (filters.concentrations && filters.concentrations.length > 0) 
       params.concentrations = filters.concentrations.join(";"); // Using semicolons as per API requirement
     if (filters.onSale !== undefined) 
@@ -366,10 +373,10 @@ const productService = {
    * Get notes for filtering
    */
   async getNotes(): Promise<Note[]> {
-    console.log('Fetching notes from API endpoint /products/fragrance-notes...');
+    console.log('Fetching notes from API endpoint /fragrance-notes...');
     try {
       // This endpoint returns a direct array of Note objects
-      const notes = await apiRequest<Note[]>('/products/fragrance-notes', {
+      const notes = await apiRequest<Note[]>('/fragrance-notes', {
         requiresAuth: false
       });
       
@@ -382,11 +389,17 @@ const productService = {
       
       // Fallback if API returns empty or invalid data
       console.warn('API returned empty or invalid notes data, using fallback data');
-      return [{ id: '1', name: 'Vanilla', iconUrl: '/images/notes/vanilla.png' }, { id: '2', name: 'Rose', iconUrl: '/images/notes/rose.png' }];
+      return [
+        { id: '1', name: 'Vanilla', slug: 'vanilla', description: 'Sweet, warm vanilla scent', iconUrl: '/images/notes/vanilla.png' },
+        { id: '2', name: 'Rose', slug: 'rose', description: 'Classic floral rose scent', iconUrl: '/images/notes/rose.png' }
+      ];
     } catch (error) {
       console.error('Error fetching notes:', error);
       // Return fallback data in case of error
-      return [{ id: '1', name: 'Vanilla', iconUrl: '/images/notes/vanilla.png' }, { id: '2', name: 'Rose', iconUrl: '/images/notes/rose.png' }];
+      return [
+        { id: '1', name: 'Vanilla', slug: 'vanilla', description: 'Sweet, warm vanilla scent', iconUrl: '/images/notes/vanilla.png' },
+        { id: '2', name: 'Rose', slug: 'rose', description: 'Classic floral rose scent', iconUrl: '/images/notes/rose.png' }
+      ];
     }
   },
   /**
