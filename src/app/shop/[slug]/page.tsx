@@ -14,6 +14,8 @@ import ProductCard from "@/components/ui/ProductCard";
 import QuantitySelector from "@/components/ui/QuantitySelector";
 import { findNotesImageLocally } from "@/utils/helpers";
 import { trackProductView } from "@/utils/analytics";
+import OutOfStockBadge from "@/components/ui/OutOfStockBadge";
+import NotifyMeModal from "@/components/ui/NotifyMeModal";
 
 // Fallback image paths
 const FALLBACK_IMAGE = "/images/hero/hero_image.png";
@@ -69,6 +71,7 @@ export default function ProductDetailsPage() {
   const [featuredQuantities, setFeaturedQuantities] = useState<
     Record<string, number>
   >({});
+  const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
 
   // Fetch the product data
   useEffect(() => {
@@ -247,17 +250,24 @@ export default function ProductDetailsPage() {
             <div className="flex-1 bg-white rounded-xl p-4 sm:p-5 lg:p-8 flex flex-col justify-between min-h-[400px] shadow text-black my-6 sm:my-10">
               <div>
                 <div className="mb-2 inline-block">
-                  {product.type === "premium" ? (
-                    <ProductBadge
-                      type="premium"
-                      className="relative top-0 left-0"
-                    />
-                  ) : (
-                    <ProductBadge
-                      type="prime"
-                      className="relative top-0 left-0"
-                    />
-                  )}
+                  <div className="flex flex-wrap gap-2">
+                    {product.type === "premium" ? (
+                      <ProductBadge
+                        type="premium"
+                        className="relative top-0 left-0"
+                      />
+                    ) : (
+                      <ProductBadge
+                        type="prime"
+                        className="relative top-0 left-0"
+                      />
+                    )}
+                    
+                    {/* Display out of stock badge when inventory is zero */}
+                    {product.inventoryQuantity <= 0 && (
+                      <OutOfStockBadge />
+                    )}
+                  </div>
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-serif font-bold mb-2">
                   {product.brand?.name}
@@ -306,12 +316,26 @@ export default function ProductDetailsPage() {
                         />
                       </div>
 
-                      {/* Add to Cart Button */}
-                      <AddToCartButton
-                        product={product}
-                        className="bg-[#a0001e] text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg hover:bg-[#800018] transition-colors font-medium w-full sm:w-auto"
-                        quantity={mainQuantity}
-                      />
+                      {/* Add to Cart Button or Notify Me Button */}
+                      {product.inventoryQuantity <= 0 ? (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setIsNotifyModalOpen(true);
+                            console.log('Opening notify modal');
+                          }}
+                          className="bg-gray-700 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium w-full sm:w-auto"
+                        >
+                          Notify Me When Available
+                        </button>
+                      ) : (
+                        <AddToCartButton
+                          product={product}
+                          className="bg-[#a0001e] text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg hover:bg-[#800018] transition-colors font-medium w-full sm:w-auto"
+                          quantity={mainQuantity}
+                        />
+                      )}
                     </div>
 
                     {/* Total Price (only show if quantity > 1) */}
@@ -369,12 +393,27 @@ export default function ProductDetailsPage() {
                                 />
                               </div>
 
-                              {/* Add to Cart Button */}
-                              <AddToCartButton
-                                product={item}
-                                className="bg-gray-100 text-gray-900 px-4 sm:px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium border border-gray-300 w-full sm:w-auto"
-                                quantity={getFeaturedQty(item.id)}
-                              />
+                              {/* Add to Cart Button or Notify Me Button for featured products */}
+                              {item.inventoryQuantity <= 0 ? (
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setIsNotifyModalOpen(true);
+                                    setProduct(item);
+                                    console.log('Opening notify modal for featured product');
+                                  }}
+                                  className="bg-gray-700 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors font-medium w-full sm:w-auto text-sm"
+                                >
+                                  Notify Me
+                                </button>
+                              ) : (
+                                <AddToCartButton
+                                  product={item}
+                                  className="bg-gray-100 text-gray-900 px-4 sm:px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium border border-gray-300 w-full sm:w-auto"
+                                  quantity={getFeaturedQty(item.id)}
+                                />
+                              )}
                             </div>
 
                             {/* Total Price (only show if quantity > 1) */}
@@ -538,6 +577,28 @@ export default function ProductDetailsPage() {
           </div>
         )}
       </div>
+      
+      {/* Notify Me Modal */}
+      <NotifyMeModal
+        isOpen={isNotifyModalOpen}
+        onClose={() => {
+          setIsNotifyModalOpen(false);
+          // Restore the main product if we were showing a featured product
+          if (product && slug && product.slug !== slug) {
+            const fetchOriginalProduct = async () => {
+              try {
+                const data = await productService.getProductBySlug(slug);
+                setProduct(data);
+              } catch (err) {
+                console.error("Error restoring original product:", err);
+              }
+            };
+            fetchOriginalProduct();
+          }
+        }}
+        product={product}
+      />
+      
       <Footer />
     </>
   );

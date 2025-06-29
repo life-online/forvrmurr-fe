@@ -269,8 +269,9 @@ export default function FilterSortBar({
             onClick={() => setSortDrawerOpen(true)}
             className="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 border border-gray-300 rounded-full text-xs sm:text-sm font-medium hover:bg-gray-50 transition-colors truncate max-w-[130px] sm:max-w-none"
           >
-            <span className="hidden xs:inline">Sort</span>
-            <span className="text-gray-500 hidden sm:inline">|</span>
+            
+            <span className="md:inline hidden">Sort</span>
+            <span className="text-gray-500 hidden md:inline">|</span>
             <span className="text-[#a0001e] truncate">{getSortLabel(currentSortBy, currentSortOrder)}</span>
             <FiChevronDown size={14} className="flex-shrink-0" />
           </button>
