@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
@@ -22,6 +22,8 @@ const filterTabs = [
 ];
 
 export default function ShopContent() {
+  // Add a ref to track initialization state
+  const isInitialized = useRef(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { error: showError } = useToast();
@@ -36,6 +38,7 @@ export default function ShopContent() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); // Added for consistent naming
   const [totalProducts, setTotalProducts] = useState(0);
   const [currentPage, setCurrentPage] = useState(pageFromUrl);
   const [totalPages, setTotalPages] = useState(1);
@@ -54,27 +57,78 @@ export default function ShopContent() {
   });
 
   // Filter and Sort state
-  const [currentSort, setCurrentSort] = useState('default');
+  const sortByFromUrl = searchParams.get("sortBy") || 'default';
+  const sortOrderFromUrl = searchParams.get("sortOrder") || 'ASC';
+  const minPriceFromUrl = searchParams.get("minPrice") || '';
+  const maxPriceFromUrl = searchParams.get("maxPrice") || '';
+  const bestSellerFromUrl = searchParams.get("bestSeller") === 'true';
+  const onSaleFromUrl = searchParams.get("onSale") === 'true';
+  const concentrationsFromUrl = searchParams.get("concentrations")?.split(',') || [];
+  const brandsFromUrl = searchParams.get("brands")?.split(',') || [];
+  const notesFromUrl = searchParams.get("notes")?.split(',') || [];
+  
+  const [currentSortBy, setCurrentSortBy] = useState(sortByFromUrl);
+  const [currentSortOrder, setCurrentSortOrder] = useState(sortOrderFromUrl);
   const [shopFilters, setShopFilters] = useState({
-    minPrice: '',
-    maxPrice: '',
-    bestSeller: false,
-    concentrations: [],
-    brands: [],
-    notes: [],
-    onSale: false,
+    minPrice: minPriceFromUrl,
+    maxPrice: maxPriceFromUrl,
+    bestSeller: bestSellerFromUrl,
+    concentrations: concentrationsFromUrl,
+    brands: brandsFromUrl,
+    notes: notesFromUrl,
+    onSale: onSaleFromUrl
   });
 
-  const handleSortChange = (sort: string) => {
-    setCurrentSort(sort);
-    // TODO: Implement actual sorting logic
-    console.log('Sort changed to:', sort);
+  const handleSortChange = (sortBy: string, sortOrder: string) => {
+    // Validate to prevent unnecessary re-renders
+    if (sortBy === currentSortBy && sortOrder === currentSortOrder) return;
+
+    // Update the sort state
+    setCurrentSortBy(sortBy);
+    setCurrentSortOrder(sortOrder);
+
+    // Update URL
+    const params = new URLSearchParams(window.location.search);
+    if (sortBy !== 'default') {
+      params.set("sortBy", sortBy);
+      params.set("sortOrder", sortOrder);
+    } else {
+      params.delete("sortBy");
+      params.delete("sortOrder");
+    }
+
+    const newUrl = `/shop${params.toString() ? `?${params.toString()}` : ""}`;
+    router.push(newUrl, { scroll: false });
+
+    // Update filters with new sort
+    setFilters({
+      ...filters,
+      sortBy: sortBy !== 'default' ? sortBy : undefined,
+      sortOrder: sortBy !== 'default' ? sortOrder : undefined,
+      page: 1 // Reset to first page on sort change
+    });
   };
 
   const handleFiltersChange = (newFilters: any) => {
     setShopFilters(newFilters);
-    // TODO: Implement actual filtering logic
-    console.log('Filters changed:', newFilters);
+    
+    // Update filters with comprehensive filter values
+    const comprehensiveFilters = {
+      ...filters,
+      minPrice: newFilters.minPrice || undefined,
+      maxPrice: newFilters.maxPrice || undefined,
+      isBestSeller: newFilters.bestSeller || undefined,
+      onSale: newFilters.onSale || undefined,
+      concentrations: newFilters.concentrations?.length > 0 ? newFilters.concentrations : undefined,
+      brandSlugs: newFilters.brands?.length > 0 ? newFilters.brands : undefined,
+      noteSlugs: newFilters.notes?.length > 0 ? newFilters.notes : undefined,
+      sortBy: currentSortBy !== 'default' ? currentSortBy : undefined,
+      sortOrder: currentSortBy !== 'default' ? currentSortOrder : undefined,
+      page: 1 // Reset to first page when filters change
+    };
+    
+    setFilters(comprehensiveFilters);
+    updateUrl(comprehensiveFilters);
   };
 
   const initialFilters: ProductFilterParams = {
@@ -82,40 +136,76 @@ export default function ShopContent() {
     limit: 12,
     ...(typeFromUrl !== "all" && { type: typeFromUrl as ProductType }),
     ...(searchFromUrl && { search: searchFromUrl }),
+    ...(scentTypeSlugs && { scentTypeSlugs }),
+    ...(occasionSlugs && { occasionSlugs }),
+    ...(fragranceFamilySlugs && { fragranceFamilySlugs }),
+    ...(moodSlugs && { moodSlugs }),
+    ...(sortByFromUrl !== 'default' && { sortBy: sortByFromUrl }),
+    ...(sortByFromUrl !== 'default' && { sortOrder: sortOrderFromUrl }),
+    ...(minPriceFromUrl && { minPrice: minPriceFromUrl }),
+    ...(maxPriceFromUrl && { maxPrice: maxPriceFromUrl }),
+    ...(bestSellerFromUrl && { isBestSeller: bestSellerFromUrl }),
+    ...(onSaleFromUrl && { onSale: onSaleFromUrl }),
+    ...(concentrationsFromUrl.length > 0 && { concentrations: concentrationsFromUrl }),
+    ...(brandsFromUrl.length > 0 && { brandSlugs: brandsFromUrl }),
+    ...(notesFromUrl.length > 0 && { noteSlugs: notesFromUrl }),
   };
 
   const [filters, setFilters] = useState<ProductFilterParams>(initialFilters);
 
+  // Define fetchProducts as a useCallback function
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    setIsLoading(true);
+    try {
+      const response = await productService.getComprehensiveProducts(filters);
+      setProducts(response.data);
+      setTotalProducts(response.meta.total);
+      setCurrentPage(response.meta.page);
+      setTotalPages(response.meta.totalPages);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+      showError("Failed to load products. Please try again.");
+      setProducts([]);
+    } finally {
+      setLoading(false);
+      setIsLoading(false);
+    }
+  }, [filters, showError]);
+  
+  // Effect to fetch products when filters change
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const response = await productService.getComprehensiveProducts(filters);
-        setProducts(response.data);
-        setTotalProducts(response.meta.total);
-        setCurrentPage(response.meta.page);
-        setTotalPages(response.meta.totalPages);
-      } catch (err) {
-        console.error("Error fetching products:", err);
-        showError("Failed to load products. Please try again.");
-        setProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    };
 
     fetchProducts();
   }, [filters, showError]);
 
   const updateUrl = (newFilters: ProductFilterParams) => {
     const params = new URLSearchParams();
+    
+    // Basic filters
     if (newFilters.page && newFilters.page > 1)
       params.set("page", newFilters.page.toString());
     if (newFilters.type) params.set("type", newFilters.type);
     if (newFilters.search) params.set("search", newFilters.search);
-
-    // Add other filters like sortBy, categoryId if they should be in URL
-
+    
+    // Scent filters from FragranceSelector
+    if (newFilters.scentTypeSlugs) params.set("scentTypeSlugs", newFilters.scentTypeSlugs);
+    if (newFilters.occasionSlugs) params.set("occasionSlugs", newFilters.occasionSlugs);
+    if (newFilters.fragranceFamilySlugs) params.set("fragranceFamilySlugs", newFilters.fragranceFamilySlugs);
+    if (newFilters.moodSlugs) params.set("moodSlugs", newFilters.moodSlugs);
+    
+    // Advanced filters from FilterDrawer
+    if (newFilters.sortBy) params.set("sortBy", newFilters.sortBy);
+    if (newFilters.minPrice) params.set("minPrice", String(newFilters.minPrice));
+    if (newFilters.maxPrice) params.set("maxPrice", String(newFilters.maxPrice));
+    if (newFilters.isBestSeller) params.set("bestSeller", String(newFilters.isBestSeller));
+    if (newFilters.onSale) params.set("onSale", String(newFilters.onSale));
+    
+    // Array filters - convert to comma-separated strings
+    if (newFilters.concentrations?.length) params.set("concentrations", newFilters.concentrations.join(','));
+    if (newFilters.brandSlugs?.length) params.set("brands", newFilters.brandSlugs.join(','));
+    if (newFilters.noteSlugs?.length) params.set("notes", newFilters.noteSlugs.join(','));
+    
     const newUrl = `/shop${params.toString() ? `?${params.toString()}` : ""}`;
     router.push(newUrl, { scroll: false });
   };
@@ -130,29 +220,78 @@ export default function ShopContent() {
     };
     delete newFilters.categoryId; // Reset category on tab change for simplicity, or manage complex state
     setFilters(newFilters);
-    updateUrl(newFilters);
   };
 
+  // Handle URL fragrance filter parameter changes
   useEffect(() => {
-    const newFilters: ProductFilterParams = {
-      ...filters,
-      page: 1,
-      type: activeTab === "all" ? undefined : (activeTab as ProductType),
-      scentTypeSlugs: (scentTypeSlugs as string) || undefined,
-      occasionSlugs: (occasionSlugs as string) || undefined,
-      fragranceFamilySlugs: (fragranceFamilySlugs as string) || undefined,
-      moodSlugs: (moodSlugs as string) || undefined,
-    };
-    setFilters(newFilters);
-
-    // Update selected filters state
-    setSelectedFilters({
-      "Scent Type": scentTypeSlugs || null,
-      Occasion: occasionSlugs || null,
-      "Fragrance Family": fragranceFamilySlugs || null,
-      Mood: moodSlugs || null,
-    });
-  }, [scentTypeSlugs, occasionSlugs, fragranceFamilySlugs, moodSlugs]);
+    // Only run this effect when URL parameters actually change
+    if (
+      !isInitialized.current && // Only run before initialization
+      (scentTypeSlugs || occasionSlugs || fragranceFamilySlugs || moodSlugs)
+    ) {
+      // Update selected filters state without triggering other state updates
+      setSelectedFilters({
+        "Scent Type": scentTypeSlugs || null,
+        Occasion: occasionSlugs || null,
+        "Fragrance Family": fragranceFamilySlugs || null,
+        Mood: moodSlugs || null,
+      });
+    }
+  }, [scentTypeSlugs, occasionSlugs, fragranceFamilySlugs, moodSlugs, isLoading]);
+  
+  // Single effect to handle all URL parameter changes and initialize state
+  useEffect(() => {
+    // Only run once on initial load or when URL params actually change
+    if (!isInitialized.current) {
+      // First time initialization
+      setShopFilters({
+        minPrice: minPriceFromUrl,
+        maxPrice: maxPriceFromUrl,
+        bestSeller: bestSellerFromUrl,
+        concentrations: concentrationsFromUrl,
+        brands: brandsFromUrl,
+        notes: notesFromUrl,
+        onSale: onSaleFromUrl
+      });
+      
+      // Update sort when URL param changes
+      if (sortByFromUrl !== currentSortBy) {
+        setCurrentSortBy(sortByFromUrl);
+      }
+      if (sortOrderFromUrl !== currentSortOrder) {
+        setCurrentSortOrder(sortOrderFromUrl);
+      }
+      
+      // Build comprehensive filters from URL parameters
+      const initialFilters: ProductFilterParams = {
+        page: 1,
+        type: activeTab === "all" ? undefined : (activeTab as ProductType),
+        scentTypeSlugs: (scentTypeSlugs as string) || undefined,
+        occasionSlugs: (occasionSlugs as string) || undefined,
+        fragranceFamilySlugs: (fragranceFamilySlugs as string) || undefined,
+        moodSlugs: (moodSlugs as string) || undefined,
+        sortBy: sortByFromUrl !== 'default' ? sortByFromUrl : undefined,
+        sortOrder: sortByFromUrl !== 'default' ? sortOrderFromUrl : undefined,
+        minPrice: minPriceFromUrl || undefined,
+        maxPrice: maxPriceFromUrl || undefined,
+        isBestSeller: bestSellerFromUrl || undefined,
+        onSale: onSaleFromUrl || undefined,
+        concentrations: concentrationsFromUrl.length > 0 ? concentrationsFromUrl : undefined,
+        brandSlugs: brandsFromUrl.length > 0 ? brandsFromUrl : undefined,
+        noteSlugs: notesFromUrl.length > 0 ? notesFromUrl : undefined
+      };
+      
+      // Set filters without triggering another URL update
+      setFilters(initialFilters);
+      isInitialized.current = true;
+    }
+  }, [
+    // Include all URL parameters and required state
+    minPriceFromUrl, maxPriceFromUrl, bestSellerFromUrl, onSaleFromUrl,
+    concentrationsFromUrl, brandsFromUrl, notesFromUrl, sortByFromUrl, sortOrderFromUrl,
+    scentTypeSlugs, occasionSlugs, fragranceFamilySlugs, moodSlugs,
+    activeTab, currentSortBy, currentSortOrder
+  ]);
 
   // Update search params function for filters
   const updateSearchParams = (updatedFilters: {
@@ -247,10 +386,12 @@ export default function ShopContent() {
       {/* Filter and Sort Bar */}
       <FilterSortBar
         totalProducts={totalProducts}
-        currentSort={currentSort}
+        currentSortBy={currentSortBy}
+        currentSortOrder={currentSortOrder}
         onSortChange={handleSortChange}
         filters={shopFilters}
         onFiltersChange={handleFiltersChange}
+        isLoading={loading}
       />
       {/* Loading State */}
       {loading && (

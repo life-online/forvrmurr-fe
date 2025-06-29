@@ -5,39 +5,43 @@ import FilterDrawer from './FilterDrawer';
 
 interface FilterSortBarProps {
   totalProducts: number;
-  currentSort: string;
-  onSortChange: (sort: string) => void;
+  currentSortBy: string;
+  currentSortOrder: string;
+  onSortChange: (sortBy: string, sortOrder: string) => void;
   filters: any;
   onFiltersChange: (filters: any) => void;
+  isLoading?: boolean;
 }
 
 export default function FilterSortBar({
   totalProducts,
-  currentSort,
+  currentSortBy,
+  currentSortOrder,
   onSortChange,
   filters,
   onFiltersChange,
+  isLoading = false,
 }: FilterSortBarProps) {
   const [sortDrawerOpen, setSortDrawerOpen] = useState(false);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
 
-  const getSortLabel = (sortValue: string) => {
-    switch (sortValue) {
-      case 'name_asc':
-        return 'Name A-Z';
-      case 'name_desc':
-        return 'Name Z-A';
-      case 'price_asc':
-        return 'Price Low to High';
-      case 'price_desc':
-        return 'Price High to Low';
-      case 'newest':
-        return 'Newest';
-      case 'best_seller':
-        return 'Best Seller';
-      default:
-        return 'Sort by';
+  const getSortLabel = (sortBy: string, sortOrder: string) => {
+    if (sortBy === 'default') return 'Sort by';
+    
+    if (sortBy === 'name') {
+      return sortOrder === 'ASC' ? 'Name A-Z' : 'Name Z-A';
     }
+    if (sortBy === 'price') {
+      return sortOrder === 'ASC' ? 'Price Low to High' : 'Price High to Low';
+    }
+    if (sortBy === 'best_sellers') {
+      return 'Best Sellers';
+    }
+    if (sortBy === 'newest') {
+      return 'Newest';
+    }
+    
+    return 'Sort by';
   };
 
   const getActiveFiltersCount = () => {
@@ -81,7 +85,7 @@ export default function FilterSortBar({
           >
             <span>Sort by</span>
             <span className="text-gray-500">|</span>
-            <span className="text-[#a0001e]">{getSortLabel(currentSort)}</span>
+            <span className="text-[#a0001e]">{getSortLabel(currentSortBy, currentSortOrder)}</span>
             <FiChevronDown size={16} />
           </button>
         </div>
@@ -91,7 +95,8 @@ export default function FilterSortBar({
       <SortDrawer
         isOpen={sortDrawerOpen}
         onClose={() => setSortDrawerOpen(false)}
-        currentSort={currentSort}
+        currentSortBy={currentSortBy}
+        currentSortOrder={currentSortOrder}
         onSortChange={onSortChange}
       />
 
@@ -102,6 +107,7 @@ export default function FilterSortBar({
         filters={filters}
         onFiltersChange={onFiltersChange}
         totalProducts={totalProducts}
+        isLoading={isLoading}
       />
     </>
   );

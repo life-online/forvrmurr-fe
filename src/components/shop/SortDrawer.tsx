@@ -6,26 +6,30 @@ import { FiCheck } from 'react-icons/fi';
 interface SortDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  currentSort: string;
-  onSortChange: (sort: string) => void;
+  currentSortBy: string;
+  currentSortOrder: string;
+  onSortChange: (sortBy: string, sortOrder: string) => void;
 }
 
 const sortOptions = [
-  { value: 'default', label: 'By default' },
-  { value: 'price_asc', label: 'By price, low to high' },
-  { value: 'price_desc', label: 'By price, high to low' },
-  { value: 'rating_desc', label: 'By rating, high to low' },
-  { value: 'newest', label: 'New arrivals, new to old' },
+  { value: 'default', label: 'Default sorting', sortOrder: 'ASC' },
+  { value: 'name', label: 'By name (A-Z)', sortOrder: 'ASC' },
+  { value: 'name', label: 'By name (Z-A)', sortOrder: 'DESC' },
+  { value: 'price', label: 'By price (low to high)', sortOrder: 'ASC' },
+  { value: 'price', label: 'By price (high to low)', sortOrder: 'DESC' },
+  { value: 'best_sellers', label: 'By popularity', sortOrder: 'ASC' },
+  { value: 'newest', label: 'New arrivals', sortOrder: 'DESC' },
 ];
 
 export default function SortDrawer({
   isOpen,
   onClose,
-  currentSort,
+  currentSortBy,
+  currentSortOrder,
   onSortChange,
 }: SortDrawerProps) {
-  const handleSortSelect = (sortValue: string) => {
-    onSortChange(sortValue);
+  const handleSortSelect = (sortBy: string, sortOrder: string) => {
+    onSortChange(sortBy, sortOrder);
     onClose();
   };
 
@@ -58,16 +62,16 @@ export default function SortDrawer({
             <div className="p-6 space-y-4">
               {sortOptions.map((option) => (
                 <button
-                  key={option.value}
-                  onClick={() => handleSortSelect(option.value)}
+                  key={`${option.value}-${option.sortOrder}`}
+                  onClick={() => handleSortSelect(option.value, option.sortOrder)}
                   className={`w-full flex items-center justify-between p-4 rounded-lg border transition-colors ${
-                    currentSort === option.value
+                    currentSortBy === option.value && currentSortOrder === option.sortOrder
                       ? 'bg-[#faf0e2] border-[#e6c789] text-[#600000]'
                       : 'bg-white border-gray-200 hover:bg-gray-50'
                   }`}
                 >
                   <span className="text-left font-medium">{option.label}</span>
-                  {currentSort === option.value && (
+                  {currentSortBy === option.value && currentSortOrder === option.sortOrder && (
                     <FiCheck size={20} className="text-[#600000]" />
                   )}
                 </button>
@@ -78,10 +82,10 @@ export default function SortDrawer({
           {/* Bottom Action */}
           <div className="border-t border-gray-100 p-6">
             <button
-              onClick={() => handleSortSelect(currentSort)}
+              onClick={() => handleSortSelect('default', 'ASC')}
               className="w-full py-3 px-4 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
             >
-              SORT BY {sortOptions.find(opt => opt.value === currentSort)?.label.toUpperCase() || 'DEFAULT'}
+              SORT BY {sortOptions.find(opt => opt.value === currentSortBy && opt.sortOrder === currentSortOrder)?.label.toUpperCase() || 'DEFAULT'}
             </button>
             <button
               onClick={onClose}

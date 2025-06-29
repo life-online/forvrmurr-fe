@@ -3,41 +3,28 @@ import { Drawer } from 'vaul';
 import { IoMdClose } from 'react-icons/io';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import Image from 'next/image';
+import productService, { Brand, Note } from '@/services/product';
+
+export interface ShopFilters {
+  minPrice: string;
+  maxPrice: string;
+  bestSeller: boolean;
+  concentrations: string[];
+  brands: string[];
+  notes: string[];
+  onSale: boolean;
+}
 
 interface FilterDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  filters: any;
-  onFiltersChange: (filters: any) => void;
+  filters: ShopFilters;
+  onFiltersChange: (filters: ShopFilters) => void;
   totalProducts: number;
+  isLoading?: boolean;
 }
 
-// Mock data - replace with actual API calls
-const mockBrands = [
-  { id: '1', name: 'Armani', logo: '/images/brands/armani.png' },
-  { id: '2', name: 'Burberry', logo: '/images/brands/burberry.png' },
-  { id: '3', name: 'Calvin Klein', logo: '/images/brands/calvin.png' },
-  { id: '4', name: 'Dolce&Gabbana', logo: '/images/brands/dolce.png' },
-  { id: '5', name: 'Gucci', logo: '/images/brands/gucci.png' },
-  { id: '6', name: 'Hugo Boss', logo: '/images/brands/hugo.png' },
-  { id: '7', name: 'Prada', logo: '/images/brands/prada.png' },
-  { id: '8', name: 'Sanctuary', logo: '/images/brands/sanctuary.png' },
-  { id: '9', name: 'Versace', logo: '/images/brands/versace.png' },
-];
-
-const mockNotes = [
-  { id: '1', name: 'Amber', iconUrl: '/images/scent_notes/amber.png' },
-  { id: '2', name: 'Bergamot', iconUrl: '/images/scent_notes/bergamot.png' },
-  { id: '3', name: 'Caramel', iconUrl: '/images/scent_notes/caramel.png' },
-  { id: '4', name: 'Cedar', iconUrl: '/images/scent_notes/cedar.png' },
-  { id: '5', name: 'Citrus', iconUrl: '/images/scent_notes/citrus.png' },
-  { id: '6', name: 'Jasmine', iconUrl: '/images/scent_notes/jasmine.png' },
-  { id: '7', name: 'Lavender', iconUrl: '/images/scent_notes/lavender.png' },
-  { id: '8', name: 'Musk', iconUrl: '/images/scent_notes/musk.png' },
-  { id: '9', name: 'Rose', iconUrl: '/images/scent_notes/rose.png' },
-  { id: '10', name: 'Vanilla', iconUrl: '/images/scent_notes/vanilla.png' },
-];
-
+// Available fragrance concentrations
 const concentrations = [
   { value: 'eau_de_parfum', label: 'Eau de Parfum' },
   { value: 'eau_de_toilette', label: 'Eau de Toilette' },
@@ -51,6 +38,7 @@ export default function FilterDrawer({
   filters,
   onFiltersChange,
   totalProducts,
+  isLoading = false,
 }: FilterDrawerProps) {
   const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({
     brands: false,
@@ -58,6 +46,33 @@ export default function FilterDrawer({
   });
   const [selectedBrandLetter, setSelectedBrandLetter] = useState<string>('');
   const [selectedNoteLetter, setSelectedNoteLetter] = useState<string>('');
+  
+  // State for API data
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  
+  useEffect(() => {
+    const fetchFilterData = async () => {
+      setLoading(true);
+      try {
+        // Fetch brands and notes in parallel
+        const [brandsData, notesData] = await Promise.all([
+          productService.getBrands(),
+          productService.getNotes()
+        ]);
+        
+        setBrands(brandsData);
+        setNotes(notesData);
+      } catch (error) {
+        console.error('Error fetching filter data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchFilterData();
+  }, []);
 
   // Group brands and notes by first letter
   const groupByLetter = (items: { id: string; name: string; [key: string]: any }[]) => {
@@ -71,8 +86,8 @@ export default function FilterDrawer({
     }, {} as { [key: string]: { id: string; name: string; [key: string]: any }[] });
   };
 
-  const brandsByLetter = groupByLetter(mockBrands);
-  const notesByLetter = groupByLetter(mockNotes);
+  const brandsByLetter = groupByLetter(brands);
+  const notesByLetter = groupByLetter(notes);
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({
@@ -131,7 +146,8 @@ export default function FilterDrawer({
       bestSeller: false,
       concentrations: [],
       brands: [],
-      notes: []
+      notes: [],
+      onSale: false
     });
   };
 
@@ -171,8 +187,17 @@ export default function FilterDrawer({
 
           {/* Filter Content */}
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            {/* Loading state */}
+            {loading && (
+              <div className="flex justify-center items-center py-8">
+                <p className="text-gray-600">Loading filters...</p>
+              </div>
+            )}
+            
             {/* Active Filters */}
-            {(filters.brands?.length > 0 || filters.notes?.length > 0) && (
+            {!loading && (filters.brands?.length > 0 || filters.notes?.length > 0 || 
+              filters.concentrations?.length > 0 || filters.bestSeller || 
+              filters.minPrice || filters.maxPrice) && (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">Active:</span>
                 <button
@@ -257,7 +282,7 @@ export default function FilterDrawer({
                     <>
                       {/* Featured Brands */}
                       <div className="grid grid-cols-3 gap-3 mb-4">
-                        {mockBrands.slice(0, 3).map((brand) => (
+                        {brands.slice(0, 3).map((brand) => (
                           <div
                             key={brand.id}
                             onClick={() => handleBrandToggle(brand.id)}
@@ -332,7 +357,7 @@ export default function FilterDrawer({
                     <>
                       {/* Featured Notes */}
                       <div className="grid grid-cols-4 gap-3 mb-4">
-                        {mockNotes.slice(0, 4).map((note) => (
+                        {notes.slice(0, 4).map((note) => (
                           <div
                             key={note.id}
                             onClick={() => handleNoteToggle(note.id)}
@@ -399,7 +424,7 @@ export default function FilterDrawer({
             </div>
 
             {/* Sale Toggle */}
-            {/* <div className="bg-[#faf0e2] p-4 rounded-lg">
+            <div className="bg-[#faf0e2] p-4 rounded-lg">
               <label className="flex items-center justify-between cursor-pointer">
                 <span className="font-medium text-[#8B4513]">SALE! UP TO 60% OFF</span>
                 <div className="relative">
@@ -418,20 +443,23 @@ export default function FilterDrawer({
                   </div>
                 </div>
               </label>
-            </div> */}
+            </div>
           </div>
 
-          {/* Bottom Actions */}
-          <div className="border-t border-gray-100 p-6 space-y-3">
+          {/* Bottom Action */}
+          <div className="border-t border-gray-100 p-6">
+            <div className="text-sm text-gray-600 mb-4">
+              {isLoading ? 'Loading...' : `Showing ${totalProducts} products`}
+            </div>
             <button
               onClick={onClose}
               className="w-full py-3 px-4 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
             >
-              SHOW {totalProducts} PRODUCT RESULTS
+              VIEW RESULTS
             </button>
             <button
               onClick={clearAllFilters}
-              className="w-full py-3 px-4 text-gray-600 font-medium hover:text-gray-800 transition-colors"
+              className="w-full py-3 px-4 mt-3 text-gray-600 font-medium hover:text-gray-800 transition-colors"
             >
               Clear all
             </button>

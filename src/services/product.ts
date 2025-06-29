@@ -17,6 +17,16 @@ export interface ProductFilterParams {
   occasionSlugs?: string | undefined;
   fragranceFamilySlugs?: string | undefined;
   moodSlugs?: string | undefined;
+  
+  // Additional filter parameters for shop filters
+  minPrice?: string | number;
+  maxPrice?: string | number;
+  brandSlugs?: string[];
+  noteSlugs?: string[];
+  concentrations?: string[];
+  onSale?: boolean;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 export interface Brand {
@@ -133,6 +143,22 @@ const productService = {
     if (filters.fragranceFamilySlugs)
       params.fragranceFamilySlugs = filters.fragranceFamilySlugs;
     if (filters.moodSlugs) params.moodSlugs = filters.moodSlugs;
+    
+    // Additional filter parameters for the comprehensive endpoint
+    if (filters.minPrice) params.minPrice = filters.minPrice;
+    if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+    if (filters.brandSlugs && filters.brandSlugs.length > 0) 
+      params.brandSlugs = filters.brandSlugs.join(",");
+    if (filters.noteSlugs && filters.noteSlugs.length > 0) 
+      params.noteSlugs = filters.noteSlugs.join(",");
+    if (filters.concentrations && filters.concentrations.length > 0) 
+      params.concentrations = filters.concentrations.join(",");
+    if (filters.onSale !== undefined) 
+      params.onSale = filters.onSale;
+    if (filters.sortBy)
+      params.sortBy = filters.sortBy;
+    if (filters.sortOrder)
+      params.sortOrder = filters.sortOrder;
 
     return apiRequest<ProductsResponse>("/products/filter/comprehensive", {
       params,
