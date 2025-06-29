@@ -224,7 +224,7 @@ const productService = {
     if (filters.minPrice) params.minPrice = filters.minPrice;
     if (filters.maxPrice) params.maxPrice = filters.maxPrice;
     if (filters.brandSlugs && filters.brandSlugs.length > 0) 
-      params.brandSlugs = filters.brandSlugs.join(",");
+      params.brandSlugs = filters.brandSlugs.join(";"); // Using semicolons as per API requirement
     if (filters.noteSlugs && filters.noteSlugs.length > 0) 
       params.noteSlugs = filters.noteSlugs.join(";"); // Using semicolons as per API requirement
     if (filters.concentrations && filters.concentrations.length > 0) 
