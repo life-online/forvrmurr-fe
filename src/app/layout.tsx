@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 import Providers from "@/context/Providers";
 
@@ -62,6 +63,7 @@ export default function RootLayout({
         <Providers>
           <Suspense fallback={<RootLoadingFallback />}>{children}</Suspense>
         </Providers>
+        <GoogleAnalytics gaId="G-MEASUREMENT_ID" />
       </body>
     </html>
   );

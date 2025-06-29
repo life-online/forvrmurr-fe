@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { Product } from "@/services/product";
+import { trackAddToCart } from "@/utils/analytics";
 
 interface HoverAddToCartButtonProps {
   product: Product;
@@ -32,6 +33,9 @@ const HoverAddToCartButton: React.FC<HoverAddToCartButtonProps> = ({
         productId: product.id,
         quantity: 1,
       });
+      
+      // Track the add to cart event with Google Analytics
+      trackAddToCart(product, 1);
     } finally {
       setIsAdding(false);
     }

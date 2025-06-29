@@ -2,6 +2,7 @@
 
 import { useCart } from "@/context/CartContext";
 import { Product } from "@/services/product";
+import { trackAddToCart } from "@/utils/analytics";
 
 interface AddToCartButtonProps {
   product: Product;
@@ -27,8 +28,9 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
       productId: product.id,
       quantity: quantity,
     });
-    // for (let i = 0; i < quantity; i++) {
-    // }
+    
+    // Track the add to cart event with Google Analytics
+    trackAddToCart(product, quantity);
   };
 
   return (

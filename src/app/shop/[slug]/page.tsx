@@ -13,6 +13,7 @@ import AddToCartButton from "@/components/cart/AddToCartButton";
 import ProductCard from "@/components/ui/ProductCard";
 import QuantitySelector from "@/components/ui/QuantitySelector";
 import { findNotesImageLocally } from "@/utils/helpers";
+import { trackProductView } from "@/utils/analytics";
 
 // Fallback image paths
 const FALLBACK_IMAGE = "/images/hero/hero_image.png";
@@ -78,6 +79,10 @@ export default function ProductDetailsPage() {
         setLoading(true);
         const data = await productService.getProductBySlug(slug);
         setProduct(data);
+        
+        // Track product view event for Google Analytics
+        trackProductView(data);
+        
         const featuredProductsData = await productService.getFeaturedProducts();
         setFeaturedProducts(featuredProductsData.data);
 

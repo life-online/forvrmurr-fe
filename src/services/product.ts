@@ -96,6 +96,10 @@ export interface Product {
   slug: string;
   fragranceStory: string | null;
   fragrance: any;
+  totalSold?: number;
+  shopifyCreatedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ProductsResponse {

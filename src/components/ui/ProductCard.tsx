@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/services/product";
 import ProductBadge from "./ProductBadge";
+import NewArrivalBadge from "./NewArrivalBadge";
 import HoverAddToCartButton from "./HoverAddToCartButton";
 import { findNotesImageLocally } from "@/utils/helpers";
 import { useCart } from "@/context/CartContext";
@@ -22,6 +23,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const { addToCart } = useCart();
   const [isMobile, setIsMobile] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  
+  // Check if product is a new arrival (created within last 14 days)
+  const isNewArrival = () => {
+    if (!product.shopifyCreatedAt) return false;
+    
+    const createdDate = new Date(product.shopifyCreatedAt);
+    const currentDate = new Date();
+    const diffTime = Math.abs(currentDate.getTime() - createdDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays <= 30;
+  };
   
   // Detect mobile view on client side
   useEffect(() => {
@@ -134,7 +147,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <ProductBadge type="prime" />
           )}
         </div>
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
           {product.isBestSeller && <ProductBadge type="bestseller" />}
         </div>
 
@@ -148,6 +161,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
             priority={priorityLoading}
           />
+          {/* New Arrival Badge - positioned at bottom left */}
+          {isNewArrival() && (
+            <div className="absolute bottom-4 left-6">
+              <NewArrivalBadge />
+            </div>
+          )}
         </div>
 
         {/* Product info (visible when not hovering) */}
