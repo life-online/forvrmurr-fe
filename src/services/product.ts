@@ -32,9 +32,10 @@ export interface ProductFilterParams {
   // Additional filter parameters for shop filters
   minPrice?: string | number;
   maxPrice?: string | number;
-  brandSlugs?: string[];
-  noteSlugs?: string[]; // Note slugs for API filtering using semicolon delimiter
-  notes?: string[];     // Legacy note IDs (to be deprecated)
+  brandSlugs?: string[];   // Brand slugs for API filtering using semicolon delimiter
+  brands?: string[];      // Legacy brand IDs (to be deprecated)
+  noteSlugs?: string[];   // Note slugs for API filtering using semicolon delimiter
+  notes?: string[];       // Legacy note IDs (to be deprecated)
   concentrations?: string[]; // Array of concentration values like ['eau_de_parfum', 'parfum']
   onSale?: boolean;
   sortBy?: string;
@@ -317,7 +318,7 @@ const productService = {
       console.log('API Response for brands:', response);
       
       // Extract the brands array from the data property of the response
-      const brands = response?.data;
+      const brands = response;
       
       // Return the brands if valid
       if (brands && Array.isArray(brands) && brands.length > 0) {

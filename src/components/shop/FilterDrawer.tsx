@@ -16,9 +16,10 @@ export interface ShopFilters {
   maxPrice: string;
   bestSeller: boolean;
   concentrations: string[];
-  brands: string[];
-  notes: string[]; // note IDs (legacy)
-  noteSlugs: string[]; // note slugs for API filtering
+  brands: string[];      // brand IDs (legacy)
+  brandSlugs: string[];  // brand slugs for API filtering
+  notes: string[];       // note IDs (legacy)
+  noteSlugs: string[];   // note slugs for API filtering
   onSale: boolean;
 }
 
@@ -45,8 +46,8 @@ export default function FilterDrawer({
     brands: true,
     notes: true,
   });
-  const [selectedBrandLetter, setSelectedBrandLetter] = useState<string>('');
-  const [selectedNoteLetter, setSelectedNoteLetter] = useState<string>('');
+  const [selectedBrandLetter, setSelectedBrandLetter] = useState<string>('A');
+  const [selectedNoteLetter, setSelectedNoteLetter] = useState<string>('A');
   
   // State for API data
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -193,15 +194,15 @@ export default function FilterDrawer({
     });
   };
 
-  const handleBrandToggle = (brandId: string) => {
-    const currentBrands = filters.brands || [];
-    const newBrands = currentBrands.includes(brandId)
-      ? currentBrands.filter((b: string) => b !== brandId)
-      : [...currentBrands, brandId];
+  const handleBrandToggle = (brandSlug: string) => {
+    const currentBrands = filters.brandSlugs || [];
+    const newBrands = currentBrands.includes(brandSlug)
+      ? currentBrands.filter((slug: string) => slug !== brandSlug)
+      : [...currentBrands, brandSlug];
     
     onFiltersChange({
       ...filters,
-      brands: newBrands
+      brandSlugs: newBrands
     });
   };
 
@@ -224,6 +225,7 @@ export default function FilterDrawer({
       bestSeller: false,
       concentrations: [],
       brands: [],
+      brandSlugs: [],
       notes: [],
       noteSlugs: [],
       onSale: false
@@ -350,71 +352,45 @@ export default function FilterDrawer({
                 onClick={() => toggleSection('brands')}
                 className="flex items-center justify-between w-full font-medium text-gray-900 mb-4"
               >
-                <span>FILTER BY BRANDS ({filters.brands?.length || 0})</span>
+                <span>FILTER BY BRANDS ({filters.brandSlugs?.length || 0})</span>
                 {expandedSections.brands ? <FiChevronUp /> : <FiChevronDown />}
               </button>
               
               {expandedSections.brands && (
                 <div className="space-y-4">
-                  {/* Brand Letter Selection */}
-                  {!selectedBrandLetter ? (
-                    <>
-                      {/* Featured Brands */}
-                      <div className="grid grid-cols-3 gap-3 mb-4">
-                        {brands.slice(0, 3).map((brand) => (
-                          <div
-                            key={brand.id}
-                            onClick={() => handleBrandToggle(brand.id)}
-                            className={`p-3 border rounded-lg cursor-pointer text-center transition-colors ${
-                              filters.brands?.includes(brand.id)
-                                ? 'border-[#a0001e] bg-[#faf0e2]'
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            <div className="text-sm font-medium">{brand.name}</div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {/* Alphabet Navigation */}
-                      <div className="flex flex-wrap gap-2">
-                        {Object.keys(brandsByLetter).sort().map((letter) => (
-                          <button
-                            key={letter}
-                            onClick={() => setSelectedBrandLetter(letter)}
-                            className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded text-sm font-medium hover:bg-gray-50"
-                          >
-                            {letter}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      {/* Back Button */}
-                      <button
-                        onClick={() => setSelectedBrandLetter('')}
-                        className="text-sm text-[#a0001e] hover:underline mb-3"
+                  {/* Brands Grid for Selected Letter */}
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    {getSelectedBrandsByLetter().map((brand) => (
+                      <div
+                        key={brand.id}
+                        onClick={() => handleBrandToggle(brand.slug)}
+                        className={`p-3 border rounded-lg cursor-pointer text-center transition-colors ${
+                          filters.brandSlugs?.includes(brand.slug)
+                            ? 'border-[#a0001e] bg-[#faf0e2]'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
                       >
-                        ← Back to all brands
-                      </button>
-                      
-                      {/* Brands for Selected Letter */}
-                      <div className="space-y-2">
-                        {getSelectedBrandsByLetter().map((brand) => (
-                          <label key={brand.id} className="flex items-center gap-3 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={filters.brands?.includes(brand.id) || false}
-                              onChange={() => handleBrandToggle(brand.id)}
-                              className="w-4 h-4 text-[#a0001e] border-gray-300 rounded focus:ring-[#a0001e]"
-                            />
-                            <span className="text-gray-700">{brand.name}</span>
-                          </label>
-                        ))}
+                        <div className="text-sm font-medium">{brand.name}</div>
                       </div>
-                    </>
-                  )}
+                    ))}
+                  </div>
+                  
+                  {/* Alphabet Navigation */}
+                  <div className="flex flex-wrap gap-2">
+                    {Object.keys(brandsByLetter).sort().map((letter) => (
+                      <button
+                        key={letter}
+                        onClick={() => setSelectedBrandLetter(letter)}
+                        className={`w-8 h-8 flex items-center justify-center border rounded text-sm font-medium ${
+                          selectedBrandLetter === letter
+                            ? 'border-[#a0001e] bg-[#faf0e2] font-bold'
+                            : 'border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {letter}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -431,73 +407,47 @@ export default function FilterDrawer({
               
               {expandedSections.notes && (
                 <div className="space-y-4">
-                  {/* Note Letter Selection */}
-                  {!selectedNoteLetter ? (
-                    <>
-                      {/* Featured Notes */}
-                      <div className="grid grid-cols-4 gap-3 mb-4">
-                        {notes.slice(0, 4).map((note) => (
-                          <div
-                            key={note.id}
-                            onClick={() => handleNoteToggle(note.slug)}
-                            className={`p-2 border rounded-lg cursor-pointer text-center transition-colors ${
-                              filters.noteSlugs?.includes(note.slug)
-                                ? 'border-[#a0001e] bg-[#faf0e2]'
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            <div className="w-8 h-8 mx-auto mb-1 relative">
-                              <Image
-                                src={note.iconUrl}
-                                alt={note.name}
-                                fill
-                                className="object-contain"
-                              />
-                            </div>
-                            <div className="text-xs">{note.name}</div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {/* Alphabet Navigation */}
-                      <div className="flex flex-wrap gap-2">
-                        {Object.keys(notesByLetter).sort().map((letter) => (
-                          <button
-                            key={letter}
-                            onClick={() => setSelectedNoteLetter(letter)}
-                            className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded text-sm font-medium hover:bg-gray-50"
-                          >
-                            {letter}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      {/* Back Button */}
-                      <button
-                        onClick={() => setSelectedNoteLetter('')}
-                        className="text-sm text-[#a0001e] hover:underline mb-3"
+                  {/* Notes Grid for Selected Letter */}
+                  <div className="grid grid-cols-4 gap-3 mb-4">
+                    {getSelectedNotesByLetter().map((note) => (
+                      <div
+                        key={note.id}
+                        onClick={() => handleNoteToggle(note.slug)}
+                        className={`p-2 border rounded-lg cursor-pointer text-center transition-colors ${
+                          filters.noteSlugs?.includes(note.slug)
+                            ? 'border-[#a0001e] bg-[#faf0e2]'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
                       >
-                        ← Back to all notes
-                      </button>
-                      
-                      {/* Notes for Selected Letter */}
-                      <div className="space-y-2">
-                        {getSelectedNotesByLetter().map((note) => (
-                          <label key={note.id} className="flex items-center gap-3 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={filters.noteSlugs?.includes(note.slug) || false}
-                              onChange={() => handleNoteToggle(note.slug)}
-                              className="w-4 h-4 text-[#a0001e] border-gray-300 rounded focus:ring-[#a0001e]"
-                            />
-                            <span className="text-gray-700">{note.name}</span>
-                          </label>
-                        ))}
+                        <div className="w-8 h-8 mx-auto mb-1 relative">
+                          <Image
+                            src={note.iconUrl || '/images/notes/default-note.png'}
+                            alt={note.name}
+                            fill
+                            className="object-contain"
+                          />
+                        </div>
+                        <div className="text-xs">{note.name}</div>
                       </div>
-                    </>
-                  )}
+                    ))}
+                  </div>
+                  
+                  {/* Alphabet Navigation */}
+                  <div className="flex flex-wrap gap-2">
+                    {Object.keys(notesByLetter).sort().map((letter) => (
+                      <button
+                        key={letter}
+                        onClick={() => setSelectedNoteLetter(letter)}
+                        className={`w-8 h-8 flex items-center justify-center border rounded text-sm font-medium ${
+                          selectedNoteLetter === letter
+                            ? 'border-[#a0001e] bg-[#faf0e2] font-bold'
+                            : 'border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {letter}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

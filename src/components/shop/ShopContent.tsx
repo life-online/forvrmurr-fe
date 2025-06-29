@@ -65,6 +65,7 @@ export default function ShopContent() {
   const onSaleFromUrl = searchParams.get("onSale") === 'true';
   const concentrationsFromUrl = searchParams.get("concentrations")?.split(',') || [];
   const brandsFromUrl = searchParams.get("brands")?.split(',') || [];
+  const brandSlugsFromUrl = searchParams.get("brandSlugs")?.split(';') || [];
   const notesFromUrl = searchParams.get("notes")?.split(',') || [];
   const noteSlugsFromUrl = searchParams.get("noteSlugs")?.split(';') || [];
   
@@ -76,6 +77,7 @@ export default function ShopContent() {
     bestSeller: bestSellerFromUrl,
     concentrations: concentrationsFromUrl,
     brands: brandsFromUrl,
+    brandSlugs: brandSlugsFromUrl,
     notes: notesFromUrl,
     noteSlugs: noteSlugsFromUrl,
     onSale: onSaleFromUrl
@@ -122,7 +124,7 @@ export default function ShopContent() {
       isBestSeller: newFilters.bestSeller || undefined,
       onSale: newFilters.onSale || undefined,
       concentrations: newFilters.concentrations?.length > 0 ? newFilters.concentrations : undefined,
-      brandSlugs: newFilters.brands?.length > 0 ? newFilters.brands : undefined,
+      brandSlugs: newFilters.brandSlugs?.length > 0 ? newFilters.brandSlugs : undefined,
       noteSlugs: newFilters.noteSlugs?.length > 0 ? newFilters.noteSlugs : undefined,
       sortBy: currentSortBy !== 'default' ? currentSortBy : undefined,
       sortOrder: currentSortBy !== 'default' ? currentSortOrder : undefined,
@@ -149,7 +151,8 @@ export default function ShopContent() {
     ...(bestSellerFromUrl && { isBestSeller: bestSellerFromUrl }),
     ...(onSaleFromUrl && { onSale: onSaleFromUrl }),
     ...(concentrationsFromUrl.length > 0 && { concentrations: concentrationsFromUrl }),
-    ...(brandsFromUrl.length > 0 && { brandSlugs: brandsFromUrl }),
+    ...(brandsFromUrl.length > 0 && { brands: brandsFromUrl }),
+    ...(brandSlugsFromUrl.length > 0 && { brandSlugs: brandSlugsFromUrl }),
     ...(notesFromUrl.length > 0 && { notes: notesFromUrl }),
     ...(noteSlugsFromUrl.length > 0 && { noteSlugs: noteSlugsFromUrl }),
   };
@@ -207,7 +210,8 @@ export default function ShopContent() {
     
     // Array filters - convert to comma-separated strings
     if (newFilters.concentrations?.length) params.set("concentrations", newFilters.concentrations.join(','));
-    if (newFilters.brandSlugs?.length) params.set("brands", newFilters.brandSlugs.join(','));
+    if (newFilters.brands?.length) params.set("brands", newFilters.brands.join(','));
+    if (newFilters.brandSlugs?.length) params.set("brandSlugs", newFilters.brandSlugs.join(';'));
     if (newFilters.noteSlugs?.length) params.set("noteSlugs", newFilters.noteSlugs.join(';'));
     if (newFilters.notes?.length) params.set("notes", newFilters.notes.join(','));
     
@@ -258,6 +262,7 @@ export default function ShopContent() {
         bestSeller: bestSellerFromUrl,
         concentrations: concentrationsFromUrl,
         brands: brandsFromUrl,
+        brandSlugs: brandSlugsFromUrl,
         notes: notesFromUrl,
         noteSlugs: noteSlugsFromUrl,
         onSale: onSaleFromUrl
