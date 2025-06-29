@@ -316,7 +316,7 @@ export default function FilterDrawer({
             </div>
 
             {/* Best Seller Toggle */}
-            <div>
+            <div >
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
@@ -329,7 +329,7 @@ export default function FilterDrawer({
             </div>
 
             {/* Concentrations */}
-            <div>
+            <div className='py-4'>
               <h3 className="font-medium text-gray-900 mb-4">Concentrations</h3>
               <div className="space-y-2">
                 {concentrationItems.map((concentration: ConcentrationItem) => (
@@ -347,12 +347,12 @@ export default function FilterDrawer({
             </div>
 
             {/* Brands */}
-            <div>
+            <div className='py-4'>
               <button
                 onClick={() => toggleSection('brands')}
                 className="flex items-center justify-between w-full font-medium text-gray-900 mb-4"
               >
-                <span>FILTER BY BRANDS ({filters.brandSlugs?.length || 0})</span>
+                <span>Filter by Brands ({filters.brandSlugs?.length || 0})</span>
                 {expandedSections.brands ? <FiChevronUp /> : <FiChevronDown />}
               </button>
               
@@ -396,12 +396,12 @@ export default function FilterDrawer({
             </div>
 
             {/* Notes */}
-            <div>
+            <div className='py-4'>
               <button
                 onClick={() => toggleSection('notes')}
                 className="flex items-center justify-between w-full font-medium text-gray-900 mb-4"
               >
-                <span>FILTER BY PERFUME NOTES ({filters.noteSlugs?.length || 0})</span>
+                <span>Filter by Perfume Notes ({filters.noteSlugs?.length || 0})</span>
                 {expandedSections.notes ? <FiChevronUp /> : <FiChevronDown />}
               </button>
               

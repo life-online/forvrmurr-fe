@@ -371,6 +371,30 @@ export default function ShopContent() {
     updateUrl(newFilters);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+  
+  // Clear all filters function for the empty state
+  const clearAllFilters = () => {
+    const resetFilters: ProductFilterParams = {
+      page: 1,
+      limit: 12,
+      type: activeTab === 'all' ? undefined : (activeTab as ProductType)
+    };
+    
+    setFilters(resetFilters);
+    setShopFilters({
+      minPrice: '',
+      maxPrice: '',
+      bestSeller: false,
+      concentrations: [],
+      brands: [],
+      brandSlugs: [],
+      notes: [],
+      noteSlugs: [],
+      onSale: false
+    });
+    
+    updateUrl(resetFilters);
+  };
 
   // TODO: Implement actual search input logic and sort by functionality
 
@@ -445,8 +469,27 @@ export default function ShopContent() {
 
       {/* No Products Found */}
       {!loading && products?.length === 0 && (
-        <div className="text-center py-10 min-h-[70vh]">
-          <p>No products found matching your criteria.</p>
+        <div className="text-center py-16 min-h-[70vh] flex flex-col items-center justify-center max-w-md mx-auto px-4">
+          <div className="mb-6 relative">
+            <div className="w-24 h-24 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                <line x1="7" y1="7" x2="7.01" y2="7"></line>
+              </svg>
+            </div>
+            <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#a0001e] flex items-center justify-center text-white text-xs font-bold">0</div>
+          </div>
+          <h3 className="text-xl font-serif mb-2">Oh no, your scent hunt came up empty!</h3>
+          <p className="text-gray-600 mb-6">Even our finest perfumers couldn't blend a fragrance to match those particular filters. Perhaps try a different combination?</p>
+          <button 
+            onClick={clearAllFilters}
+            className="px-6 py-2 border border-[#a0001e] text-[#a0001e] hover:bg-[#a0001e] hover:text-white transition-colors rounded-full text-sm font-medium flex items-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 3h18v18H3zM15 9l-6 6m0-6l6 6"/>
+            </svg>
+            Clear all filters
+          </button>
         </div>
       )}
 
