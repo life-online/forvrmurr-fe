@@ -458,7 +458,7 @@ const productService = {
   /**
    * Get product moods with optional pagination and search
    */
-  async getProductMoods(
+  getProductMoods(
     page: number = 1,
     limit: number = 20,
     search?: string
@@ -471,6 +471,24 @@ const productService = {
       requiresAuth: false,
     });
   },
+  /**
+   * Send notification request for when a product is back in stock
+   */
+  notifyWhenInStock(productId: string, customerData: {
+    fullName: string;
+    email: string;
+    phoneNumber?: string;
+  }): Promise<void> {
+    const respone = apiRequest<void>(`/products/${productId}/notify-me`, {
+      method: 'POST',
+      body: JSON.stringify(customerData),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    return respone;
+  }
 };
 
 export default productService;

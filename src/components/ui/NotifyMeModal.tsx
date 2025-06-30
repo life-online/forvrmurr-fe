@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Product } from "@/services/product";
+import productService, { Product } from "@/services/product";
 import { toastService } from "@/services/toast";
-import { apiRequest } from "@/services/api";
 
 interface NotifyMeModalProps {
   isOpen: boolean;
@@ -69,32 +68,13 @@ const NotifyMeModal: React.FC<NotifyMeModalProps> = ({
     setIsSubmitting(true);
     
     try {
-      // Create the request manually to better handle the response
-      const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/products/${product.id}/notify-me`;
-      console.log('Making notify-me request to:', url);
+      await productService.notifyWhenInStock(product.id, formData);
       
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-      
-      // Check if response is in the 200-299 range (success)
-      if (response.ok) {
-        console.log('Notify request successful');
-        toastService.success(
-          "Thank you! We'll notify you when this product is back in stock."
-        );
-        onClose();
-      } else {
-        // Handle error responses despite them having a valid status code
-        console.error('Notify request failed with status:', response.status);
-        const errorData = await response.text();
-        console.error('Error response:', errorData);
-        throw new Error(`Request failed with status ${response.status}`);
-      }
+      console.log('Notify request successful');
+      toastService.success(
+        "Thank you! We'll notify you when this product is back in stock."
+      );
+      onClose();
     } catch (error) {
       console.error("Error submitting notification request:", error);
       toastService.error(
