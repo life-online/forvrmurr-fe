@@ -8,7 +8,7 @@ const HeroSection: React.FC = () => {
   return (
     <section className="relative w-full text-white min-h-[70vh] md:min-h-[80vh] flex items-center justify-center py-12 md:py-0 overflow-hidden">
       {/* Background Image */}
-      <div className="absolute inset-0 bg-black/20 ">
+      <div className="absolute inset-0 bg-black/70 ">
         {" "}
         {/* Fallback color while image loads */}
         <Image
@@ -17,7 +17,7 @@ const HeroSection: React.FC = () => {
           fill
           sizes="(max-width: 768px) 100vw, 100vw"
           quality={85}
-          className="object-cover object-left md:object-right transition-opacity duration-500"
+          className="object-cover object-[38%_10%] md:object-[50%_10%] transition-opacity duration-500"
           priority
           onError={(e) => {
             console.error("Error loading hero image");
@@ -28,7 +28,7 @@ const HeroSection: React.FC = () => {
         />
       </div>
       {/* Gradient Overlay for text legibility */}
-      <div className="absolute inset-0 bg-gradient-to-r m-4 from-black/70 to-transparent z-10 "></div>
+      <div className="absolute inset-0 bg-gradient-to-r m-4 from-black/85 to-transparent z-10 "></div>
       {/* Overlay Content Container */}
       <div className="relative z-20 max-w-7xl w-full mx-auto px-12 text-left">
         <div className="space-y-6 md:w-1/2">

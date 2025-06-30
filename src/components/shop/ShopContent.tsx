@@ -26,6 +26,7 @@ export default function ShopContent() {
   const isInitialized = useRef(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const searchParamsString = useRef(searchParams.toString());
   const { error: showError } = useToast();
 
   const pageFromUrl = Number(searchParams.get("page")) || 1;
@@ -159,6 +160,103 @@ export default function ShopContent() {
 
   const [filters, setFilters] = useState<ProductFilterParams>(initialFilters);
 
+  // Listen for URL searchParams changes and update filters
+  useEffect(() => {
+    const currentSearchString = searchParams.toString();
+    
+    // Prevent unnecessary updates and infinite loops
+    if (currentSearchString === searchParamsString.current) {
+      return;
+    }
+    
+    // Update the previous search params reference
+    searchParamsString.current = currentSearchString;
+    
+    // Only update filters if component is already initialized (not during initial render)
+    if (isInitialized.current) {
+      // Parse search parameters
+      const newPageFromUrl = Number(searchParams.get("page")) || 1;
+      const newTypeFromUrl = (searchParams.get("type") as FilterTabValue) || "all";
+      const newSearchFromUrl = searchParams.get("search") || "";
+      const newScentTypeSlugs = searchParams.get("scentTypeSlugs") || "";
+      const newOccasionSlugs = searchParams.get("occasionSlugs") || "";
+      const newFragranceFamilySlugs = searchParams.get("fragranceFamilySlugs") || "";
+      const newMoodSlugs = searchParams.get("moodSlugs") || "";
+      const newSortByFromUrl = searchParams.get("sortBy") || 'default';
+      const newSortOrderFromUrl = searchParams.get("sortOrder") || 'ASC';
+      const newMinPriceFromUrl = searchParams.get("minPrice") || '';
+      const newMaxPriceFromUrl = searchParams.get("maxPrice") || '';
+      const newBestSellerFromUrl = searchParams.get("bestSeller") === 'true';
+      const newOnSaleFromUrl = searchParams.get("onSale") === 'true';
+      const newConcentrationsFromUrl = searchParams.get("concentrations")?.split(',').filter(Boolean) || [];
+      const newBrandSlugsFromUrl = searchParams.get("brandSlugs")?.split(';').filter(Boolean) || [];
+      const newNoteSlugsFromUrl = searchParams.get("noteSlugs")?.split(';').filter(Boolean) || [];
+      
+      // Update state for UI controls
+      setCurrentPage(newPageFromUrl);
+      setActiveTab(newTypeFromUrl);
+      setCurrentSortBy(newSortByFromUrl);
+      setCurrentSortOrder(newSortOrderFromUrl);
+      
+      // Update filter state for FragranceSelector
+      setSelectedFilters({
+        "Scent Type": newScentTypeSlugs || null,
+        Occasion: newOccasionSlugs || null,
+        "Fragrance Family": newFragranceFamilySlugs || null,
+        Mood: newMoodSlugs || null,
+      });
+      
+      // Update shop filter state
+      setShopFilters({
+        minPrice: newMinPriceFromUrl,
+        maxPrice: newMaxPriceFromUrl,
+        bestSeller: newBestSellerFromUrl,
+        onSale: newOnSaleFromUrl,
+        concentrations: newConcentrationsFromUrl,
+        brands: [], // We don't have brand names in URL, only slugs
+        brandSlugs: newBrandSlugsFromUrl,
+        notes: [], // We don't have note names in URL, only slugs
+        noteSlugs: newNoteSlugsFromUrl,
+      });
+      
+      // Create new filters object
+      const newFilters: ProductFilterParams = {
+        page: newPageFromUrl,
+        limit: 12,
+        ...(newTypeFromUrl !== "all" && { type: newTypeFromUrl as ProductType }),
+        ...(newSearchFromUrl && { search: newSearchFromUrl }),
+        ...(newScentTypeSlugs && { scentTypeSlugs: newScentTypeSlugs }),
+        ...(newOccasionSlugs && { occasionSlugs: newOccasionSlugs }),
+        ...(newFragranceFamilySlugs && { fragranceFamilySlugs: newFragranceFamilySlugs }),
+        ...(newMoodSlugs && { moodSlugs: newMoodSlugs }),
+        ...(newSortByFromUrl !== 'default' && { sortBy: newSortByFromUrl }),
+        ...(newSortByFromUrl !== 'default' && { sortOrder: newSortOrderFromUrl }),
+        ...(newMinPriceFromUrl && { minPrice: newMinPriceFromUrl }),
+        ...(newMaxPriceFromUrl && { maxPrice: newMaxPriceFromUrl }),
+        ...(newBestSellerFromUrl && { isBestSeller: newBestSellerFromUrl }),
+        ...(newOnSaleFromUrl && { onSale: newOnSaleFromUrl }),
+        ...(newConcentrationsFromUrl.length > 0 && { concentrations: newConcentrationsFromUrl }),
+        ...(newBrandSlugsFromUrl.length > 0 && { brandSlugs: newBrandSlugsFromUrl }),
+        ...(newNoteSlugsFromUrl.length > 0 && { noteSlugs: newNoteSlugsFromUrl }),
+      };
+      
+      // Update filters which will trigger data fetching
+      setFilters(newFilters);
+    }
+  }, [searchParams]);
+  
+  // Set initialization flag after first render
+  useEffect(() => {
+    isInitialized.current = true;
+    
+    // Store initial search params
+    searchParamsString.current = searchParams.toString();
+    
+    return () => {
+      isInitialized.current = false;
+    };
+  }, []);
+
   // Define fetchProducts as a useCallback function
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -181,9 +279,8 @@ export default function ShopContent() {
   
   // Effect to fetch products when filters change
   useEffect(() => {
-
     fetchProducts();
-  }, [filters, showError]);
+  }, [fetchProducts]);
 
   const updateUrl = (newFilters: ProductFilterParams) => {
     const params = new URLSearchParams();

@@ -81,7 +81,7 @@ export default function SearchPopover() {
       
       <Popover.Portal>
         <Popover.Content 
-          className="bg-white rounded-md shadow-lg border border-gray-200 z-50 w-[380px] max-w-[95vw] overflow-hidden animate-fade-in" 
+          className="bg-white rounded-md shadow-lg border border-gray-200 z-50 w-screen md:w-[350px] max-w-[100vw]  overflow-hidden animate-fade-in" 
           side="bottom"
           sideOffset={8}
           align="end"
@@ -124,32 +124,32 @@ export default function SearchPopover() {
                 {products.map((product) => (
                   <div 
                     key={product.id}
-                    className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer transition-colors rounded-md"
+                    className="flex items-center gap-4 p-3 hover:bg-gray-50 cursor-pointer transition-colors rounded-md"
                     onClick={() => handleProductClick(product.slug)}
                   >
-                    <div className="relative h-14 w-14 flex-shrink-0 bg-gray-50 rounded overflow-hidden">
+                    <div className="relative h-16 w-16 flex-shrink-0 bg-gray-50 rounded overflow-hidden">
                       <Image
                         src={product.imageUrls?.[0] || "/images/hero/hero_image.png"}
                         alt={product.name}
                         fill
-                        sizes="56px"
+                        sizes="64px"
                         className="object-contain"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-gray-500 font-medium">{product.brand?.name}</p>
-                      <h4 className="text-sm font-medium text-gray-800 truncate">{product.name}</h4>
+                      <p className="text-sm text-gray-500 font-medium">{product.brand?.name}</p>
+                      <h4 className="text-base font-medium text-gray-800 truncate">{product.name}</h4>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-[#a0001e] font-semibold">
+                        <span className="text-sm text-[#a0001e] font-semibold">
                           ₦{parseInt(product.nairaPrice).toLocaleString()}
                         </span>
                         {product.type && (
-                          <span className="text-[9px] uppercase px-1.5 py-0.5 bg-gray-100 rounded-full text-gray-600">
+                          <span className="text-[10px] uppercase px-1.5 py-0.5 bg-gray-100 rounded-full text-gray-600">
                             {product.type}
                           </span>
                         )}
                         {product.inventoryQuantity <= 0 && (
-                          <span className="text-[9px] uppercase px-1.5 py-0.5 bg-gray-800 text-white rounded-full">
+                          <span className="text-[10px] uppercase px-1.5 py-0.5 bg-gray-800 text-white rounded-full">
                             Out of stock
                           </span>
                         )}
