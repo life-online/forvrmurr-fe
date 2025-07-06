@@ -77,7 +77,7 @@ export default function SplashScreenWrapper({ children }) {
           <div className="h-6 flex justify-center items-center">
             {!showWelcome && (
               <p className="text-sm text-gray-500">
-                this isn't just perfume. It's a lifestyle.
+                This isn't just perfume. It's a lifestyle.
               </p>
             )}
             

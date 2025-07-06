@@ -25,11 +25,12 @@ export default function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token"); // Keep token check here as it's from URL
+  const email = searchParams.get("email"); // Get email from URL
   const { resetPassword, isLoading } = useAuth();
   const { error } = useToast();
 
   const [formData, setFormData] = useState<FormData>({
-    email: "",
+    email: searchParams.get("email") || "",
     password: "",
     confirmPassword: "",
     token: searchParams.get("token") || ""
@@ -84,7 +85,8 @@ export default function ResetPasswordContent() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    const fieldNames = ['email', 'token', 'password', 'confirmPassword'];
+    // Skip email validation since it's pre-populated from URL and readonly
+    const fieldNames = ['token', 'password', 'confirmPassword'];
 
     fieldNames.forEach(fieldName => {
       const fieldValue = formData[fieldName as keyof FormData];
@@ -144,13 +146,12 @@ export default function ResetPasswordContent() {
     }
   };
 
-  if (!token) {
+  if (!token || !email) {
     // This case should ideally be handled by redirecting in useEffect or on server-side if possible
-    // For now, showing a message if token is missing before form renders
-    // This could also be a redirect in a useEffect hook if preferred
+    // For now, showing a message if token or email is missing before form renders
     return (
       <div className="text-center p-4">
-        <p className="text-red-600">Invalid or missing password reset token.</p>
+        <p className="text-red-600">Invalid or incomplete password reset link.</p>
         <p>
           Please{" "}
           <a href="/auth/forgot-password" className="underline">
@@ -177,16 +178,12 @@ export default function ResetPasswordContent() {
           name="email"
           type="email"
           required
-          className={`w-full px-4 py-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent`}
-          placeholder="your@email.com"
+          className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-100 text-gray-600"
           value={formData.email}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          disabled={isSubmitting}
+          disabled={true}
+          readOnly
         />
-        {errors.email && (
-          <p className="mt-1 text-xs text-red-500">{errors.email}</p>
-        )}
+        <p className="mt-1 text-xs text-gray-500">Email address from your reset link</p>
       </div>
       <div>
         <label

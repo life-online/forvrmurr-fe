@@ -67,7 +67,7 @@ export default function RootLayout({
             <Suspense fallback={<RootLoadingFallback />}>{children}</Suspense>
           </SplashScreenWrapper>
         </Providers>
-        <GoogleAnalytics gaId="G-MEASUREMENT_ID" />
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || ''} />
       </body>
     </html>
   );

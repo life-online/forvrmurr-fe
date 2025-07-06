@@ -35,7 +35,7 @@ export default function VerifyEmailContent() {
         
         await verifyEmail(email, token);
         // Success toast is already handled in AuthContext for verifyEmail
-        router.push("/auth/login?verified=true"); // Redirect to login or dashboard
+        router.push("/"); // Redirect to login or dashboard
       } catch (err) {
         // Error toast is handled in AuthContext
         router.push("/"); // Fallback redirect

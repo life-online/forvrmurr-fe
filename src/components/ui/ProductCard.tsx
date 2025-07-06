@@ -182,14 +182,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
           )}
         </div>
         <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
-          {/* Always show Out of Stock badge first when applicable */}
+          {/* If out of stock, only show the out of stock badge */}
           {isOutOfStock ? (
-            <>
-              <OutOfStockBadge />
-              {product.isBestSeller && <ProductBadge type="bestseller" />}
-            </>
+            <OutOfStockBadge />
           ) : (
-            /* When in stock, show bestseller badge first for prominence */
+            /* When in stock, show bestseller badge if applicable */
             product.isBestSeller && <ProductBadge type="bestseller" />
           )}
         </div>
