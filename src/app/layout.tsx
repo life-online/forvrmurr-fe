@@ -5,6 +5,8 @@ import "./globals.css";
 import { GoogleAnalytics } from '@next/third-parties/google';
 
 import Providers from "@/context/Providers";
+import SplashScreenWrapper from "./splashScreen";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -56,12 +58,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en"  data-cursorstyle="true">
+    <html lang="en" data-cursorstyle="true">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} antialiased`}
       >
         <Providers>
-          <Suspense fallback={<RootLoadingFallback />}>{children}</Suspense>
+          <SplashScreenWrapper>
+            <Suspense fallback={<RootLoadingFallback />}>{children}</Suspense>
+          </SplashScreenWrapper>
         </Providers>
         <GoogleAnalytics gaId="G-MEASUREMENT_ID" />
       </body>

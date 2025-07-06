@@ -43,6 +43,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
     return diffDays <= 30;
   };
   
+  // Format concentration from snake_case to proper display format
+  const formatConcentration = (concentration?: string | null): string => {
+    if (!concentration) return "EAU DE PARFUM";
+    
+    // Convert snake_case to title case
+    return concentration
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   // Detect mobile view on client side
   useEffect(() => {
     const checkIfMobile = () => {
@@ -266,7 +277,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             {/* Concentration */}
             <div className="mt-2 text-center">
               <p className="text-sm text-gray-200 uppercase">
-                {product.name} {product.concentration || "EAU DE PARFUM"}
+                {product.name} {formatConcentration(product.concentration) || "EAU DE PARFUM"}
               </p>
             </div>
             {/* Scent Notes */}

@@ -9,6 +9,7 @@ import { useToast } from "../../context/ToastContext";
 import cartService from "../../services/cart";
 import productService, { Discount, Product } from "@/services/product";
 import QuantitySelector from "../ui/QuantitySelector";
+import { Drawer } from "vaul";
 
 // Types
 export interface CartItem {
@@ -122,7 +123,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
 
   }, [cartItems]);
 
-  if (!isOpen) return null;
+  // Using Vaul Drawer for sliding animation
 
   const navigateToShop = () => {
     router.push("/shop");
@@ -193,15 +194,17 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
     }
   };
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/30 transition-opacity"
-        onClick={onClose}
-      />
-
-      {/* Cart Panel */}
-      <div className="fixed inset-y-0 right-0 max-w-md w-full bg-white shadow-xl flex flex-col">
+    <Drawer.Root open={isOpen} onOpenChange={onClose} direction="right">
+      <Drawer.Portal>
+        {/* Increased z-index for overlay to be above all content including product badges */}
+        <Drawer.Overlay className="fixed inset-0 bg-black/30 z-[999]" />
+        <Drawer.Content
+          className="fixed inset-y-0 right-0 max-w-md w-full bg-white shadow-xl flex flex-col z-[1000]"
+          style={{
+            WebkitOverflowScrolling: "touch",
+            touchAction: "pan-y",
+            overscrollBehavior: "contain",
+          }}>
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 p-4">
           <h2 className="text-xl font-serif">
@@ -486,8 +489,9 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
             </button>
           </div>
         )}
-      </div>
-    </div>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
   );
 };
 

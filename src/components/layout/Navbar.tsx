@@ -4,37 +4,63 @@ import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FiUser, FiShoppingBag, FiLogOut, FiMenu, FiX } from "react-icons/fi";
+import { FiShoppingBag, FiMenu, FiX, FiUser } from "react-icons/fi";
 import CartOverlay from "@/components/cart/CartOverlay";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import SearchPopup from "./SearchPopover";
-import { BiLogOut } from "react-icons/bi";
 
 interface NavItem {
   name: string;
   path: string;
 }
 
+interface NavSubRoute {
+  name: string;
+  path: string;
+  onClick?: () => void;
+}
+
 const navItems: NavItem[] = [
-  // { name: "HOME", path: "/" },
   { name: "SHOP", path: "/shop" },
-  { name: "SUBSCRIPTIONS", path: "/coming-soon" },
-  { name: "ABOUT", path: "/about" }, // Keep this here for general path matching, but dropdown will override behavior
+  { name: "SUBSCRIPTIONS", path: "/subscriptions" },
   { name: "DISCOVER", path: "/discover" },
+  { name: "ABOUT", path: "/about" },
+];
+
+const shopSubroutes = [
+  { name: "Shop Collection", path: "/shop" },
+  { name: "Perfume Travel Case", path: "/shop/travel-case" },
+  { name: "Gifting", path: "/shop/gifting" },
+];
+
+const subscriptionsSubroutes = [
+  { name: "Monthly Prime", path: "/subscriptions/prime" },
+  { name: "Monthly Premium", path: "/subscriptions/premium" },
+  { name: "Manage Subscription", path: "/subscriptions/manage" },
 ];
 
 const discoverSubroutes = [
-  { name: "Take the Scent Quiz", path: "/coming-soon" },
+  { name: "Take Scent Quiz", path: "/discover/quiz" },
   { name: "Why Choose Decants", path: "/discover/choose-decants" },
 ];
 
 const aboutSubroutes = [
   { name: "Our Story", path: "/about/story" },
-  { name: "Meet the Founders", path: "/about" }, // This could be the main /about page
+  { name: "Meet the Founders", path: "/about/founders" },
   { name: "FAQs", path: "/about/faq" },
+  { name: "Contact Us", path: "/about/contact" },
 ];
+
+const getAccountSubroutes = (isAuthenticated: boolean, handleLogout: () => void) => [
+  ...(isAuthenticated 
+    ? [{ name: "Logout", path: "#", onClick: handleLogout }] 
+    : [{ name: "Login", path: "/auth/login" }]),
+  { name: "Order History", path: "/profile/orders" },
+  { name: "Wishlist", path: "/profile/wishlist" },
+];
+
 
 const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -42,12 +68,18 @@ const Navbar: React.FC = () => {
     "NGN"
   );
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
+  const [showShopDropdown, setShowShopDropdown] = useState(false);
+  const [showSubscriptionsDropdown, setShowSubscriptionsDropdown] = useState(false);
   const [showDiscoverDropdown, setShowDiscoverDropdown] = useState(false);
-  const [showAboutDropdown, setShowAboutDropdown] = useState(false); // State for About dropdown
+  const [showAboutDropdown, setShowAboutDropdown] = useState(false);
+  const [showAccountDropdown, setShowAccountDropdown] = useState(false);
 
   const currencyDropdownRef = useRef<HTMLDivElement>(null);
+  const shopDropdownRef = useRef<HTMLDivElement>(null);
+  const subscriptionsDropdownRef = useRef<HTMLDivElement>(null);
   const discoverDropdownRef = useRef<HTMLDivElement>(null);
-  const aboutDropdownRef = useRef<HTMLDivElement>(null); // Ref for About dropdown
+  const aboutDropdownRef = useRef<HTMLDivElement>(null);
+  const accountDropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const pathname = usePathname();
@@ -74,17 +106,34 @@ const Navbar: React.FC = () => {
         setShowCurrencyDropdown(false);
       }
       if (
+        shopDropdownRef.current &&
+        !shopDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowShopDropdown(false);
+      }
+      if (
+        subscriptionsDropdownRef.current &&
+        !subscriptionsDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowSubscriptionsDropdown(false);
+      }
+      if (
         discoverDropdownRef.current &&
         !discoverDropdownRef.current.contains(event.target as Node)
       ) {
         setShowDiscoverDropdown(false);
       }
-      // Added About dropdown ref
       if (
         aboutDropdownRef.current &&
         !aboutDropdownRef.current.contains(event.target as Node)
       ) {
         setShowAboutDropdown(false);
+      }
+      if (
+        accountDropdownRef.current &&
+        !accountDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowAccountDropdown(false);
       }
       if (
         mobileMenuRef.current &&
@@ -96,8 +145,11 @@ const Navbar: React.FC = () => {
 
     if (
       showCurrencyDropdown ||
+      showShopDropdown ||
+      showSubscriptionsDropdown ||
       showDiscoverDropdown ||
-      showAboutDropdown || // Include About dropdown in listener condition
+      showAboutDropdown ||
+      showAccountDropdown ||
       isMobileMenuOpen
     ) {
       document.addEventListener("mousedown", handleClickOutside);
@@ -110,8 +162,11 @@ const Navbar: React.FC = () => {
     };
   }, [
     showCurrencyDropdown,
+    showShopDropdown,
+    showSubscriptionsDropdown,
     showDiscoverDropdown,
-    showAboutDropdown, // Dependency for About dropdown
+    showAboutDropdown,
+    showAccountDropdown,
     isMobileMenuOpen,
   ]);
 
@@ -225,6 +280,86 @@ const Navbar: React.FC = () => {
                     pathname === item.path ||
                     (item.path !== "/" && pathname?.startsWith(item.path));
 
+                  // Special handling for SHOP dropdown
+                  if (item.name === "SHOP") {
+                    return (
+                      <div
+                        key={item.path}
+                        className="relative"
+                        ref={shopDropdownRef}
+                      >
+                        <button
+                          onClick={() => setShowShopDropdown(!showShopDropdown)}
+                          className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${
+                            isActive
+                              ? "bg-[#f7ede1] text-black font-medium"
+                              : "hover:opacity-70"
+                          }`}
+                          aria-expanded={showShopDropdown}
+                          aria-haspopup="menu"
+                        >
+                          {item.name}
+                        </button>
+
+                        {/* Shop Dropdown */}
+                        {showShopDropdown && (
+                          <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg z-50 text-black">
+                            {shopSubroutes.map((subroute) => (
+                              <Link
+                                key={subroute.path}
+                                href={subroute.path}
+                                className="block px-4 py-2 hover:bg-gray-100 text-sm"
+                                onClick={() => setShowShopDropdown(false)}
+                              >
+                                {subroute.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  // Special handling for SUBSCRIPTIONS dropdown
+                  if (item.name === "SUBSCRIPTIONS") {
+                    return (
+                      <div
+                        key={item.path}
+                        className="relative"
+                        ref={subscriptionsDropdownRef}
+                      >
+                        <button
+                          onClick={() => setShowSubscriptionsDropdown(!showSubscriptionsDropdown)}
+                          className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${
+                            isActive
+                              ? "bg-[#f7ede1] text-black font-medium"
+                              : "hover:opacity-70"
+                          }`}
+                          aria-expanded={showSubscriptionsDropdown}
+                          aria-haspopup="menu"
+                        >
+                          {item.name}
+                        </button>
+
+                        {/* Subscriptions Dropdown */}
+                        {showSubscriptionsDropdown && (
+                          <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg z-50 text-black">
+                            {subscriptionsSubroutes.map((subroute) => (
+                              <Link
+                                key={subroute.path}
+                                href={subroute.path}
+                                className="block px-4 py-2 hover:bg-gray-100 text-sm"
+                                onClick={() => setShowSubscriptionsDropdown(false)}
+                              >
+                                {subroute.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
                   // Special handling for DISCOVER dropdown
                   if (item.name === "DISCOVER") {
                     return (
@@ -234,9 +369,7 @@ const Navbar: React.FC = () => {
                         ref={discoverDropdownRef}
                       >
                         <button
-                          onClick={() =>
-                            setShowDiscoverDropdown(!showDiscoverDropdown)
-                          }
+                          onClick={() => setShowDiscoverDropdown(!showDiscoverDropdown)}
                           className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${
                             isActive
                               ? "bg-[#f7ede1] text-black font-medium"
@@ -273,12 +406,10 @@ const Navbar: React.FC = () => {
                       <div
                         key={item.path}
                         className="relative"
-                        ref={aboutDropdownRef} // Use the dedicated ref for About
+                        ref={aboutDropdownRef}
                       >
                         <button
-                          onClick={() =>
-                            setShowAboutDropdown(!showAboutDropdown)
-                          }
+                          onClick={() => setShowAboutDropdown(!showAboutDropdown)}
                           className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${
                             isActive
                               ? "bg-[#f7ede1] text-black font-medium"
@@ -298,10 +429,63 @@ const Navbar: React.FC = () => {
                                 key={subroute.path}
                                 href={subroute.path}
                                 className="block px-4 py-2 hover:bg-gray-100 text-sm"
-                                onClick={() => setShowAboutDropdown(false)} // Close dropdown on click
+                                onClick={() => setShowAboutDropdown(false)}
                               >
                                 {subroute.name}
                               </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  // Special handling for MY ACCOUNT dropdown
+                  if (item.name === "MY ACCOUNT") {
+                    return (
+                      <div
+                        key={item.path}
+                        className="relative"
+                        ref={accountDropdownRef}
+                      >
+                        <button
+                          onClick={() => setShowAccountDropdown(!showAccountDropdown)}
+                          className={`px-4 py-1 rounded-full font-serif text-sm transition-colors duration-200 ${
+                            isActive
+                              ? "bg-[#f7ede1] text-black font-medium"
+                              : "hover:opacity-70"
+                          }`}
+                          aria-expanded={showAccountDropdown}
+                          aria-haspopup="menu"
+                        >
+                          {item.name}
+                        </button>
+
+                        {/* Account Dropdown */}
+                        {showAccountDropdown && (
+                          <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg z-50 text-black">
+                            {getAccountSubroutes(isAuthenticated, handleLogout).map((subroute: NavSubRoute) => (
+                              subroute.onClick ? (
+                                <button
+                                  key={subroute.name}
+                                  onClick={() => {
+                                    setShowAccountDropdown(false);
+                                    subroute.onClick?.();
+                                  }}
+                                  className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                                >
+                                  {subroute.name}
+                                </button>
+                              ) : (
+                                <Link
+                                  key={subroute.path}
+                                  href={subroute.path}
+                                  className="block px-4 py-2 hover:bg-gray-100 text-sm"
+                                  onClick={() => setShowAccountDropdown(false)}
+                                >
+                                  {subroute.name}
+                                </Link>
+                              )
                             ))}
                           </div>
                         )}
@@ -328,29 +512,50 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Icons - Right aligned */}
-          <div className="flex items-center space-x-3 order-3">
+          <div className="flex items-center space-x-4 order-3">
             <SearchPopup />
-            <button
-              aria-label="Account"
-              className="hover:opacity-70 transition-opacity"
-              onClick={() =>
-                (window.location.href = isAuthenticated
-                  ? "/profile"
-                  : "/auth/login")
-              }
-            >
-              <FiUser size={18} />
-            </button>
-            {isAuthenticated && (
+            
+            {/* User Account Icon with Dropdown */}
+            <div className="relative" ref={accountDropdownRef}>
               <button
-                aria-label="Account"
+                aria-label="My Account"
                 className="hover:opacity-70 transition-opacity"
-                onClick={handleLogout}
+                onClick={() => setShowAccountDropdown(!showAccountDropdown)}
               >
-                <BiLogOut size={18} />
+                <FiUser size={18} />
               </button>
-            )}
-
+              
+              {/* Account Dropdown */}
+              {showAccountDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg z-50 text-black">
+                  {getAccountSubroutes(isAuthenticated, handleLogout).map((subroute: NavSubRoute) => (
+                    subroute.onClick ? (
+                      <button
+                        key={subroute.name}
+                        onClick={() => {
+                          setShowAccountDropdown(false);
+                          subroute.onClick?.();
+                        }}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                      >
+                        {subroute.name}
+                      </button>
+                    ) : (
+                      <Link
+                        key={subroute.path}
+                        href={subroute.path}
+                        className="block px-4 py-2 hover:bg-gray-100 text-sm"
+                        onClick={() => setShowAccountDropdown(false)}
+                      >
+                        {subroute.name}
+                      </Link>
+                    )
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {/* Shopping Cart Icon */}
             <button
               aria-label="Cart"
               className="hover:opacity-70 transition-opacity relative"
@@ -404,16 +609,74 @@ const Navbar: React.FC = () => {
                     pathname === item.path ||
                     (item.path !== "/" && pathname?.startsWith(item.path));
 
+                  // Special handling for SHOP in mobile menu
+                  if (item.name === "SHOP") {
+                    return (
+                      <div key={item.path} className="space-y-1">
+                        <div
+                          className={`flex justify-between items-center py-3 px-4 ${isActive ? "bg-gray-800 rounded font-medium" : "hover:bg-gray-900"}`}
+                        >
+                          <span>{item.name}</span>
+                        </div>
+
+                        {/* Mobile shop subroutes */}
+                        <div className="pl-6 border-l border-gray-700 ml-4 space-y-1">
+                          {shopSubroutes.map((subroute) => {
+                            const isSubrouteActive = pathname === subroute.path;
+
+                            return (
+                              <Link
+                                key={subroute.path}
+                                href={subroute.path}
+                                className={`block py-2 px-4 text-sm ${isSubrouteActive ? "text-white font-medium" : "text-gray-400 hover:text-white"}`}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                              >
+                                {subroute.name}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Special handling for SUBSCRIPTIONS in mobile menu
+                  if (item.name === "SUBSCRIPTIONS") {
+                    return (
+                      <div key={item.path} className="space-y-1">
+                        <div
+                          className={`flex justify-between items-center py-3 px-4 ${isActive ? "bg-gray-800 rounded font-medium" : "hover:bg-gray-900"}`}
+                        >
+                          <span>{item.name}</span>
+                        </div>
+
+                        {/* Mobile subscriptions subroutes */}
+                        <div className="pl-6 border-l border-gray-700 ml-4 space-y-1">
+                          {subscriptionsSubroutes.map((subroute) => {
+                            const isSubrouteActive = pathname === subroute.path;
+
+                            return (
+                              <Link
+                                key={subroute.path}
+                                href={subroute.path}
+                                className={`block py-2 px-4 text-sm ${isSubrouteActive ? "text-white font-medium" : "text-gray-400 hover:text-white"}`}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                              >
+                                {subroute.name}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  }
+
                   // Special handling for DISCOVER in mobile menu
                   if (item.name === "DISCOVER") {
                     return (
                       <div key={item.path} className="space-y-1">
                         <div
-                          className={`flex justify-between items-center py-3 px-4 ${
-                            isActive
-                              ? "bg-gray-800 rounded font-medium"
-                              : "hover:bg-gray-900"
-                          }`}
+                          className={`flex justify-between items-center py-3 px-4 ${isActive ? "bg-gray-800 rounded font-medium" : "hover:bg-gray-900"}`}
                         >
                           <span>{item.name}</span>
                         </div>
@@ -427,11 +690,7 @@ const Navbar: React.FC = () => {
                               <Link
                                 key={subroute.path}
                                 href={subroute.path}
-                                className={`block py-2 px-4 text-sm ${
-                                  isSubrouteActive
-                                    ? "text-white font-medium"
-                                    : "text-gray-400 hover:text-white"
-                                }`}
+                                className={`block py-2 px-4 text-sm ${isSubrouteActive ? "text-white font-medium" : "text-gray-400 hover:text-white"}`}
                                 onClick={() => setIsMobileMenuOpen(false)}
                               >
                                 {subroute.name}
@@ -445,17 +704,10 @@ const Navbar: React.FC = () => {
 
                   // Special handling for ABOUT in mobile menu
                   if (item.name === "ABOUT") {
-                    const isAboutActive = aboutSubroutes.some(
-                      (subroute) => pathname === subroute.path
-                    );
                     return (
                       <div key={item.path} className="space-y-1">
                         <div
-                          className={`flex justify-between items-center py-3 px-4 ${
-                            isAboutActive
-                              ? "bg-gray-800 rounded font-medium"
-                              : "hover:bg-gray-900"
-                          }`}
+                          className={`flex justify-between items-center py-3 px-4 ${isActive ? "bg-gray-800 rounded font-medium" : "hover:bg-gray-900"}`}
                         >
                           <span>{item.name}</span>
                         </div>
@@ -469,11 +721,7 @@ const Navbar: React.FC = () => {
                               <Link
                                 key={subroute.path}
                                 href={subroute.path}
-                                className={`block py-2 px-4 text-sm ${
-                                  isSubrouteActive
-                                    ? "text-white font-medium"
-                                    : "text-gray-400 hover:text-white"
-                                }`}
+                                className={`block py-2 px-4 text-sm ${isSubrouteActive ? "text-white font-medium" : "text-gray-400 hover:text-white"}`}
                                 onClick={() => setIsMobileMenuOpen(false)}
                               >
                                 {subroute.name}
@@ -485,15 +733,13 @@ const Navbar: React.FC = () => {
                     );
                   }
 
+
+
                   return (
                     <Link
                       key={item.path}
                       href={item.path}
-                      className={`block py-3 px-4 ${
-                        isActive
-                          ? "bg-gray-800 rounded font-medium"
-                          : "hover:bg-gray-900"
-                      }`}
+                      className={`block py-3 px-4 ${isActive ? "bg-gray-800 rounded font-medium" : "hover:bg-gray-900"}`}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       {item.name}
@@ -502,18 +748,41 @@ const Navbar: React.FC = () => {
                 })}
               </div>
 
-              {/* Conditionally show logout on mobile */}
-              {isAuthenticated && (
-                <div className="pt-4 border-t border-gray-800">
-                  <button
-                    className="flex items-center gap-2 text-red-400 py-2"
-                    onClick={handleLogout}
-                  >
-                    <FiLogOut size={18} />
-                    <span>Logout</span>
-                  </button>
+              {/* Account Section for Mobile */}
+              <div className="mt-6 border-t border-gray-800 pt-4 space-y-1">
+                <div className="py-3 px-4">
+                  <span className="text-gray-400 text-sm font-medium">MY ACCOUNT</span>
                 </div>
-              )}
+
+                {/* Account options */}
+                <div className="space-y-1">
+                  {getAccountSubroutes(isAuthenticated, handleLogout).map((subroute: NavSubRoute) => {
+                    const isSubrouteActive = pathname === subroute.path;
+
+                    return subroute.onClick ? (
+                      <button
+                        key={subroute.name}
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          subroute.onClick?.();
+                        }}
+                        className={`block py-2 px-4 text-sm text-left w-full ${isSubrouteActive ? "text-white font-medium" : "text-gray-400 hover:text-white"}`}
+                      >
+                        {subroute.name}
+                      </button>
+                    ) : (
+                      <Link
+                        key={subroute.path}
+                        href={subroute.path}
+                        className={`block py-2 px-4 text-sm ${isSubrouteActive ? "text-white font-medium" : "text-gray-400 hover:text-white"}`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        {subroute.name}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         )}
