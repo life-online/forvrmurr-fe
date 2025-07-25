@@ -66,7 +66,7 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <Link
-                  href="/discover/choose-decants"
+                  href="/discover/why-decants"
                   className="hover:text-white"
                 >
                   Why Choose Decants

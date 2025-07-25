@@ -43,7 +43,7 @@ const subscriptionsSubroutes = [
 
 const discoverSubroutes = [
   { name: "Take Scent Quiz", path: "/discover/quiz" },
-  { name: "Why Choose Decants", path: "/discover/choose-decants" },
+  { name: "Why Choose Decants", path: "/discover/why-decants" },
 ];
 
 const aboutSubroutes = [
