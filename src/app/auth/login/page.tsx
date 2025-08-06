@@ -116,12 +116,21 @@ export default function Login() {
         router.push('/');
       }
     } catch (err: any) {
-      // Set a general error message
-      setErrors(prev => ({
-        ...prev,
-        general: err?.message || "Login failed. Please check your credentials."
-      }));
-      error("Login failed. Please check your credentials.");
+      // Check for guest user login error
+      if (err?.message?.includes("guest account")) {
+        setErrors(prev => ({
+          ...prev,
+          general: "This appears to be a guest account. Please register to create a permanent account."
+        }));
+        error("This appears to be a guest account. Please register to create a permanent account.");
+      } else {
+        // Set a general error message for other errors
+        setErrors(prev => ({
+          ...prev,
+          general: err?.message || "Login failed. Please check your credentials."
+        }));
+        error("Login failed. Please check your credentials.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -133,6 +142,21 @@ export default function Login() {
       subtitle="Welcome back to ForvrMurr"
     >
       <form onSubmit={handleSubmit} className="space-y-6">
+        {errors.general && (
+          <div className="p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
+            <p>{errors.general}</p>
+            {errors.general.includes("guest account") && (
+              <p className="mt-2">
+                <Link 
+                  href={`/auth/register${searchParams.get('redirect') ? `?redirect=${encodeURIComponent(searchParams.get('redirect')!)}` : ''}`}
+                  className="font-medium text-[#8b0000] hover:text-[#cf0000] underline"
+                >
+                  Register now
+                </Link> to create your account.
+              </p>
+            )}
+          </div>
+        )}
         <div>
           <label htmlFor="emailOrPhone" className="block text-sm font-medium text-gray-700 mb-1">
             Email or Phone Number

@@ -842,8 +842,6 @@ const CheckoutPage = () => {
   
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
-
       <main className="flex-grow py-8 bg-gray-50">
         <div className="container max-w-7xl mx-auto px-4 mb-14">
           <h1 className="text-3xl font-serif mb-8 text-center">Checkout</h1>
@@ -1252,8 +1250,6 @@ const CheckoutPage = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

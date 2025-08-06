@@ -170,7 +170,7 @@ export default function Faq() {
           <div className="mt-8 pt-8 border-t border-gray-200 text-center w-full">
             <p className="text-base text-gray-700">
               Still need help?{" "}
-              <Link href="/contact" className="font-medium text-[#8B0000] hover:underline transition-all">
+              <Link href="/about/contact" className="font-medium text-[#8B0000] hover:underline transition-all">
                 Contact us here
               </Link>
             </p>

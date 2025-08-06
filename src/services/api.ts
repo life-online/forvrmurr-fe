@@ -84,16 +84,24 @@ export async function apiRequest<T = Record<string, unknown>>(
     // --- START: 401 Unauthorized Handling ---
     if (response.status === 401) {
       console.warn(
-        "API Error: 401 Unauthorized. Clearing session and redirecting."
+        "API Error: 401 Unauthorized. Clearing session."
       );
       localStorage.removeItem("forvrmurr_access_token");
       localStorage.removeItem("forvrmurr_user"); // Assuming you store user information
-      // Redirect to login page or home. Use Next.js Router if in a React component.
-      // For a utility function, a direct window.location.href might be acceptable,
-      // but be aware it causes a full page reload.
-      window.location.href = "/auth/login";
-      // Throw an error to stop further processing in the caller function
-      throw new Error("Unauthorized: Session expired or invalid token.");
+
+      // Don't force a redirect - let the component handle it
+      // window.location.href = "/auth/login";
+
+      // Just throw the error with appropriate message
+      const errorData = await response.json().catch(() => ({}));
+      const error = new Error(
+        errorData.message || "Unauthorized: Session expired or invalid token."
+      );
+      // @ts-ignore - Add additional properties to the error
+      error.status = response.status;
+      // @ts-ignore
+      error.data = errorData;
+      throw error;
     }
     // --- END: 401 Unauthorized Handling ---
 

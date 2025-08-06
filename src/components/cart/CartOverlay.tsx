@@ -145,20 +145,6 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
     }));
   };
   const navigateToCheckout = async () => {
-    if (!isAuthenticated) {
-      // Store the intended redirect path and message for the registration page
-      const redirectUrl = "/shop/checkout";
-      const message =
-        "Please create an account or log in to complete your checkout.";
-      router.push(
-        `/auth/register?redirect=${encodeURIComponent(
-          redirectUrl
-        )}&message=${encodeURIComponent(message)}`
-      );
-      onClose();
-      return;
-    }
-
     try {
       info("Processing your cart...");
       await cartService.initiateCheckout();

@@ -66,20 +66,30 @@ export const authService = {
       headers.Authorization = `Bearer ${this.getAccessToken()}`;
     }
 
-    const response = await api.post<{ access_token: string; user: User }>(
-      "/auth/login",
-      data,
-      { headers }
-    );
-    
-    // Store access token and user data
-    this.setTokens({ accessToken: response.access_token });
-    this.setUser(response.user);
+    try {
+      const response = await api.post<{ access_token: string; user: User }>(
+        "/auth/login",
+        data,
+        { headers }
+      );
+      
+      // Store access token and user data
+      this.setTokens({ accessToken: response.access_token });
+      this.setUser(response.user);
 
-    // Clear guest ID if it was used (legacy cleanup)
-    this.clearGuestId();
+      // Clear guest ID if it was used (legacy cleanup)
+      this.clearGuestId();
 
-    return response;
+      return response;
+    } catch (error: any) {
+      // Check for specific guest user login error
+      if (error?.message === "Guest users cannot log in with password" || 
+          (error?.response?.data?.message === "Guest users cannot log in with password")) {
+        throw new Error("This appears to be a guest account. Please register to create a permanent account.");
+      }
+      // Re-throw other errors
+      throw error;
+    }
   },
 
   /**
@@ -99,6 +109,9 @@ export const authService = {
     };
 
     console.log("Registration payload:", JSON.stringify(payload)); // For debugging
+
+    console.log("isAuthenticated:", this.isAuthenticated());
+    console.log("isGuest:", this.isGuest());
 
     // Include current guest JWT if exists for automatic conversion
     const headers: any = {};
