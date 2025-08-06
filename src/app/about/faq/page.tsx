@@ -1,13 +1,23 @@
 "use client";
-import AnnouncementBar from "@/components/layout/AnnouncementBar";
-import Footer from "@/components/layout/Footer";
-import Navbar from "@/components/layout/Navbar";
 import generalFaq from "@/data/generalFaq.json";
 import Link from "next/link";
-import { useState } from "react";
+import Image from "next/image";
+import { useState, useEffect, useRef } from "react";
 
 export default function Faq() {
   const [openFaq, setOpenFaq] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [filteredFaq, setFilteredFaq] = useState(generalFaq);
+  
+  // Initialize with all categories
+  useEffect(() => {
+    if (!activeCategory) {
+      setFilteredFaq(generalFaq);
+    } else {
+      setFilteredFaq(generalFaq.filter(category => category.name === activeCategory));
+    }
+  }, [activeCategory]);
+  
   function getTotalQuestions(data: any): number {
     let total = 0;
     for (const category of data) {
@@ -15,58 +25,126 @@ export default function Faq() {
     }
     return total;
   }
+  
+  // Create a ref for the FAQ content section
+  const faqContentRef = useRef<HTMLDivElement>(null);
+  
+  // Function to scroll to FAQ content with proper positioning
+  const scrollToSection = () => {
+    // Use setTimeout to ensure the scroll happens after the current execution context
+    setTimeout(() => {
+      if (faqContentRef.current) {
+        const offsetTop = faqContentRef.current.offsetTop;
+        window.scrollTo({
+          top: offsetTop, // No offset to ensure FAQ content is at the very top
+          behavior: 'smooth'
+        });
+      }
+    }, 100);
+  };
+
+  
   return (
-    <div className="min-h-screen bg-white flex flex-col ">
-      <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
-      <Navbar />
-      <section className="">
-        <div>
-          <img
-            src="/images/category_selection/faqBanner.png"
-            alt="Model with fragrance"
-            className="rounded-lg"
+    <div className="bg-white flex flex-col mb-16">
+      {/* Hero Banner */}
+      <section className="relative w-[96%] h-[70vh] md:h-[65vh] overflow-hidden mx-auto my-3 md:my-8 rounded-lg">
+        <div className="relative w-full h-full">
+          {/* Desktop Image */}
+          <Image
+            src="/images/about/faq/faq-hero.jpg"
+            alt="FAQ Hero"
+            fill
+            priority
+            className="object-cover hidden md:block"
           />
+          
+          {/* Mobile Image */}
+          <Image
+            src="/images/about/faq/faq-hero-mobile.jpg"
+            alt="FAQ Hero"
+            fill
+            priority
+            className="object-cover md:hidden"
+          />
+          
+          {/* Gradient Overlay for text legibility - Desktop */}
+          <div className="absolute inset-0 bg-gradient-to-r m-4 from-black/10 to-transparent z-10 hidden md:block rounded-lg"></div>
+          
+          {/* Gradient Overlay for text legibility - Mobile */}
+          <div className="absolute inset-0 bg-gradient-to-b m-4 from-transparent via-transparent to-black/10 z-10 md:hidden rounded-lg"></div>
+          
+          {/* Hero Content Overlay */}
+          <div className="absolute inset-0 flex items-center justify-center z-30">
+            <div className="text-center max-w-2xl mx-auto px-4 mt-auto mb-12 md:my-0">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-medium tracking-wide text-[#8B0000] mb-4">
+                YOUR QUESTIONS, ANSWERED
+              </h1>
+              <p className="text-base md:text-lg font-light text-[#8B0000] max-w-2xl mx-auto">
+                Find answers to common questions about our products, services, and more.
+              </p>
+              <button
+                onClick={scrollToSection}
+                className="mt-6 px-8 py-3 bg-[#a0001e] text-white font-medium rounded hover:bg-[#8b0000] transition-colors"
+              >
+                Get Started
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
-      <div className="flex flex-col items-center gap-3 lg:gap-5 p-5">
-        <div className="flex flex-col lg:w-[30%] md:w-[50%] w-[80%] gap-2">
-          <p className="text-xl lg:text-2xl text-center text-[#8B0000]">FAQS</p>
-          <p className="text-xl lg:leading-12 md:text-2xl text-center w-full  lg:text-3xl text-black">
-            Explore our FAQ section for all your burning questions answered.
-          </p>
-        </div>
-        <div className="flex w-full items-center justify-center">
-          <p className="text-sm text-[#C8102E]">
-            Showing {getTotalQuestions(generalFaq)} questions
-          </p>
-        </div>
-        <div className="flex flex-col items-center gap-3 w-[90%] lg:w-[50%]">
-          {generalFaq.map((item, index) => (
-            <div
-              className="flex flex-col items-center gap-3 w-full"
-              key={index}
+      {/* Content Section */}
+      <div ref={faqContentRef} className="max-w-7xl mx-auto w-full px-4 md:px-8 lg:px-12 py-16 md:py-24 flex flex-col items-center">
+        
+        {/* Category Tabs */}
+        <div className="w-full mb-10">
+          <div className="flex flex-wrap gap-2 md:gap-3 justify-center pb-2">
+            <button 
+              onClick={() => setActiveCategory(null)}
+              className={`px-3 md:px-4 py-2 rounded-full border text-xs md:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${!activeCategory ? "bg-[#faf0e2] border-[#e6c789] text-[#600000]" : "bg-white border-gray-300 text-gray-700 hover:bg-gray-100"}`}
             >
-              <p className="text-xl lg:text-2xl text-[#CE0000]">{item.name}</p>
-              <div className="flex flex-col gap-2 w-full">
+              All
+            </button>
+            {generalFaq.map((category, index) => (
+              <button
+                key={index}
+                onClick={() => setActiveCategory(category.name)}
+                className={`px-3 md:px-4 py-2 rounded-full border text-xs md:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${activeCategory === category.name ? "bg-[#faf0e2] border-[#e6c789] text-[#600000]" : "bg-white border-gray-300 text-gray-700 hover:bg-gray-100"}`}
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
+        </div>
+        
+    
+        <div className="flex flex-col items-center w-full md:w-[80%] lg:w-[70%]">
+          {filteredFaq.map((item, index) => (
+            <div
+              className="flex flex-col items-center w-full mb-10"
+              key={index}
+              id={`category-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
+            >
+              <h2 className="text-xl md:text-2xl font-serif font-medium text-[#8B0000] mb-6">{item.name}</h2>
+              <div className="flex flex-col gap-4 w-full">
                 {item.questions.map((faq) => (
                   <div
                     key={faq.id}
-                    className="mb-2 border border-gray-200 rounded overflow-hidden bg-white"
+                    className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow"
                   >
                     <button
-                      className="w-full text-left font-serif font-semibold text-[#1C1C1C] px-4 py-3 focus:outline-none flex justify-between items-center"
+                      className="w-full text-left font-medium text-gray-800 px-6 py-4 focus:outline-none flex justify-between items-center"
                       onClick={() =>
                         setOpenFaq(openFaq === faq.id ? null : faq.id)
                       }
                     >
-                      <span className="text-xs md:text-sm">{faq.q}</span>
-                      <span className="ml-2">
-                        {openFaq === faq.id ? "-" : "+"}
+                      <span className="text-sm md:text-base">{faq.q}</span>
+                      <span className="ml-4 text-[#a0001e] text-lg font-light">
+                        {openFaq === faq.id ? "−" : "+"}
                       </span>
                     </button>
                     {openFaq === faq.id && (
-                      <div className="text-[#1C1C1C] mt-0 px-4 pb-3 text-sm">
+                      <div className="text-gray-600 bg-gray-50 px-6 py-4 text-sm md:text-base font-light leading-relaxed">
                         {faq.a}
                       </div>
                     )}
@@ -75,15 +153,30 @@ export default function Faq() {
               </div>
             </div>
           ))}
-          <p className="text-sm text-black">
-            still need help?{" "}
-            <span className="underline text-[#C8102E]">
-              <Link href="/contact">Contact Us here</Link>
-            </span>
-          </p>
+          
+          {/* No Results Message */}
+          {filteredFaq.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-lg text-gray-500">No questions found for this category.</p>
+              <button 
+                onClick={() => setActiveCategory(null)}
+                className="mt-4 px-6 py-2 bg-[#a0001e] text-white font-medium rounded hover:bg-[#8b0000] transition-colors"
+              >
+                View All Questions
+              </button>
+            </div>
+          )}
+          
+          <div className="mt-8 pt-8 border-t border-gray-200 text-center w-full">
+            <p className="text-base text-gray-700">
+              Still need help?{" "}
+              <Link href="/contact" className="font-medium text-[#8B0000] hover:underline transition-all">
+                Contact us here
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

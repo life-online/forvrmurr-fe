@@ -124,6 +124,26 @@ export interface Discount {
 
 const productService = {
   /**
+   * Get all products for sitemap generation
+   * This method fetches all products with a high limit to include all products
+   */
+  async getAllProducts(): Promise<Product[]> {
+    try {
+      // Use a high limit to get as many products as possible in one request
+      const response = await apiRequest<ProductsResponse>('/products', {
+        params: {
+          limit: 1000, // High limit to get all products
+        },
+        requiresAuth: false,
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching all products:', error);
+      return [];
+    }
+  },
+  /**
    * Get available product concentrations
    */
   async getConcentrations(): Promise<string[]> {

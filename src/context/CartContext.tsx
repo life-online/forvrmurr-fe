@@ -31,47 +31,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   const [cart, setCart] = useState<CartResponseDto | undefined>(undefined);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [guestId, setGuestId] = useState<string | null>(null);
   const { user, isAuthenticated } = useAuth();
   const { error } = useToast();
 
   const itemCount = cartItems?.reduce((count, item) => count + item.quantity, 0) || 0;
 
-  // Load guestId from localStorage on mount
-  useEffect(() => {
-    const storedGuestId = localStorage.getItem("forvrmurr_guest_id");
-    if (storedGuestId) {
-      setGuestId(storedGuestId);
-    }
-  }, []);
-
-  // Fetch cart from backend API when auth state or guestId changes
+  // Fetch cart from backend API - simplified with automatic authentication
   useEffect(() => {
     const fetchCart = async () => {
       setIsLoading(true);
       try {
-        let cartResponse: CartResponseDto;
-
-        if (isAuthenticated) {
-          // Fetch authenticated user's cart
-          cartResponse = await cartService.getCart();
-          setCart(cartResponse);
-          // If there was a guest ID, we can clear it now
-          if (guestId) {
-            localStorage.removeItem("forvrmurr_guest_id");
-            setGuestId(null);
-          }
-        } else if (guestId) {
-          // Fetch guest cart using stored guestId
-          cartResponse = await cartService.getGuestCart(guestId);
-          setCart(cartResponse);
-        } else {
-          // No auth and no guestId yet, empty cart state
-          setCartItems(null);
-          setCart(undefined);
-          setIsLoading(false);
-          return;
-        }
+        // Cart service now handles authentication automatically
+        const cartResponse = await cartService.getCart();
+        setCart(cartResponse);
 
         // Map backend cart items to frontend CartItem format
         const mappedItems: CartItem[] = cartResponse.items.map(
@@ -96,14 +68,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     };
 
-    // Only fetch if user is authenticated or we have a guestId
-    if (isAuthenticated || guestId) {
-      fetchCart();
-    } else {
-      // No auth and no guestId, start with empty cart
-      setCartItems(null);
-    }
-  }, [isAuthenticated, guestId, user]);
+    fetchCart();
+  }, [user]); // Only depend on user changes
 
   const openCart = () => setIsCartOpen(true);
   const closeCart = () => setIsCartOpen(false);
@@ -113,22 +79,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   const refreshCart = async () => {
     setIsLoading(true);
     try {
-      let cartResponse: CartResponseDto;
-
-      if (isAuthenticated) {
-        // Fetch authenticated user's cart
-        cartResponse = await cartService.getCart();
-      } else if (guestId) {
-        // Fetch guest cart using stored guestId
-        cartResponse = await cartService.getGuestCart(guestId);
-      } else {
-        // No auth and no guestId yet, empty cart state
-        setCartItems(null);
-        setCart(undefined);
-        setIsLoading(false);
-        return;
-      }
-      
+      // Simplified - cart service handles authentication
+      const cartResponse = await cartService.getCart();
       setCart(cartResponse);
       
       // Map backend cart items to frontend CartItem format
@@ -156,22 +108,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   const addToCart = async (newItem: CartItem) => {
     setIsLoading(true);
     try {
-      // API call to add item to cart - backend will generate a guestId for new guests
-      const response = await cartService.addItemToCart(
-        {
-          productId: newItem.id,
-          quantity: newItem.quantity,
-        },
-        // Only pass guestId if user is not authenticated and we already have a guestId
-        !isAuthenticated && guestId ? guestId : undefined
-      );
-
-      // Check for guestId in response - the backend provides it for guest users
-      if (!isAuthenticated && response.guestId) {
-        // Always save the latest guestId from the response
-        localStorage.setItem("forvrmurr_guest_id", response.guestId);
-        setGuestId(response.guestId);
-      }
+      // Simplified - cart service handles authentication
+      const response = await cartService.addItemToCart({
+        productId: newItem.id,
+        quantity: newItem.quantity,
+      });
 
       setCart(response);
 
@@ -196,52 +137,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       openCart();
     } catch (err) {
       console.error("Failed to add item to cart:", err);
-      try {
-        // Retry after clearing tokens as a recovery attempt
-        localStorage.removeItem("forvrmurr_access_token");
-        localStorage.removeItem("forvrmurr_guest_id");
-        
-        // API call to add item to cart - backend will generate a guestId for new guests
-        const response = await cartService.addItemToCart(
-          {
-            productId: newItem.id,
-            quantity: newItem.quantity,
-          },
-          undefined // No guestId on retry
-        );
-
-        // Check for guestId in response - the backend provides it for guest users
-        if (!isAuthenticated && response.guestId) {
-          // Always save the latest guestId from the response
-          localStorage.setItem("forvrmurr_guest_id", response.guestId);
-          setGuestId(response.guestId);
-        }
-
-        setCart(response);
-
-        // Map backend cart items to frontend CartItem format
-        const mappedItems: CartItem[] = response.items.map(
-          (item: CartItemDto) => ({
-            id: item.id,
-            name: item.product.name,
-            brand: item.product.name.split(" ")[0], // Adjust based on actual data
-            price: parseFloat(item.price),
-            imageUrl:
-              item.product.imageUrl ||
-              `/images/products/${item.product.slug}.png`,
-            quantity: item.quantity,
-            productId: item.product.id,
-          })
-        );
-
-        setCartItems(mappedItems);
-
-        // Open cart when adding an item
-        openCart();
-      } catch (retryError) {
-        console.error("Failed to add item to cart even after retry:", retryError);
-        error?.("Could not add item to cart. Please try again.");
-      }
+      error?.("Could not add item to cart. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -250,16 +146,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   const removeFromCart = async (itemId: string) => {
     setIsLoading(true);
     try {
-      const response = await cartService.removeItemFromCart(
-        itemId,
-        !isAuthenticated && guestId ? guestId : undefined
-      );
-
-      // Check for updated guestId in response
-      if (!isAuthenticated && response.guestId) {
-        localStorage.setItem("forvrmurr_guest_id", response.guestId);
-        setGuestId(response.guestId);
-      }
+      // Simplified - cart service handles authentication
+      const response = await cartService.removeItemFromCart(itemId);
       
       setCart(response);
 
@@ -292,17 +180,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
     setIsLoading(true);
     try {
-      const response = await cartService.updateItemQuantity(
-        itemId,
-        quantity,
-        !isAuthenticated && guestId ? guestId : undefined
-      );
-
-      // Check for updated guestId in response
-      if (!isAuthenticated && response.guestId) {
-        localStorage.setItem("forvrmurr_guest_id", response.guestId);
-        setGuestId(response.guestId);
-      }
+      // Simplified - cart service handles authentication
+      const response = await cartService.updateItemQuantity(itemId, quantity);
       
       setCart(response);
 
@@ -333,15 +212,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   const clearCart = async () => {
     setIsLoading(true);
     try {
-      const response = await cartService.clearCart(
-        !isAuthenticated && guestId ? guestId : undefined
-      );
-
-      // Check for updated guestId in response
-      if (!isAuthenticated && response.guestId) {
-        localStorage.setItem("forvrmurr_guest_id", response.guestId);
-        setGuestId(response.guestId);
-      }
+      // Simplified - cart service handles authentication
+      const response = await cartService.clearCart();
       
       setCart(response);
       setCartItems(null);

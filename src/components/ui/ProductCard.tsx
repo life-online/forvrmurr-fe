@@ -287,7 +287,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   >
                     <div className="relative w-8 h-8">
                       <Image
-                        src={noteItem.note?.iconUrl || FALLBACK_NOTE_IMAGE}
+                        src={`/images${noteItem.note?.iconUrl}` || FALLBACK_NOTE_IMAGE}
                         alt=""
                         fill
                         className="object-contain"

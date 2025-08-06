@@ -200,7 +200,7 @@ export default function FragranceSelector({
                           className={`relative w-[65px] h-[65px] sm:w-24 sm:h-24 rounded-md overflow-hidden cursor-pointer transition-all duration-200`}
                         >
                           <Image
-                            src={item.iconUrl || "/images/shop/occassion.jpg"}
+                            src={`/images${item.iconUrl}` || "/images/shop/occassion.jpg"}
                             alt={item.slug}
                             width={1000}
                             height={1000}

@@ -49,16 +49,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     const initAuth = async () => {
       try {
         const response = await authService.getCurrentUser();
-        // Type assertion to handle the response type safely
-        const typedResponse = response as
-          | User
-          | { user: User; access_token: string };
-
-        // Handle response with either User or {access_token, user} structure
-        if ("user" in typedResponse) {
-          setUser(typedResponse.user);
-        } else {
-          setUser(typedResponse);
+        
+        // getCurrentUser returns User | null, so handle null case
+        if (response) {
+          setUser(response);
         }
       } catch (err) {
         console.error("Failed to initialize auth state", err);
@@ -192,18 +186,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     setIsLoading(true);
     try {
       const response = await authService.updateProfile(data);
-
-      // Type assertion to handle the response type safely
-      const typedResponse = response as
-        | User
-        | { user: User; access_token: string };
-
-      // Handle response with either User or {access_token, user} structure
-      if ("user" in typedResponse) {
-        setUser(typedResponse.user);
-      } else {
-        setUser(typedResponse);
-      }
+      
+      // updateProfile returns User directly
+      setUser(response);
       success("Profile updated successfully");
     } catch (err) {
       error("Failed to update profile");

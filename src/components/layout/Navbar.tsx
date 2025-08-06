@@ -9,6 +9,7 @@ import CartOverlay from "@/components/cart/CartOverlay";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
+import { authService } from "@/services/auth";
 import SearchPopup from "./SearchPopover";
 
 interface NavItem {
@@ -30,7 +31,9 @@ const navItems: NavItem[] = [
 ];
 
 const shopSubroutes = [
-  { name: "Shop Collection", path: "/shop" },
+  { name: "All Fragrances", path: "/shop" },
+  { name: "Prime Collection", path: "/shop?type=prime" },
+  { name: "Premium Collection", path: "/shop?type=premium" },
   { name: "Perfume Travel Case", path: "/shop/travel-case" },
   { name: "Gifting", path: "/shop/gifting" },
 ];
@@ -53,13 +56,23 @@ const aboutSubroutes = [
   { name: "Contact Us", path: "/about/contact" },
 ];
 
-const getAccountSubroutes = (isAuthenticated: boolean, handleLogout: () => void) => [
-  ...(isAuthenticated 
-    ? [{ name: "Logout", path: "#", onClick: handleLogout }] 
-    : [{ name: "Login", path: "/auth/login" }]),
-  { name: "Order History", path: "/profile/orders" },
-  { name: "Wishlist", path: "/profile/wishlist" },
-];
+const getAccountSubroutes = (isAuthenticated: boolean, handleLogout: () => void) => {
+  const isGuest = authService.isGuest();
+  
+  // For guests, only show login option
+  if (isGuest) {
+    return [{ name: "Login", path: "/auth/login" }];
+  }
+  
+  // For registered users or non-authenticated users
+  return [
+    ...(isAuthenticated 
+      ? [{ name: "Logout", path: "#", onClick: handleLogout }] 
+      : [{ name: "Login", path: "/auth/login" }]),
+    { name: "Order History", path: "/profile/orders" },
+    { name: "Wishlist", path: "/profile/wishlist" },
+  ];
+};
 
 
 const Navbar: React.FC = () => {
@@ -515,12 +528,20 @@ const Navbar: React.FC = () => {
           <div className="flex items-center space-x-4 order-3">
             <SearchPopup />
             
-            {/* User Account Icon with Dropdown */}
+            {/* User Account Icon with Dropdown - Always visible */}
             <div className="relative" ref={accountDropdownRef}>
               <button
                 aria-label="My Account"
                 className="hover:opacity-70 transition-opacity"
-                onClick={() => setShowAccountDropdown(!showAccountDropdown)}
+                onClick={() => {
+                  if (!isAuthenticated && authService.isGuest()) {
+                    // Redirect to login page if user is not authenticated and is a guest
+                    window.location.href = "/auth/login";
+                  } else {
+                    // Toggle dropdown for authenticated users or non-guest users
+                    setShowAccountDropdown(!showAccountDropdown);
+                  }
+                }}
               >
                 <FiUser size={18} />
               </button>
@@ -748,7 +769,7 @@ const Navbar: React.FC = () => {
                 })}
               </div>
 
-              {/* Account Section for Mobile */}
+              {/* Account Section for Mobile - Always visible */}
               <div className="mt-6 border-t border-gray-800 pt-4 space-y-1">
                 <div className="py-3 px-4">
                   <span className="text-gray-400 text-sm font-medium">MY ACCOUNT</span>

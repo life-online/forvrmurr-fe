@@ -433,7 +433,7 @@ export default function Register() {
         <p className="text-sm text-gray-600">
           Already have an account?{" "}
           <Link
-            href="/auth/login"
+            href={`/auth/login${searchParams.get('redirect') ? `?redirect=${encodeURIComponent(searchParams.get('redirect')!)}` : ''}`}
             className="text-[#8b0000] hover:text-[#cf0000] hover:underline font-medium"
           >
             Sign in

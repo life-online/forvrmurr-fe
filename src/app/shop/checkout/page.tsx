@@ -19,6 +19,7 @@ import checkoutService, {
 } from "@/services/checkout";
 import taxService, { TaxConfiguration } from "@/services/tax";
 import { isValidPhoneNumber, parsePhoneNumber } from 'libphonenumber-js';
+import { authService, RegisterData } from "@/services/auth";
 
 interface Address {
   id?: string;
@@ -57,6 +58,10 @@ const CheckoutPage = () => {
   const { isAuthenticated, user } = useAuth();
   const { error, success } = useToast();
   const router = useRouter();
+
+  // Guest checkout state
+  const [checkoutOption, setCheckoutOption] = useState<'guest' | 'register' | null>(null);
+  const [showLoginSuggestion, setShowLoginSuggestion] = useState(false);
 
   // Loading and API state
   const [isLoading, setIsLoading] = useState(false);
@@ -280,15 +285,15 @@ const CheckoutPage = () => {
         // Fetch tax configuration for Nigeria (default country)
         await fetchTaxConfiguration(countryCode);
         
-        // Fetch saved addresses if authenticated
-        if (isAuthenticated) {
+        // Fetch saved addresses if authenticated and registered user
+        if (isAuthenticated && authService.isRegistered()) {
           // Pre-populate user information from their account
           if (user) {
             setFormData(prev => ({
               ...prev,
-              fullName: `${user.firstName} ${user.lastName}`.trim(),
-              email: user.email || prev.email
-              // Phone number may come from saved addresses
+              fullName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+              email: user.email || prev.email,
+              phoneNumber: user.phoneNumber || ''
             }));
           }
           
@@ -331,6 +336,14 @@ const CheckoutPage = () => {
             
             console.log('Default address selected:', defaultAddress.id);
           }
+        }
+        
+        // Set checkout option based on user type
+        if (authService.isRegistered()) {
+          setCheckoutOption('register');
+        } else if (authService.isGuest()) {
+          // Guest user - they need to choose
+          setCheckoutOption(null);
         }
       } catch (err) {
         console.error("Error fetching checkout data:", err);
@@ -668,6 +681,17 @@ const CheckoutPage = () => {
     }
   };
 
+  // Handle checkout option selection
+  const handleCheckoutOptionSelect = (option: 'guest' | 'register') => {
+    if (option === 'register') {
+      // Redirect to registration page with return URL
+      router.push('/auth/register?redirect=' + encodeURIComponent('/shop/checkout'));
+    } else {
+      setCheckoutOption(option);
+    }
+  };
+
+
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
     
@@ -739,6 +763,39 @@ const CheckoutPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Handle checkout errors with specific messages for email/phone conflicts
+  const handleCheckoutError = (err: any) => {
+    if (err.status === 409) {
+      // Parse error message to determine if it's email or phone conflict
+      const errorMessage = err.data?.message || err.message || '';
+      
+      if (errorMessage.toLowerCase().includes('email')) {
+        error("This email address is already registered. Please sign in with your email to continue checkout.");
+        // Show login option
+        setShowLoginSuggestion(true);
+      } else if (errorMessage.toLowerCase().includes('phone')) {
+        error("This phone number is already registered. Please sign in with your phone number to continue checkout.");
+        // Show login option
+        setShowLoginSuggestion(true);
+      } else {
+        // Generic conflict message
+        error("This email or phone number belongs to an existing account. Please sign in to continue checkout.");
+        setShowLoginSuggestion(true);
+      }
+    } else if (err.status === 400) {
+      // Handle validation errors
+      const errorMessage = err.data?.message || err.message || '';
+      if (Array.isArray(errorMessage)) {
+        error(errorMessage.join(', '));
+      } else {
+        error(errorMessage || "Please check your information and try again.");
+      }
+    } else {
+      // Generic error
+      error("Failed to process your order. Please try again.");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -749,6 +806,9 @@ const CheckoutPage = () => {
 
     setIsLoading(true);
     try {
+      // First initiate checkout
+      await cartService.initiateCheckout();
+
       // Create order with all required fields
       const order = await checkoutService.createOrder({
         fullName: formData.fullName,
@@ -764,16 +824,16 @@ const CheckoutPage = () => {
       // Initiate payment
       const paymentResult = await checkoutService.initiatePayment(order.id);
       
-      // Redirect to payment page or confirmation
+      // Redirect to payment page
       if (paymentResult.paymentUrl) {
-        router.push(paymentResult.paymentUrl);
+        window.location.href = paymentResult.paymentUrl;
       } else {
         success("Order placed successfully!");
         router.push(`/shop/orders/${order.id}`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Checkout error:", err);
-      error("Failed to process your order. Please try again.");
+      handleCheckoutError(err);
     } finally {
       setIsLoading(false);
     }
@@ -791,9 +851,88 @@ const CheckoutPage = () => {
           <div className="flex flex-col-reverse lg:flex-row gap-8">
             {/* Left side: Checkout form */}
             <div className="lg:w-2/3">
-              <div className="bg-white p-6 rounded-xl shadow-md">
-                <form onSubmit={handleSubmit}>
-                  <div className="space-y-6">
+              {/* Checkout Options (only show for guests who haven't chosen yet) */}
+              {authService.isGuest() && !checkoutOption && (
+                <div className="bg-white p-6 rounded-xl shadow-md mb-6">
+                  <h2 className="text-xl font-serif mb-4">How would you like to checkout?</h2>
+                  
+                  <div className="space-y-3">
+                    <button 
+                      type="button"
+                      onClick={() => handleCheckoutOptionSelect('guest')}
+                      className="w-full p-4 text-left border border-gray-300 rounded-lg hover:border-[#a0001e] hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="font-medium text-gray-900">Continue as Guest</div>
+                      <div className="text-sm text-gray-600 mt-1">Quick checkout without creating an account</div>
+                    </button>
+
+                    <button 
+                      type="button"
+                      onClick={() => handleCheckoutOptionSelect('register')}
+                      className="w-full p-4 text-left border border-gray-300 rounded-lg hover:border-[#a0001e] hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="font-medium text-gray-900">Create Account & Checkout</div>
+                      <div className="text-sm text-gray-600 mt-1">Save your information for faster future checkouts</div>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+
+              {/* Login Suggestion Modal */}
+              {showLoginSuggestion && (
+                <div className="bg-white border-l-4 border-[#a0001e] p-6 rounded-xl shadow-md mb-6">
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-[#a0001e]" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3 flex-1">
+                      <h3 className="text-lg font-medium text-gray-900 mb-3">Account Already Exists</h3>
+                      <div className="mt-2 text-sm text-gray-600">
+                        <p>This email or phone number is already registered. Please sign in to continue with your order.</p>
+                      </div>
+                      <div className="mt-4 flex gap-3">
+                        <button
+                          type="button"
+                          onClick={() => router.push('/auth/login?redirect=' + encodeURIComponent('/shop/checkout'))}
+                          className="bg-[#a0001e] text-white px-4 py-2 rounded text-sm font-medium hover:bg-[#8a0019] transition-colors"
+                        >
+                          Sign In
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowLoginSuggestion(false)}
+                          className="bg-white text-gray-700 px-4 py-2 rounded text-sm font-medium border border-gray-300 hover:bg-gray-50 transition-colors"
+                        >
+                          Continue as Guest
+                        </button>
+                      </div>
+                    </div>
+                    <div className="ml-auto pl-3">
+                      <div className="-mx-1.5 -my-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setShowLoginSuggestion(false)}
+                          className="inline-flex rounded-md p-1.5 text-gray-500 hover:text-[#a0001e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#a0001e]"
+                        >
+                          <span className="sr-only">Dismiss</span>
+                          <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Main Checkout Form */}
+              {(checkoutOption || authService.isRegistered()) && (
+                <div className="bg-white p-6 rounded-xl shadow-md">
+                  <form onSubmit={handleSubmit}>
+                    <div className="space-y-6">
                     {/* Personal Information */}
                     <div className="pb-4">
                       <h3 className="text-lg font-medium mb-3">Personal Information</h3>
@@ -809,7 +948,10 @@ const CheckoutPage = () => {
                             value={formData.fullName}
                             onChange={handleInputChange}
                             onBlur={handleBlur}
-                            className={`w-full p-2 border ${formErrors.fullName ? 'border-red-500' : 'border-gray-300'} rounded`}
+                            disabled={!!(user?.firstName && user?.lastName)}
+                            className={`w-full p-2 border ${formErrors.fullName ? 'border-red-500' : 'border-gray-300'} rounded ${
+                              user?.firstName && user?.lastName ? 'bg-gray-100 cursor-not-allowed' : ''
+                            }`}
                             required
                           />
                           {formErrors.fullName && (
@@ -828,7 +970,10 @@ const CheckoutPage = () => {
                             value={formData.email}
                             onChange={handleInputChange}
                             onBlur={handleBlur}
-                            className={`w-full p-2 border ${formErrors.email ? 'border-red-500' : 'border-gray-300'} rounded`}
+                            disabled={!!user?.email}
+                            className={`w-full p-2 border ${formErrors.email ? 'border-red-500' : 'border-gray-300'} rounded ${
+                              user?.email ? 'bg-gray-100 cursor-not-allowed' : ''
+                            }`}
                             required
                           />
                           {formErrors.email && (
@@ -847,8 +992,11 @@ const CheckoutPage = () => {
                             value={formData.phoneNumber}
                             onChange={handleInputChange}
                             onBlur={handleBlur}
+                            disabled={!!user?.phoneNumber}
                             placeholder="+1 123 456 7890"
-                            className={`w-full p-2 border ${formErrors.phoneNumber ? 'border-red-500' : 'border-gray-300'} rounded`}
+                            className={`w-full p-2 border ${formErrors.phoneNumber ? 'border-red-500' : 'border-gray-300'} rounded ${
+                              user?.phoneNumber ? 'bg-gray-100 cursor-not-allowed' : ''
+                            }`}
                             required
                           />
                           {formErrors.phoneNumber && (
@@ -1082,10 +1230,11 @@ const CheckoutPage = () => {
                       >
                         {isLoading ? "Processing..." : "Complete Order"}
                       </button>
+                      </div>
                     </div>
-                  </div>
-                </form>
-              </div>
+                  </form>
+                </div>
+              )}
             </div>
 
             {/* Right side: Order summary */}

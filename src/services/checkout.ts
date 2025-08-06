@@ -1,4 +1,5 @@
 import { apiRequest } from "./api";
+import { authService } from "./auth";
 
 export interface Address {
   id?: string;
@@ -107,13 +108,10 @@ const checkoutService = {
   createOrder: async (
     checkoutData: CheckoutFormData,
     taxConfigId?: string,
-    cartId?: string,
-    guestId?: string
+    cartId?: string
   ): Promise<CheckoutResponse> => {
-    const options = {
-      requiresAuth: !guestId,
-      params: guestId ? { guestId } : undefined,
-    };
+    // Ensure authentication (creates guest if needed)
+    await authService.ensureAuthentication();
 
     // Format data for API
     const apiPayload = {
@@ -161,7 +159,7 @@ const checkoutService = {
     return apiRequest<CheckoutResponse>("/orders", {
       method: "POST",
       body: JSON.stringify(apiPayload),
-      ...options,
+      requiresAuth: true, // We always have auth now (guest or registered)
     });
   },
 

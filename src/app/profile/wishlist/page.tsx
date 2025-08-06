@@ -1,7 +1,26 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { authService } from '@/services/auth';
 
 export default function WishlistPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Redirect guests to login page
+    if (authService.isGuest()) {
+      router.push('/auth/login?redirect=' + encodeURIComponent('/profile/wishlist'));
+      return;
+    }
+  }, [router]);
+
+  // Don't render the page content if user is a guest (will redirect)
+  if (authService.isGuest()) {
+    return null;
+  }
+
   return (
     <div className="container mx-auto px-4 py-16">
       <h1 className="font-serif text-3xl md:text-4xl text-center mb-12">My Wishlist</h1>

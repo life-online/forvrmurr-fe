@@ -1,8 +1,6 @@
 'use client'
-import React from 'react';
-import AnnouncementBar from '@/components/layout/AnnouncementBar';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 // Plans data is defined within the component
@@ -53,11 +51,14 @@ const faqs = [
 ];
 
 export default function SubscriptionsPage() {
+  const router = useRouter();
+  
+  useEffect(() => {
+    router.push('/subscriptions/manage');
+  }, [router]);
   const [openFaq, setOpenFaq] = React.useState<number | null>(null);
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
-      <Navbar />
+    <>
       {/* Hero Section */}
       <div className="w-full flex flex-col items-center justify-center py-10 bg-black">
         <div className="bg-[#2d0000] rounded-3xl max-w-3xl w-full mx-auto flex flex-col items-center p-0 md:p-0 relative overflow-hidden" style={{boxShadow: '0 8px 32px 0 rgba(0,0,0,0.25)'}}>
@@ -191,7 +192,7 @@ export default function SubscriptionsPage() {
           </div>
         </div>
       </div>
-      <Footer />
-    </div>
+      {/* FAQ Section */}
+    </>
   );
-} 
+}

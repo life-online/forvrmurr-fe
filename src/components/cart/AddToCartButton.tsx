@@ -8,12 +8,14 @@ interface AddToCartButtonProps {
   product: Product;
   quantity: number;
   className?: string;
+  text?: string;
 }
 
 const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   product,
   quantity,
   className = "",
+  text,
 }) => {
   const { addToCart } = useCart();
 
@@ -33,12 +35,14 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
     trackAddToCart(product, quantity);
   };
 
+  const buttonText = `Add ${quantity > 1 ? `${quantity} items` : "to cart"}`;
+
   return (
     <button
       onClick={handleAddToCart}
       className={`border text-sm border-[#a0001e] text-[#a0001e] rounded-xl px-5 md:px-8 py-2 font-serif font-medium hover:bg-[#a0001e] hover:text-white transition-colors ${className}`}
     >
-      Add {quantity > 1 ? `${quantity} items` : "to cart"}
+      {text ? text : buttonText}
     </button>
   );
 };

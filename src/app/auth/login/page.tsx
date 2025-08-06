@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
@@ -9,23 +9,24 @@ import AuthLayout from "@/components/auth/AuthLayout";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
 interface LoginFormData {
-  email: string;
+  emailOrPhone: string;
   password: string;
 }
 
 interface FormErrors {
-  email?: string;
+  emailOrPhone?: string;
   password?: string;
   general?: string;
 }
 
 export default function Login() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
   const { error } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<LoginFormData>({
-    email: '',
+    emailOrPhone: '',
     password: '',
   });
   const [errors, setErrors] = useState<FormErrors>({});
@@ -48,10 +49,16 @@ export default function Login() {
   // Validate individual field
   const validateField = (name: string, value: string): string | null => {
     switch (name) {
-      case 'email':
-        if (!value.trim()) return "Email is required";
-        if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
-          return "Please enter a valid email address";
+      case 'emailOrPhone':
+        if (!value.trim()) return "Email or phone number is required";
+        
+        // Check if it's an email
+        const isEmail = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value);
+        // Check if it's a phone number (basic validation for international numbers)
+        const isPhone = /^[\+]?[1-9][\d]{0,15}$/.test(value.replace(/[\s\-\(\)]/g, ''));
+        
+        if (!isEmail && !isPhone) {
+          return "Please enter a valid email address or phone number";
         }
         return null;
       
@@ -79,11 +86,11 @@ export default function Login() {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Validate email and password
-    const emailError = validateField('email', formData.email);
+    // Validate emailOrPhone and password
+    const emailOrPhoneError = validateField('emailOrPhone', formData.emailOrPhone);
     const passwordError = validateField('password', formData.password);
     
-    if (emailError) newErrors.email = emailError;
+    if (emailOrPhoneError) newErrors.emailOrPhone = emailOrPhoneError;
     if (passwordError) newErrors.password = passwordError;
 
     setErrors(newErrors);
@@ -100,7 +107,14 @@ export default function Login() {
     setIsSubmitting(true);
     try {
       await login(formData);
-      router.push('/');
+      
+      // Check for redirect URL and redirect back to checkout if present
+      const redirectUrl = searchParams.get('redirect');
+      if (redirectUrl) {
+        router.push(decodeURIComponent(redirectUrl));
+      } else {
+        router.push('/');
+      }
     } catch (err: any) {
       // Set a general error message
       setErrors(prev => ({
@@ -120,22 +134,22 @@ export default function Login() {
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-            Email
+          <label htmlFor="emailOrPhone" className="block text-sm font-medium text-gray-700 mb-1">
+            Email or Phone Number
           </label>
           <input
-            id="email"
-            name="email"
-            type="email"
+            id="emailOrPhone"
+            name="emailOrPhone"
+            type="text"
             required
-            className={`w-full px-4 py-3 border ${errors.email ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent`}
-            placeholder="your@email.com"
-            value={formData.email}
+            className={`w-full px-4 py-3 border ${errors.emailOrPhone ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:border-transparent`}
+            placeholder="your@email.com or +1234567890"
+            value={formData.emailOrPhone}
             onChange={handleChange}
             onBlur={handleBlur}
           />
-          {errors.email && (
-            <p className="mt-1 text-xs text-red-500">{errors.email}</p>
+          {errors.emailOrPhone && (
+            <p className="mt-1 text-xs text-red-500">{errors.emailOrPhone}</p>
           )}
         </div>
         
@@ -205,7 +219,10 @@ export default function Login() {
       
       <p className="mt-6 text-center text-sm text-gray-600">
         Or{' '}
-        <Link href="/auth/register" className="font-medium text-[#8b0000] hover:text-[#cf0000]">
+        <Link 
+          href={`/auth/register${searchParams.get('redirect') ? `?redirect=${encodeURIComponent(searchParams.get('redirect')!)}` : ''}`}
+          className="font-medium text-[#8b0000] hover:text-[#cf0000]"
+        >
           create a new account
         </Link>
       </p>

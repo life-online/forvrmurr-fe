@@ -4,9 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import Navbar from "@/components/layout/Navbar";
-import AnnouncementBar from "@/components/layout/AnnouncementBar";
-import Footer from "@/components/layout/Footer";
 import productService, { Product, ProductAttribute } from "@/services/product";
 import ProductBadge from "@/components/ui/ProductBadge";
 import AddToCartButton from "@/components/cart/AddToCartButton";
@@ -139,54 +136,38 @@ export default function ProductDetailsPage() {
   // Loading state
   if (loading) {
     return (
-      <>
-        <div className="min-h-screen bg-[#f8f5f2]">
-          <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
-          <Navbar />
-          <div className="w-full py-20 text-center">
-            <div className="animate-pulse">
-              <div className="h-72 w-64 bg-gray-200 rounded mx-auto mb-8"></div>
-              <div className="h-10 w-48 bg-gray-200 rounded mx-auto mb-4"></div>
-              <div className="h-4 w-80 bg-gray-200 rounded mx-auto"></div>
-            </div>
-            <p className="mt-8 text-gray-500">Loading product details...</p>
-          </div>
+      <div className="w-full py-20 text-center">
+        <div className="animate-pulse">
+          <div className="h-72 w-64 bg-gray-200 rounded mx-auto mb-8"></div>
+          <div className="h-10 w-48 bg-gray-200 rounded mx-auto mb-4"></div>
+          <div className="h-4 w-80 bg-gray-200 rounded mx-auto"></div>
         </div>
-        <Footer />
-      </>
+        <p className="mt-8 text-gray-500">Loading product details...</p>
+      </div>
     );
   }
 
   // Error state
   if (error || !product) {
     return (
-      <>
-        <div className="min-h-screen bg-[#f8f5f2]">
-          <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
-          <Navbar />
-          <div className="w-full py-20 text-center">
-            <h2 className="text-2xl text-red-800 mb-4">
-              Oops! Something went wrong
-            </h2>
-            <p className="text-gray-700 mb-8">{error || "Product not found"}</p>
-            <Link
-              href="/shop"
-              className="bg-[#a0001e] text-white px-6 py-2 rounded-lg hover:bg-[#800018] transition-colors"
-            >
-              Back to Shop
-            </Link>
-          </div>
-        </div>
-        <Footer />
-      </>
+      <div className="w-full py-20 text-center">
+        <h2 className="text-2xl text-red-800 mb-4">
+          Oops! Something went wrong
+        </h2>
+        <p className="text-gray-700 mb-8">{error || "Product not found"}</p>
+        <Link
+          href="/shop"
+          className="bg-[#a0001e] text-white px-6 py-2 rounded-lg hover:bg-[#800018] transition-colors"
+        >
+          Back to Shop
+        </Link>
+      </div>
     );
   }
 
   return (
     <>
-      <div className="min-h-screen bg-white pb-24">
-        <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
-        <Navbar />
+      <div className="pb-24">
         {/* Top Section */}
         <div className="w-full pt-16 pb-16 md:pb-24" style={{ background: "#F7EDE1" }}>
           <div className="flex flex-col lg:flex-row max-w-6xl mx-auto gap-8 pt-10 pb-10 px-4">
@@ -465,7 +446,7 @@ export default function ProductDetailsPage() {
                     <div key={note.id} className="flex flex-col items-center text-center w-24">
                       <div className="relative w-16 h-16 md:w-20 md:h-20 mb-2">
                         <Image
-                          src={note?.iconUrl || FALLBACK_NOTE_IMAGE}
+                          src={`/images${note?.iconUrl}` || FALLBACK_NOTE_IMAGE}
                           alt={note.name}
                           fill
                           className="object-contain"
@@ -491,7 +472,7 @@ export default function ProductDetailsPage() {
                     <div key={note.id} className="flex flex-col items-center text-center w-24">
                       <div className="relative w-16 h-16 md:w-20 md:h-20 mb-2">
                         <Image
-                          src={note?.iconUrl || FALLBACK_NOTE_IMAGE}
+                          src={`/images${note?.iconUrl}` || FALLBACK_NOTE_IMAGE}
                           alt={note.name}
                           fill
                           className="object-contain"
@@ -517,7 +498,7 @@ export default function ProductDetailsPage() {
                     <div key={note.id} className="flex flex-col items-center text-center w-24">
                       <div className="relative w-16 h-16 md:w-20 md:h-20 mb-2">
                         <Image
-                          src={note?.iconUrl || FALLBACK_NOTE_IMAGE}
+                          src={`/images${note?.iconUrl}` || FALLBACK_NOTE_IMAGE}
                           alt={note.name}
                           fill
                           className="object-contain"
@@ -544,7 +525,7 @@ export default function ProductDetailsPage() {
               <div key={tag.id} className="flex flex-col items-center">
                 <div className="w-28 h-16 overflow-hidden bg-gray-100 rounded-xl flex items-center justify-center mb-2 font-serif text-lg">
                   <Image
-                    src={tag.iconUrl || FALLBACK_NOTE_IMAGE}
+                    src={`/images${tag.iconUrl}` || FALLBACK_NOTE_IMAGE}
                     alt="Description Tag"
                     width={1000}
                     height={1000}
@@ -599,7 +580,6 @@ export default function ProductDetailsPage() {
         product={product}
       />
       
-      <Footer />
     </>
   );
 }

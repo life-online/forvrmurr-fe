@@ -421,7 +421,7 @@ export default function FilterDrawer({
                       >
                         <div className="w-8 h-8 mx-auto mb-1 relative">
                           <Image
-                            src={note.iconUrl || '/images/notes/default-note.png'}
+                            src={`/images${note.iconUrl}` || '/images/notes/default-note.png'}
                             alt={note.name}
                             fill
                             className="object-contain"

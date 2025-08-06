@@ -4,9 +4,14 @@ import { clientConfig } from "@/config";
 // Types
 export interface User {
   id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
+  firstName?: string; // Now optional for guests
+  lastName?: string;  // Now optional for guests
+  email?: string;     // Now optional for guests
+  phoneNumber?: string;
+  userType: 'guest' | 'registered'; // Track user type
+  role: string;
+  isEmailVerified?: boolean;
+  isRegistered?: boolean; // Explicit registration tracking
   createdAt: string;
 }
 
@@ -16,7 +21,7 @@ export interface AuthTokens {
 }
 
 export interface LoginCredentials {
-  email: string;
+  emailOrPhone: string; // Can be email or phone number
   password: string;
 }
 
@@ -40,27 +45,38 @@ const GUEST_ID_KEY = "forvrmurr_guest_id";
  */
 export const authService = {
   /**
-   * Login a user with email and password
+   * Login a user with email/phone and password
    */
   async login(
     credentials: LoginCredentials
   ): Promise<{ access_token: string; user: User }> {
-    const data = { ...credentials };
+    // Send emailOrPhone field to backend
+    const emailOrPhone = credentials.emailOrPhone;
+    const isEmail = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailOrPhone);
+      
+    const data = {
+      email: isEmail ? emailOrPhone : null,
+      phoneNumber: !isEmail ? emailOrPhone : null,
+      password: credentials.password
+    };
 
-    // Check if there's an existing guest ID to include
-    const guestId = this.getGuestId();
-    const options = guestId ? { params: { guestId } } : undefined;
+    // Include current guest JWT if exists for automatic conversion
+    const headers: any = {};
+    if (this.isAuthenticated() && this.isGuest()) {
+      headers.Authorization = `Bearer ${this.getAccessToken()}`;
+    }
 
     const response = await api.post<{ access_token: string; user: User }>(
       "/auth/login",
       data,
-      options
+      { headers }
     );
+    
     // Store access token and user data
     this.setTokens({ accessToken: response.access_token });
     this.setUser(response.user);
 
-    // Clear guest ID if it was used
+    // Clear guest ID if it was used (legacy cleanup)
     this.clearGuestId();
 
     return response;
@@ -84,22 +100,24 @@ export const authService = {
 
     console.log("Registration payload:", JSON.stringify(payload)); // For debugging
 
-    // Check if there's an existing guest ID to include
-    const guestId = this.getGuestId();
-    const options = guestId ? { params: { guestId } } : undefined;
+    // Include current guest JWT if exists for automatic conversion
+    const headers: any = {};
+    if (this.isAuthenticated() && this.isGuest()) {
+      headers.Authorization = `Bearer ${this.getAccessToken()}`;
+    }
 
     // Make a direct fetch request to ensure exact format
     const response = await api.post<{ access_token: string; user: User }>(
       "/auth/register",
       payload,
-      options
+      { headers }
     );
 
-    // Store access token and user data
+    // Store new registered user tokens
     this.setTokens({ accessToken: response.access_token });
     this.setUser(response.user);
 
-    // Clear guest ID if it was used
+    // Clear guest ID if it was used (legacy cleanup)
     this.clearGuestId();
 
     return response;
@@ -223,7 +241,7 @@ export const authService = {
    * Request password reset
    */
   async requestPasswordReset(email: string): Promise<void> {
-    await api.post("/auth/forgot-password", { email });
+    await api.post("/auth/forgot-password", { emailOrPhone: email });
   },
 
   async resetPassword(
@@ -247,6 +265,52 @@ export const authService = {
     });
     this.setUser(updatedUser);
     return updatedUser;
+  },
+
+  /**
+   * Create guest user and get JWT token
+   */
+  async createGuest(): Promise<{ access_token: string; user: User }> {
+    const response = await api.post<{ access_token: string; user: User }>(
+      "/auth/create-guest"
+    );
+
+    // Store guest token and user data
+    this.setTokens({ accessToken: response.access_token });
+    this.setUser(response.user);
+
+    return response;
+  },
+
+  /**
+   * Ensure user has authentication token (guest or registered)
+   */
+  async ensureAuthentication(): Promise<string> {
+    let token = this.getAccessToken();
+
+    if (!token) {
+      console.log("No token found, creating guest user...");
+      const guestResponse = await this.createGuest();
+      token = guestResponse.access_token;
+    }
+
+    return token;
+  },
+
+  /**
+   * Check if current user is a guest
+   */
+  isGuest(): boolean {
+    const user = this.getUser();
+    return user?.userType === "guest";
+  },
+
+  /**
+   * Check if current user is registered
+   */
+  isRegistered(): boolean {
+    const user = this.getUser();
+    return user?.userType === "registered" || user?.isRegistered === true;
   },
 };
 
