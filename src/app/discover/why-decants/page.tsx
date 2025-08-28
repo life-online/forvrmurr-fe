@@ -229,7 +229,7 @@ export default function WhyDecantsPage() {
                   Shop All Scents
                 </Link>
                 <Link
-                  href="/subscription"
+                  href="/subscriptions"
                   className="px-6 py-3 border border-gray-300 hover:bg-gray-100 text-gray-800 rounded-lg transition-all duration-300"
                 >
                   Start with a Subscription

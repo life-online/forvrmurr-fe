@@ -83,15 +83,24 @@ export async function apiRequest<T = Record<string, unknown>>(
   if (!response.ok) {
     // --- START: 401 Unauthorized Handling ---
     if (response.status === 401) {
-      console.warn(
-        "API Error: 401 Unauthorized. Clearing session."
-      );
-      localStorage.removeItem("forvrmurr_access_token");
-      localStorage.removeItem("forvrmurr_user"); // Assuming you store user information
-
+      console.warn("API Error: 401 Unauthorized");
+      
+      // Check if user is a guest before clearing tokens
+      const user = JSON.parse(localStorage.getItem("forvrmurr_user") || "{}");
+      const isGuest = user?.isGuest === true;
+      
+      // Only clear tokens if not a guest user
+      if (!isGuest) {
+        console.log("Clearing tokens for non-guest user");
+        localStorage.removeItem("forvrmurr_access_token");
+        localStorage.removeItem("forvrmurr_user");
+      } else {
+        console.log("Preserving guest tokens for registration flow");
+      }
+      
       // Don't force a redirect - let the component handle it
       // window.location.href = "/auth/login";
-
+      
       // Just throw the error with appropriate message
       const errorData = await response.json().catch(() => ({}));
       const error = new Error(
