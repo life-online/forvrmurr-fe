@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -51,6 +51,15 @@ const TRAVEL_CASE_SLUG = "luxury-perfume-travel-case";
 export default function TravelCasePage() {
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
+  const progressCircle = useRef<SVGCircleElement | null>(null);
+  const progressContent = useRef<HTMLSpanElement | null>(null);
+
+  const onAutoplayTimeLeft = (s: any, time: number, progress: number) => {
+    if (progressCircle.current && progressContent.current) {
+      progressCircle.current.style.setProperty("--progress", String(1 - progress));
+      progressContent.current.textContent = `${Math.ceil(time / 1000)}s`;
+    }
+  };
 
   const handleIncrease = () => {
     setQuantity((prev) => prev + 1);
@@ -521,6 +530,7 @@ export default function TravelCasePage() {
               delay: 5000,
               disableOnInteraction: false,
             }}
+            onAutoplayTimeLeft={onAutoplayTimeLeft}
             className="gallery-swiper"
             breakpoints={{
               320: {
@@ -531,10 +541,6 @@ export default function TravelCasePage() {
                 slidesPerView: 3,
                 spaceBetween: 20,
               },
-            }}
-            onBeforeInit={(swiper) => {
-              // @ts-ignore
-              swiper.params.autoplay.delay = 5000;
             }}
           >
             {galleryImages.map((image, index) => (
@@ -553,27 +559,11 @@ export default function TravelCasePage() {
             ))}
             <div className="autoplay-progress" slot="container-end">
               <svg viewBox="0 0 48 48">
-                <circle cx="24" cy="24" r="20"></circle>
+                <circle ref={progressCircle} cx="24" cy="24" r="20"></circle>
               </svg>
-              <span></span>
+              <span ref={progressContent}></span>
             </div>
           </Swiper>
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-            document.addEventListener('DOMContentLoaded', function() {
-              const swiper = document.querySelector('.gallery-swiper').swiper;
-              const progressCircle = document.querySelector('.autoplay-progress svg circle');
-              const progressContent = document.querySelector('.autoplay-progress span');
-              
-              swiper.on('autoplayTimeLeft', (s, time, progress) => {
-                progressCircle.style.setProperty('--progress', 1 - progress);
-                progressContent.textContent = \`\${Math.ceil(time / 1000)}s\`;
-              });
-            });
-          `,
-            }}
-          />
         </div>
       </section>
 
