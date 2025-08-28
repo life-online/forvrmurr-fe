@@ -8,12 +8,10 @@ import CuratedExperiences from "@/components/ui/CuratedExperiences";
 
 interface SubscriptionsLayoutProps {
   children: React.ReactNode;
-  showCuratedExperiences?: boolean;
 }
 
 export default function SubscriptionsLayout({
   children,
-  showCuratedExperiences = true,
 }: SubscriptionsLayoutProps) {
   return (
     <div className="min-h-screen bg-white text-black flex flex-col">

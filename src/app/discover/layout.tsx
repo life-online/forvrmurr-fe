@@ -8,13 +8,9 @@ import CuratedExperiences from "@/components/ui/CuratedExperiences";
 
 interface DiscoverLayoutProps {
   children: React.ReactNode;
-  showCuratedExperiences?: boolean;
 }
 
-export default function DiscoverLayout({
-  children,
-  showCuratedExperiences = true,
-}: DiscoverLayoutProps) {
+export default function DiscoverLayout({ children }: DiscoverLayoutProps) {
   return (
     <div className="min-h-screen bg-white text-black flex flex-col">
       <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
@@ -22,7 +18,7 @@ export default function DiscoverLayout({
       <main className="flex-grow">
         {children}
       </main>
-      {showCuratedExperiences && <CuratedExperiences showButton />}
+      <CuratedExperiences showButton />
       <Footer />
     </div>
   );

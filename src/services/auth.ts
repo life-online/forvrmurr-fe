@@ -191,6 +191,7 @@ export const authService = {
    * Store authentication tokens
    */
   setTokens(tokens: AuthTokens): void {
+    if (typeof window === 'undefined') return;
     localStorage.setItem(ACCESS_TOKEN_KEY, tokens.accessToken);
 
     if (tokens.refreshToken) {
@@ -202,6 +203,7 @@ export const authService = {
    * Get the current access token
    */
   getAccessToken(): string | null {
+    if (typeof window === 'undefined') return null;
     return localStorage.getItem(ACCESS_TOKEN_KEY);
   },
 
@@ -209,6 +211,7 @@ export const authService = {
    * Get the current refresh token
    */
   getRefreshToken(): string | null {
+    if (typeof window === 'undefined') return null;
     return localStorage.getItem(REFRESH_TOKEN_KEY);
   },
 
@@ -216,15 +219,18 @@ export const authService = {
    * Clear authentication tokens
    */
   clearTokens(): void {
+    if (typeof window === 'undefined') return;
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
   },
 
   getGuestId(): string | null {
+    if (typeof window === 'undefined') return null;
     return localStorage.getItem(GUEST_ID_KEY);
   },
 
   clearGuestId(): void {
+    if (typeof window === 'undefined') return;
     localStorage.removeItem(GUEST_ID_KEY);
   },
 
@@ -232,6 +238,7 @@ export const authService = {
    * Store user data
    */
   setUser(user: User): void {
+    if (typeof window === 'undefined') return;
     localStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
   },
 
@@ -239,6 +246,7 @@ export const authService = {
    * Get stored user data
    */
   getUser(): User | null {
+    if (typeof window === 'undefined') return null;
     const userData = localStorage.getItem(USER_DATA_KEY);
     return userData ? JSON.parse(userData) : null;
   },
@@ -247,6 +255,7 @@ export const authService = {
    * Clear stored user data
    */
   clearUser(): void {
+    if (typeof window === 'undefined') return;
     localStorage.removeItem(USER_DATA_KEY);
   },
 

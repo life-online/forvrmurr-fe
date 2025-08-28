@@ -78,7 +78,7 @@ export default function QuizResultsPage() {
     const mockQuizResult: QuizResult = {
       id: "sample-result-123",
       userId: "user-456",
-      guestId: null,
+      guestId: undefined,
       scentVibes: ["Fresh + Clean"],
       moodIntentions: ["I am the soft life queen"],
       genderPreference: "Feminine",
