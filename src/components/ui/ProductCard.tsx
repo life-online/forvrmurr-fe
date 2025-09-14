@@ -330,7 +330,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 }}
                 className="w-full bg-gray-700 hover:bg-gray-800 text-white py-2 rounded-lg transition-colors"
               >
-                Notify When Available
+                Notify Me
               </button>
             ) : (
               <HoverAddToCartButton product={product} />

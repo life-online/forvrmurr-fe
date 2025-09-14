@@ -1,79 +1,126 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { FiEdit2, FiMail, FiUser, FiCalendar, FiPackage, FiHeart, FiCreditCard } from "react-icons/fi";
+import { FiEdit2, FiMail, FiUser, FiCalendar, FiPackage, FiHeart, FiCreditCard, FiPhone, FiShoppingCart, FiLogIn, FiLock, FiCheckCircle, FiUsers } from "react-icons/fi";
 import Link from "next/link";
-
-interface UserProfile {
-  name: string;
-  email: string;
-  joinDate: string;
-  totalOrders: number;
-  wishlistItems: number;
-  activeSubscriptions: number;
-  nextDelivery?: string;
-  favoriteScent?: string;
-  recentActivity: Array<{
-    type: string;
-    description: string;
-    date: string;
-  }>;
-}
+import { profileMgtService, UserProfile, UpdateProfileRequest } from "@/services/profilemgt";
+import { toastService } from "@/services/toast";
 
 export default function ProfileSummary() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({
-    name: "",
-    email: "",
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
   });
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
-    // Mock user data - replace with actual API call
-    const mockUserProfile: UserProfile = {
-      name: "Sarah Johnson",
-      email: "sarah.johnson@example.com",
-      joinDate: "2023-06-15",
-      totalOrders: 8,
-      wishlistItems: 12,
-      activeSubscriptions: 1,
-      nextDelivery: "2025-08-15",
-      favoriteScent: "Tom Ford Black Orchid",
-      recentActivity: [
-        {
-          type: "order",
-          description: "Ordered Creed Aventus 8ml",
-          date: "2025-08-01"
-        },
-        {
-          type: "wishlist",
-          description: "Added Maison Francis Kurkdjian BR540 to wishlist",
-          date: "2025-07-28"
-        },
-        {
-          type: "subscription",
-          description: "Premium subscription renewed",
-          date: "2025-07-15"
+    const fetchUserProfile = async () => {
+      try {
+        const profile = await profileMgtService.getUserProfile();
+        if (profile) {
+          setUserProfile(profile);
+          setProfileForm({
+            firstName: profile.firstName || "",
+            lastName: profile.lastName || "",
+            phoneNumber: profile.phoneNumber || "",
+          });
         }
-      ]
+      } catch (error) {
+        console.error("Failed to load user profile:", error);
+      }
     };
 
-    setUserProfile(mockUserProfile);
-    setProfileForm({
-      name: mockUserProfile.name,
-      email: mockUserProfile.email,
-    });
+    fetchUserProfile();
   }, []);
 
-  const handleSaveProfile = () => {
-    if (userProfile) {
-      setUserProfile({
-        ...userProfile,
-        name: profileForm.name,
-        email: profileForm.email,
-      });
+  const validatePhoneNumber = (phone: string): boolean => {
+    // Basic phone number validation (international format)
+    const phoneRegex = /^\+[1-9]\d{1,14}$/;
+    return phoneRegex.test(phone);
+  };
+
+  const getActivityIcon = (activityType: string) => {
+    switch (activityType.toLowerCase()) {
+      case 'order':
+        return <FiPackage size={14} />;
+      case 'wishlist':
+        return <FiHeart size={14} />;
+      case 'subscription':
+        return <FiCreditCard size={14} />;
+      case 'profile_update':
+        return <FiUser size={14} />;
+      case 'login':
+        return <FiLogIn size={14} />;
+      case 'password_change':
+        return <FiLock size={14} />;
+      case 'email_verification':
+        return <FiCheckCircle size={14} />;
+      case 'newsletter_subscription':
+        return <FiUsers size={14} />;
+      case 'cart':
+        return <FiShoppingCart size={14} />;
+      case 'payment':
+        return <FiCreditCard size={14} />;
+      default:
+        return <FiPackage size={14} />;
     }
-    setIsEditingProfile(false);
+  };
+
+  const handleSaveProfile = async () => {
+    if (!userProfile) return;
+
+    // Validation
+    if (!profileForm.firstName.trim()) {
+      toastService.error("First name is required");
+      return;
+    }
+
+    if (!profileForm.lastName.trim()) {
+      toastService.error("Last name is required");
+      return;
+    }
+
+    if (profileForm.phoneNumber && !validatePhoneNumber(profileForm.phoneNumber)) {
+      toastService.error("Please enter a valid phone number in international format (e.g., +1234567890)");
+      return;
+    }
+
+    setIsUpdating(true);
+    try {
+      const updateData: UpdateProfileRequest = {
+        firstName: profileForm.firstName.trim(),
+        lastName: profileForm.lastName.trim(),
+        phoneNumber: profileForm.phoneNumber.trim(),
+      };
+
+      const updatedProfile = await profileMgtService.updateUserProfile(updateData);
+      if (updatedProfile) {
+        setUserProfile(updatedProfile);
+        setIsEditingProfile(false);
+        toastService.success("Profile updated successfully!");
+      }
+    } catch (error: any) {
+      console.error("Failed to update profile:", error);
+
+      // Handle specific error cases
+      if (error?.status === 400) {
+        const errorMessage = error?.data?.message || "Invalid profile data";
+        if (errorMessage.toLowerCase().includes("phone")) {
+          toastService.error("This phone number is already in use by another account");
+        } else {
+          toastService.error(errorMessage);
+        }
+      } else if (error?.status === 401) {
+        toastService.error("Session expired. Please log in again.");
+      } else {
+        toastService.error("Failed to update profile. Please try again.");
+      }
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   if (!userProfile) {
@@ -93,7 +140,7 @@ export default function ProfileSummary() {
       </div>
 
       {/* Profile Information Card */}
-      <div className="bg-gradient-to-r from-[#f8f5f2] to-[#f0ebe5] rounded-lg p-6 border">
+      <div className="bg-gradient-to-r from-[#f8f5f2] to-[#f0ebe5] rounded-lg p-6 border border-gray-200">
         <div className="flex items-start justify-between mb-4">
           <h2 className="text-xl font-medium text-black">Personal Information</h2>
           <button
@@ -109,32 +156,48 @@ export default function ProfileSummary() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name
+                First Name
               </label>
               <input
                 type="text"
-                value={profileForm.name}
-                onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                value={profileForm.firstName}
+                onChange={(e) => setProfileForm({ ...profileForm, firstName: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B0000]"
+                placeholder="Enter your first name"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
+                Last Name
               </label>
               <input
-                type="email"
-                value={profileForm.email}
-                onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
+                type="text"
+                value={profileForm.lastName}
+                onChange={(e) => setProfileForm({ ...profileForm, lastName: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B0000]"
+                placeholder="Enter your last name"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                value={profileForm.phoneNumber}
+                onChange={(e) => setProfileForm({ ...profileForm, phoneNumber: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B0000]"
+                placeholder="+1234567890"
+              />
+              <p className="text-xs text-gray-500 mt-1">International format required (e.g., +1234567890)</p>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={handleSaveProfile}
-                className="bg-[#8B0000] text-white px-4 py-2 rounded-md hover:bg-[#a0001e] transition-colors"
+                disabled={isUpdating}
+                className="bg-[#8B0000] text-white px-4 py-2 rounded-md hover:bg-[#a0001e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Save Changes
+                {isUpdating ? "Saving..." : "Save Changes"}
               </button>
               <button
                 onClick={() => setIsEditingProfile(false)}
@@ -160,6 +223,15 @@ export default function ProfileSummary() {
                 <p className="font-medium text-black">{userProfile.email}</p>
               </div>
             </div>
+            {userProfile.phoneNumber && (
+              <div className="flex items-center gap-3">
+                <FiPhone className="text-[#8B0000]" size={20} />
+                <div>
+                  <p className="text-sm text-gray-600">Phone Number</p>
+                  <p className="font-medium text-black">{userProfile.phoneNumber}</p>
+                </div>
+              </div>
+            )}
             <div className="flex items-center gap-3">
               <FiCalendar className="text-[#8B0000]" size={20} />
               <div>
@@ -179,10 +251,10 @@ export default function ProfileSummary() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Link href="/profile/orders" className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow">
+        <Link href="/profile/orders" className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
           <div className="flex items-center gap-3">
-            <div className="bg-blue-100 p-2 rounded-lg">
-              <FiPackage className="text-blue-600" size={20} />
+            <div className="bg-[#f0ebe5] p-2 rounded-lg">
+              <FiPackage className="text-[#8B0000]" size={20} />
             </div>
             <div>
               <p className="text-2xl font-bold text-black">{userProfile.totalOrders}</p>
@@ -191,10 +263,10 @@ export default function ProfileSummary() {
           </div>
         </Link>
 
-        <Link href="/profile/wishlist" className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow">
+        <Link href="/profile/wishlist" className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
           <div className="flex items-center gap-3">
-            <div className="bg-red-100 p-2 rounded-lg">
-              <FiHeart className="text-red-600" size={20} />
+            <div className="bg-[#f0ebe5] p-2 rounded-lg">
+              <FiHeart className="text-[#8B0000]" size={20} />
             </div>
             <div>
               <p className="text-2xl font-bold text-black">{userProfile.wishlistItems}</p>
@@ -203,10 +275,10 @@ export default function ProfileSummary() {
           </div>
         </Link>
 
-        <Link href="/profile/subscriptions" className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow">
+        <Link href="/profile/subscriptions" className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
           <div className="flex items-center gap-3">
-            <div className="bg-green-100 p-2 rounded-lg">
-              <FiCreditCard className="text-green-600" size={20} />
+            <div className="bg-[#f0ebe5] p-2 rounded-lg">
+              <FiCreditCard className="text-[#8B0000]" size={20} />
             </div>
             <div>
               <p className="text-2xl font-bold text-black">{userProfile.activeSubscriptions}</p>
@@ -235,19 +307,13 @@ export default function ProfileSummary() {
       )}
 
       {/* Recent Activity */}
-      <div className="bg-white border rounded-lg p-6">
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-medium text-black mb-4">Recent Activity</h3>
         <div className="space-y-3">
           {userProfile.recentActivity.map((activity, index) => (
             <div key={index} className="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-b-0">
-              <div className={`p-2 rounded-full ${
-                activity.type === 'order' ? 'bg-blue-100 text-blue-600' :
-                activity.type === 'wishlist' ? 'bg-red-100 text-red-600' :
-                'bg-green-100 text-green-600'
-              }`}>
-                {activity.type === 'order' ? <FiPackage size={14} /> :
-                 activity.type === 'wishlist' ? <FiHeart size={14} /> :
-                 <FiCreditCard size={14} />}
+              <div className={`p-2 rounded-full bg-[#f0ebe5] text-[#8B0000]`}>
+                {getActivityIcon(activity.type)}
               </div>
               <div className="flex-grow">
                 <p className="text-sm text-black">{activity.description}</p>
@@ -262,12 +328,6 @@ export default function ProfileSummary() {
             </div>
           ))}
         </div>
-        <Link 
-          href="/profile/orders"
-          className="inline-block mt-4 text-[#8B0000] hover:text-[#a0001e] text-sm font-medium"
-        >
-          View All Orders →
-        </Link>
       </div>
     </div>
   );

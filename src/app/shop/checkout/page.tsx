@@ -806,7 +806,10 @@ const CheckoutPage = () => {
 
     setIsLoading(true);
     try {
-      // First initiate checkout
+      // Refresh cart to get the latest data
+      await refreshCart();
+
+      // Then initiate checkout
       await cartService.initiateCheckout();
 
       // Create order with all required fields

@@ -58,20 +58,27 @@ const aboutSubroutes = [
 
 const getAccountSubroutes = (isAuthenticated: boolean, handleLogout: () => void) => {
   const isGuest = authService.isGuest();
-  
+
   // For guests, only show login option
   if (isGuest) {
     return [{ name: "Login", path: "/auth/login" }];
   }
-  
+
   // For registered users or non-authenticated users
-  return [
-    ...(isAuthenticated 
-      ? [{ name: "Logout", path: "#", onClick: handleLogout }] 
-      : [{ name: "Login", path: "/auth/login" }]),
-    { name: "Order History", path: "/profile/orders" },
-    { name: "Wishlist", path: "/profile/wishlist" },
-  ];
+  if (isAuthenticated) {
+    return [
+      { name: "Profile", path: "/profile" },
+      { name: "Order History", path: "/profile/orders" },
+      { name: "Wishlist", path: "/profile/wishlist" },
+      { name: "Logout", path: "#", onClick: handleLogout },
+    ];
+  } else {
+    return [
+      { name: "Login", path: "/auth/login" },
+      { name: "Order History", path: "/profile/orders" },
+      { name: "Wishlist", path: "/profile/wishlist" },
+    ];
+  }
 };
 
 

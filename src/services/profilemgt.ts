@@ -10,6 +10,31 @@ export interface User {
   createdAt: string;
 }
 
+export interface UserProfile {
+  name: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber?: string;
+  joinDate: string;
+  totalOrders: number;
+  wishlistItems: number;
+  activeSubscriptions: number;
+  nextDelivery?: string;
+  favoriteScent?: string;
+  recentActivity: Array<{
+    type: string;
+    description: string;
+    date: string;
+  }>;
+}
+
+export interface UpdateProfileRequest extends Record<string, unknown> {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+}
+
 export interface AuthTokens {
   accessToken: string;
   refreshToken?: string;
@@ -37,9 +62,33 @@ export interface ProductAttributeFetchResponse {
 }
 
 /**
- * Authentication service for managing user login, registration, and auth state
+ * Profile management service for user profile operations
  */
 export const profileMgtService = {
+  async getUserProfile(): Promise<UserProfile | null> {
+    try {
+      const response = await api.get<UserProfile>("/users/profile", {
+        requiresAuth: true
+      });
+      return response;
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error);
+      return null;
+    }
+  },
+
+  async updateUserProfile(profileData: UpdateProfileRequest): Promise<UserProfile | null> {
+    try {
+      const response = await api.patch<UserProfile>("/users/profile", profileData, {
+        requiresAuth: true
+      });
+      return response;
+    } catch (error) {
+      console.error("Failed to update user profile:", error);
+      throw error; // Re-throw to handle in component
+    }
+  },
+
   async requestPasswordReset(email: string): Promise<void> {
     await api.post("/auth/request-password-reset", { email });
   },
@@ -59,75 +108,60 @@ export const profileMgtService = {
       const response = await api.get<ProductAttributeFetchResponse>(
         "products/moods"
       );
-
       return response;
     } catch (error) {
       // Token might be invalid
       //   this.clearTokens();
       return null;
     }
-
-    return null;
   },
   async getScentTypesAttributesMoods(): Promise<ProductAttributeFetchResponse | null> {
     try {
       const response = await api.get<ProductAttributeFetchResponse>(
         "products/scent-types"
       );
-
       return response;
     } catch (error) {
       // Token might be invalid
       //   this.clearTokens();
       return null;
     }
-
-    return null;
   },
   async getProductAttributesFragranceFamily(): Promise<ProductAttributeFetchResponse | null> {
     try {
       const response = await api.get<ProductAttributeFetchResponse>(
         "products/fragrance-families"
       );
-
       return response;
     } catch (error) {
       // Token might be invalid
       //   this.clearTokens();
       return null;
     }
-
-    return null;
   },
   async getProductAttributesOccasion(): Promise<ProductAttributeFetchResponse | null> {
     try {
       const response = await api.get<ProductAttributeFetchResponse>(
         "products/occasions"
       );
-
       return response;
     } catch (error) {
       // Token might be invalid
       //   this.clearTokens();
       return null;
     }
-
-    return null;
   },
   async getProductAttributesFragranceNotes(): Promise<ProductAttributeFetchResponse | null> {
     try {
       const response = await api.get<ProductAttributeFetchResponse>(
         "fragrance-notes"
       );
-
       return response;
     } catch (error) {
       // Token might be invalid
       //   this.clearTokens();
       return null;
     }
-
-    return null;
   },
   async getAllProduct(searchQuery?: string): Promise<ProductAttributeFetchResponse | null> {
     try {
@@ -139,8 +173,6 @@ export const profileMgtService = {
       //   this.clearTokens();
       return null;
     }
-
-    return null;
   },
 };
 

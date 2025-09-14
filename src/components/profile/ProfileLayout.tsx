@@ -7,6 +7,7 @@ import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import ProfileMobileSideBar from "./MobileSideBar";
+import { authService } from "@/services/auth";
 
 const profileRoutes = [
   { label: "Profile", path: "/profile", icon: "👤" },
@@ -50,8 +51,20 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
   }, [pathname]);
 
   const getCurrentPageTitle = () => {
+    // Handle order details pages
+    if (pathname.startsWith('/profile/orders')) {
+      return "My Orders";
+    }
     const currentRoute = profileRoutes.find(route => route.path === pathname);
     return currentRoute?.label || "Profile";
+  };
+
+  const isRouteActive = (routePath: string) => {
+    // Special handling for orders route to include order details pages
+    if (routePath === '/profile/orders') {
+      return pathname.startsWith('/profile/orders');
+    }
+    return pathname === routePath;
   };
 
   if (isLoading) {
@@ -100,7 +113,7 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
         <div className="flex items-start justify-between gap-8">
           {/* Desktop Sidebar */}
           <div className="hidden lg:flex flex-col gap-5 w-[20%]">
-            <p className="text-xl lg:text-2xl text-black font-semibold">Hello,</p>
+            <p className="text-xl lg:text-2xl text-black font-semibold">Hello {authService.getUser()?.firstName} 👋</p>
             <div className="flex flex-col gap-4">
               {profileRoutes.map((route, index) => (
                 <div
@@ -112,15 +125,14 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
                 >
                   <div
                     className={`h-7 ${
-                      pathname === route.path || hoveredRoute === route.path
+                      isRouteActive(route.path) || hoveredRoute === route.path
                         ? "opacity-100"
-                        : "opacity-30"
+                        : "opacity-0"
                     } ease-in-out duration-500 border-2 rounded-full border-[#C8102E]`}
                   />
-                  <span className="text-lg mr-2">{route.icon}</span>
                   <p
                     className={`px-3 w-full py-2 text-black hover:bg-white ease-in-out ${
-                      pathname === route.path ? "bg-white font-medium" : ""
+                      isRouteActive(route.path) ? "bg-white font-medium border border-gray-100" : ""
                     } duration-500 rounded-lg`}
                   >
                     {route.label}

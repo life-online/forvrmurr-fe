@@ -34,13 +34,17 @@ const PaymentCompletePage: React.FC = () => {
           setStatus("success");
           clearCart();
           setMessage(
-            "Your payment was successful! Your order is now being processed. Please check your email for order details."
+            "Your payment was successful! Your order is now being processed."
           );
           success(
-            "Congratulations! Payment received and order is being processed."
+            "Payment successful! Redirecting to your order details..."
           );
           setTimeout(() => {
-            router.push("/");
+            if (data.order?.orderNumber) {
+              router.push(`/profile/orders/${data.order.orderNumber}`);
+            } else {
+              router.push("/profile/orders");
+            }
           }, 3000);
         } else {
           setStatus("failed");
@@ -92,7 +96,7 @@ const PaymentCompletePage: React.FC = () => {
           <h1 className="text-2xl font-serif mb-2">Payment Successful!</h1>
           <p className="text-gray-700 mb-4">{message}</p>
           <p className="text-gray-500 text-sm">
-            You will be redirected to the home page shortly.
+            You will be redirected to your order details shortly.
           </p>
         </div>
       )}

@@ -7,6 +7,11 @@ export interface PaymentVerificationResponse {
   paidAt: string;
   gatewayResponse: string;
   channel: string;
+  order?: {
+    id: string;
+    orderNumber: string;
+    status: string;
+  };
 }
 
 export const paymentsService = {
