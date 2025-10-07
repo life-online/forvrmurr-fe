@@ -13,7 +13,7 @@ const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   ...props
 }) => {
-  const baseStyles = "py-3 px-8 rounded transition-all hover:cursor-pointer font-medium";
+  const baseStyles = "py-3 px-8 rounded transition-all hover:cursor-pointer font-semibold";
   
   let variantStyles = "";
   switch (variant) {

@@ -100,6 +100,7 @@ export interface Product {
   shopifyCreatedAt?: string;
   createdAt?: string;
   updatedAt?: string;
+  isInWishlist?: boolean;
 }
 
 export interface ProductsResponse {
@@ -225,6 +226,9 @@ const productService = {
   async getComprehensiveProducts(
     filters: ProductFilterParams = {}
   ): Promise<ProductsResponse> {
+    // Import authService here to avoid circular dependencies
+    const { authService } = await import("./auth");
+
     // Convert ProductFilterParams to Record<string, string | number | boolean>
     const params: Record<string, string | number | boolean> = {};
     if (filters.page) params.page = filters.page;
@@ -243,26 +247,29 @@ const productService = {
     if (filters.fragranceFamilySlugs)
       params.fragranceFamilySlugs = filters.fragranceFamilySlugs;
     if (filters.moodSlugs) params.moodSlugs = filters.moodSlugs;
-    
+
     // Additional filter parameters for the comprehensive endpoint
     if (filters.minPrice) params.minPrice = filters.minPrice;
     if (filters.maxPrice) params.maxPrice = filters.maxPrice;
-    if (filters.brandSlugs && filters.brandSlugs.length > 0) 
+    if (filters.brandSlugs && filters.brandSlugs.length > 0)
       params.brandSlugs = filters.brandSlugs.join(";"); // Using semicolons as per API requirement
-    if (filters.noteSlugs && filters.noteSlugs.length > 0) 
+    if (filters.noteSlugs && filters.noteSlugs.length > 0)
       params.noteSlugs = filters.noteSlugs.join(";"); // Using semicolons as per API requirement
-    if (filters.concentrations && filters.concentrations.length > 0) 
+    if (filters.concentrations && filters.concentrations.length > 0)
       params.concentrations = filters.concentrations.join(";"); // Using semicolons as per API requirement
-    if (filters.onSale !== undefined) 
+    if (filters.onSale !== undefined)
       params.onSale = filters.onSale;
     if (filters.sortBy)
       params.sortBy = filters.sortBy;
     if (filters.sortOrder)
       params.sortOrder = filters.sortOrder;
 
+    // Send auth headers for registered users to get wishlist status
+    const isRegisteredUser = authService.isAuthenticated() && !authService.isGuest();
+
     return apiRequest<ProductsResponse>("/products/filter/comprehensive", {
       params,
-      requiresAuth: false,
+      requiresAuth: isRegisteredUser,
     });
   },
   async getBestSellingProducts(
@@ -301,8 +308,14 @@ const productService = {
    * Get a single product by slug
    */
   async getProductBySlug(slug: string): Promise<Product> {
+    // Import authService here to avoid circular dependencies
+    const { authService } = await import("./auth");
+
+    // Send auth headers for registered users to get wishlist status
+    const isRegisteredUser = authService.isAuthenticated() && !authService.isGuest();
+
     return apiRequest<Product>(`/products/slug/${slug}`, {
-      requiresAuth: false,
+      requiresAuth: isRegisteredUser,
     });
   },
   async getProductDescriptionByOthers(

@@ -6,6 +6,7 @@ import { useToast } from "@/context/ToastContext";
 
 import { paymentsService } from "@/services/payments";
 import { useCart } from "@/context/CartContext";
+import { authService } from "@/services/auth";
 
 const PaymentCompletePage: React.FC = () => {
   const router = useRouter();
@@ -29,10 +30,21 @@ const PaymentCompletePage: React.FC = () => {
     }
     paymentsService
       .verifyPayment(reference)
-      .then((data) => {
+      .then(async (data) => {
         if (data.status === "successful") {
           setStatus("success");
           clearCart();
+
+          // Refresh user profile after successful payment to get latest details
+          try {
+            console.log("Payment successful - refreshing user profile...");
+            const updatedUser = await authService.refreshUserProfile();
+            console.log("User profile refreshed successfully:", updatedUser);
+          } catch (error) {
+            console.error("Failed to refresh user profile after payment:", error);
+            // Don't block the success flow if profile refresh fails
+          }
+
           setMessage(
             "Your payment was successful! Your order is now being processed."
           );

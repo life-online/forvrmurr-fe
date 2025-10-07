@@ -181,6 +181,7 @@ export default function FragranceSelector({
                   <div className="flex flex-wrap gap-2">
                     {items.map((item) => (
                       <div
+                        key={item.slug}
                         className={`p-[0.1em] rounded-lg border-2 ${
                           selectedFilters[section] === item.slug
                             ? "border-[#8B0000]"
@@ -193,7 +194,6 @@ export default function FragranceSelector({
                         }`}
                       >
                         <div
-                          key={item.slug}
                           onClick={() =>
                             handleSubcategoryClick(section, item.slug)
                           }

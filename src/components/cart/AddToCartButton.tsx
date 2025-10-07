@@ -1,8 +1,8 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
+import { useAnalyticsIntegration } from "@/hooks/useAnalyticsIntegration";
 import { Product } from "@/services/product";
-import { trackAddToCart } from "@/utils/analytics";
 
 interface AddToCartButtonProps {
   product: Product;
@@ -18,8 +18,9 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   text,
 }) => {
   const { addToCart } = useCart();
+  const { trackAddToCart } = useAnalyticsIntegration();
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     // Add the product to cart with the selected quantity
     addToCart({
       id: product.id,
@@ -30,9 +31,17 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
       productId: product.id,
       quantity: quantity,
     });
-    
-    // Track the add to cart event with Google Analytics
-    trackAddToCart(product, quantity);
+
+    // Track the add to cart event with both Google Analytics and Shopify
+    await trackAddToCart({
+      productId: product.id,
+      variantId: product.id, // Use product ID as variant ID
+      sku: product.slug,
+      name: product.name,
+      price: Number(product.nairaPrice),
+      quantity: quantity,
+      category: product.categories?.[0]?.name || 'Fragrance',
+    });
   };
 
   const buttonText = `Add ${quantity > 1 ? `${quantity} items` : "to cart"}`;
@@ -40,7 +49,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   return (
     <button
       onClick={handleAddToCart}
-      className={`border text-sm border-[#a0001e] text-[#a0001e] rounded-xl px-5 md:px-8 py-2 font-serif font-medium hover:bg-[#a0001e] hover:text-white transition-colors ${className}`}
+      className={`border text border-[#a0001e] text-[#a0001e] rounded-xl px-5 md:px-8 py-2 font-serif font-medium hover:bg-[#a0001e] hover:text-white transition-colors ${className}`}
     >
       {text ? text : buttonText}
     </button>

@@ -12,6 +12,8 @@ import { useToast } from "@/context/ToastContext";
 import ProductCard from "@/components/ui/ProductCard";
 import FragranceSelector from "@/components/shop/FragranceFilter";
 import FilterSortBar from "@/components/shop/FilterSortBar";
+import AnimatedSection from "@/components/animations/AnimatedSection";
+import StaggeredChildren from "@/components/animations/StaggeredChildren";
 
 type FilterTabValue = "all" | ProductType;
 
@@ -498,63 +500,69 @@ export default function ShopContent() {
   return (
     <>
       {/* Breadcrumb and Title */}
-      <div className="max-w-7xl mx-auto w-full px-4 pt-6 md:pt-8">
-        <h1 className="text-xl md:text-2xl font-serif font-medium mb-3 md:mb-4 text-black">
-          MEET YOUR NEXT OBSESSION
-        </h1>
-      </div>
+      <AnimatedSection delay={0.1} direction="up">
+        <div className="max-w-7xl mx-auto w-full px-4 pt-6 md:pt-8">
+          <h1 className="text-xl md:text-2xl font-serif font-medium mb-3 md:mb-4 text-black">
+            MEET YOUR NEXT OBSESSION
+          </h1>
+        </div>
+      </AnimatedSection>
 
       {/* Tabs - Scrollable on mobile */}
-      <div className="max-w-7xl mx-auto w-full px-4 mb-3 md:mb-4">
-        <div 
-          data-cur="cursor"
-          className="flex overflow-x-auto pb-1 scrollbar-hide gap-2 -mx-1 px-1"
-        >
-          {filterTabs.map((tab) => (
-            <button
-              key={tab.value}
-              className={`px-3 md:px-4 py-2 rounded-full border text-xs md:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
-                activeTab === tab.value
-                  ? "bg-[#faf0e2] border-[#e6c789] text-[#600000]"
-                  : "bg-white border-gray-300 text-gray-700 hover:bg-gray-100"
-              }`}
-              onClick={() => handleTabChange(tab.value)}
-            >
-              {tab.label}
-            </button>
-          ))}
+      <AnimatedSection delay={0.2} direction="up">
+        <div className="max-w-7xl mx-auto w-full px-4 mb-3 md:mb-4">
+          <div
+            data-cur="cursor"
+            className="flex overflow-x-auto pb-1 scrollbar-hide gap-2 -mx-1 px-1"
+          >
+            {filterTabs.map((tab) => (
+              <button
+                key={tab.value}
+                className={`px-3 md:px-4 py-2 rounded-full border text-xs md:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+                  activeTab === tab.value
+                    ? "bg-[#faf0e2] border-[#e6c789] text-[#600000]"
+                    : "bg-white border-gray-300 text-gray-700 hover:bg-gray-100"
+                }`}
+                onClick={() => handleTabChange(tab.value)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      </AnimatedSection>
       {/* Mobile-optimized filters and sorting layout */}
-      <div className="max-w-7xl mx-auto w-full px-4">
-        <div className="flex flex-col gap-y-2 sm:gap-y-0 sm:gap-x-4 mb-3 md:mb-4">
-          {/* Fragrance Selector */}
-          <div className="w-full sm:w-auto">
-            <FragranceSelector
-              drawerOpen={drawerOpen}
-              setDrawerOpen={setDrawerOpen}
-              selectedFilters={selectedFilters}
-              setSelectedFilters={setSelectedFilters}
-              updateSearchParams={updateSearchParams}
-              filteredProductCount={totalProducts}
-              isLoading={loading}
-            />
-          </div>
-          
-          {/* Filter and Sort Bar */}
-          <div className="w-full">
-            <FilterSortBar
-              totalProducts={totalProducts}
-              currentSortBy={currentSortBy}
-              currentSortOrder={currentSortOrder}
-              onSortChange={handleSortChange}
-              filters={shopFilters}
-              onFiltersChange={handleFiltersChange}
-              isLoading={loading}
-            />
+      <AnimatedSection delay={0.3} direction="up">
+        <div className="max-w-7xl mx-auto w-full px-4">
+          <div className="flex flex-col gap-y-2 sm:gap-y-0 sm:gap-x-4 mb-3 md:mb-4">
+            {/* Fragrance Selector */}
+            <div className="w-full sm:w-auto">
+              <FragranceSelector
+                drawerOpen={drawerOpen}
+                setDrawerOpen={setDrawerOpen}
+                selectedFilters={selectedFilters}
+                setSelectedFilters={setSelectedFilters}
+                updateSearchParams={updateSearchParams}
+                filteredProductCount={totalProducts}
+                isLoading={loading}
+              />
+            </div>
+
+            {/* Filter and Sort Bar */}
+            <div className="w-full">
+              <FilterSortBar
+                totalProducts={totalProducts}
+                currentSortBy={currentSortBy}
+                currentSortOrder={currentSortOrder}
+                onSortChange={handleSortChange}
+                filters={shopFilters}
+                onFiltersChange={handleFiltersChange}
+                isLoading={loading}
+              />
+            </div>
           </div>
         </div>
-      </div>
+      </AnimatedSection>
       {/* Loading State */}
       {loading && (
         <div className="text-center py-10 min-h-[70vh]">
@@ -565,41 +573,45 @@ export default function ShopContent() {
 
       {/* Product Grid */}
       {!loading && products?.length > 0 && (
-        <div className="max-w-7xl mx-auto w-full px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4 mb-12">
-          {products?.map((product, index) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              priorityLoading={index < 4}
-            />
-          ))}
-        </div>
+        <StaggeredChildren staggerDelay={0.05} childDelay={0.1}>
+          <div className="max-w-7xl mx-auto w-full px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4 mb-12">
+            {products?.map((product, index) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                priorityLoading={index < 4}
+              />
+            ))}
+          </div>
+        </StaggeredChildren>
       )}
 
       {/* No Products Found */}
       {!loading && products?.length === 0 && (
-        <div className="text-center py-16 min-h-[70vh] flex flex-col items-center justify-center max-w-md mx-auto px-4">
-          <div className="mb-6 relative">
-            <div className="w-24 h-24 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                <line x1="7" y1="7" x2="7.01" y2="7"></line>
-              </svg>
+        <AnimatedSection delay={0.2} direction="up">
+          <div className="text-center py-16 min-h-[70vh] flex flex-col items-center justify-center max-w-md mx-auto px-4">
+            <div className="mb-6 relative">
+              <div className="w-24 h-24 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                  <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                </svg>
+              </div>
+              <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#a0001e] flex items-center justify-center text-white text-xs font-bold">0</div>
             </div>
-            <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#a0001e] flex items-center justify-center text-white text-xs font-bold">0</div>
+            <h3 className="text-xl font-serif mb-2">Oh no, your scent hunt came up empty!</h3>
+            <p className="text-gray-600 mb-6">Even our finest perfumers couldn't blend a fragrance to match those particular filters. Perhaps try a different combination?</p>
+            <button
+              onClick={clearAllFilters}
+              className="px-6 py-2 border border-[#a0001e] text-[#a0001e] hover:bg-[#a0001e] hover:text-white transition-colors rounded-full text-sm font-medium flex items-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 3h18v18H3zM15 9l-6 6m0-6l6 6"/>
+              </svg>
+              Clear all filters
+            </button>
           </div>
-          <h3 className="text-xl font-serif mb-2">Oh no, your scent hunt came up empty!</h3>
-          <p className="text-gray-600 mb-6">Even our finest perfumers couldn't blend a fragrance to match those particular filters. Perhaps try a different combination?</p>
-          <button 
-            onClick={clearAllFilters}
-            className="px-6 py-2 border border-[#a0001e] text-[#a0001e] hover:bg-[#a0001e] hover:text-white transition-colors rounded-full text-sm font-medium flex items-center gap-2"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 3h18v18H3zM15 9l-6 6m0-6l6 6"/>
-            </svg>
-            Clear all filters
-          </button>
-        </div>
+        </AnimatedSection>
       )}
 
       {/* Pagination */}

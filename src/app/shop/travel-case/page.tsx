@@ -13,6 +13,8 @@ import ProductCard from "@/components/ui/ProductCard";
 import { useCart } from "@/context/CartContext";
 import { toastService } from "@/services/toast";
 import { AnimatePresence, motion } from "framer-motion";
+import AnimatedLines from "@/components/animations/AnimatedLines";
+import { buttonHover, buttonTap } from "@/utils/animations";
 import productService, { Product } from "@/services/product";
 import { trackProductView } from "@/utils/analytics";
 import AddToCartButton from "@/components/cart/AddToCartButton";
@@ -202,15 +204,40 @@ export default function TravelCasePage() {
           {/* Hero Content Overlay */}
           <div className="absolute inset-0 flex items-center justify-center z-30">
             <div className="text-center max-w-2xl mx-auto px-4 mt-auto mb-12 md:my-0">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-medium tracking-wide text-[#8B0000] mb-4">
-                Carry Your Obsession Everywhere.
-              </h1>
-              <p className="text-base md:text-lg font-light text-[#8B0000] max-w-2xl mx-auto">
-                Secure. Made exclusively for your Forvr Murr 8ml fragrances.
-              </p>
-              <button className="mt-6 px-8 py-3 bg-[#a0001e] text-white font-medium rounded hover:bg-[#8b0000] transition-colors">
+              <AnimatedLines
+                lines={["Carry Your Obsession Everywhere."]}
+                className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-[#8B0000] mb-4"
+                delay={0.3}
+                duration={0.8}
+                lineStagger={0.2}
+                as="h1"
+              />
+              <AnimatedLines
+                lines={["Secure. Made exclusively for your Forvr Murr 8ml fragrances."]}
+                className="text-base md:text-lg font-light text-[#8B0000] max-w-2xl mx-auto"
+                delay={1.1}
+                duration={0.6}
+                lineStagger={0.15}
+                as="p"
+              />
+              <motion.button
+                className="mt-6 px-8 py-3 bg-[#a0001e] text-white font-medium rounded hover:bg-[#8b0000] transition-colors"
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  scale: 1,
+                  transition: { duration: 0.45, delay: 1.4, ease: [0.25, 0.46, 0.45, 0.94] }
+                }}
+                whileHover={{
+                  ...buttonHover,
+                  y: -2,
+                  transition: { duration: 0.3, ease: "easeOut" }
+                }}
+                whileTap={buttonTap}
+              >
                 Explore Now
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>
@@ -218,22 +245,50 @@ export default function TravelCasePage() {
 
       {/* Product Details Section */}
       <section className="max-w-4xl mx-auto py-16 px-4 text-center">
-        <div className="mb-8">
-          <p className="text-[#a0001e] uppercase tracking-wider text-sm mb-1">
-            PRODUCT DETAILS
-          </p>
-          <h1 className="font-serif text-3xl mb-2">
-            Luxury Perfume Travel Case
-          </h1>
+        <motion.div
+          className="mb-8"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          viewport={{ once: true, amount: 0.3 }}
+        >
+          <AnimatedLines
+            lines={["Product Details"]}
+            className="text-[#a0001e] uppercase tracking-wider text-sm mb-1"
+            delay={0.2}
+            duration={0.6}
+            lineStagger={0.1}
+            as="p"
+          />
+          <AnimatedLines
+            lines={["Luxury Perfume Travel Case"]}
+            className="font-serif text-3xl mb-2"
+            delay={0.4}
+            duration={0.6}
+            lineStagger={0.1}
+            as="h1"
+          />
           {product && (
-            <p className="text-[#a0001e] text-xl font-medium">
+            <motion.p
+              className="text-[#a0001e] text-xl font-medium"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+              viewport={{ once: true, amount: 0.3 }}
+            >
               ₦ {Number(product.nairaPrice).toLocaleString()}
-            </p>
+            </motion.p>
           )}
-        </div>
+        </motion.div>
         {product && (
           <>
-            <div className="flex-1 flex items-center justify-center">
+            <motion.div
+              className="flex-1 flex items-center justify-center"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+              viewport={{ once: true, amount: 0.3 }}
+            >
               {/* Thumbnails */}
               <div className="flex flex-col gap-3 mr-16 justify-center">
                 {(product.imageUrls?.length
@@ -287,9 +342,15 @@ export default function TravelCasePage() {
                   </motion.div>
                 </AnimatePresence>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="flex justify-center items-center gap-2 mb-6">
+            <motion.div
+              className="flex justify-center items-center gap-2 mb-6"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+              viewport={{ once: true, amount: 0.3 }}
+            >
               <div className="w-4 h-4 bg-[#a0001e] rounded-sm"></div>
               <div className="flex items-center gap-2">
                 <span className="text-sm">Quantity:</span>
@@ -300,44 +361,80 @@ export default function TravelCasePage() {
                   className="scale-90"
                 />
               </div>
-            </div>
+            </motion.div>
 
-            <AddToCartButton
-              product={product}
-              className="bg-[#a0001e] text-white py-3 px-8 rounded w-full max-w-xs mx-auto block mb-12"
-              quantity={quantity}
-              text="Add to cart"
-            />
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+              viewport={{ once: true, amount: 0.3 }}
+            >
+              <AddToCartButton
+                product={product}
+                className="bg-[#a0001e] text-white py-3 px-8 rounded w-full max-w-xs mx-auto block mb-12"
+                quantity={quantity}
+                text="Add to cart"
+              />
+            </motion.div>
           </>
         )}
 
         <div className="max-w-2xl mx-auto text-center">
-          <p className="text-gray-700 mb-6">
+          <motion.p
+            className="text-gray-700 mb-6"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+            viewport={{ once: true, amount: 0.3 }}
+          >
             Elevate your fragrance experience with our signature perfume travel
             case—where beauty meets function. Crafted from sleek, matte-finished
             materials and detailed with gold accents, this elegant case keeps
             your favorite ForvrMurr fragrances protected and travel-ready.
-          </p>
-          <p className="text-gray-700 mb-8">
+          </motion.p>
+          <motion.p
+            className="text-gray-700 mb-8"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+            viewport={{ once: true, amount: 0.3 }}
+          >
             Slip it discreetly into your handbag, briefcase, or pocket for
             on-the-go touch-ups. The secure magnetic closure ensures your scent
             stays safe, stylish, and ready for any moment.
-          </p>
-          <p className="text-[#a0001e] font-medium text-sm">
+          </motion.p>
+          <motion.p
+            className="text-[#a0001e] font-medium text-sm"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+            viewport={{ once: true, amount: 0.3 }}
+          >
             MORE COLORS COMING SOON—STAY TUNED
-          </p>
+          </motion.p>
         </div>
       </section>
 
       {/* Key Features Section */}
       <section className="bg-[#f8f5f2] py-16 md:py-24 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="font-serif text-2xl mb-12 uppercase tracking-wide">
-            Key Features & Benefits
-          </h2>
+          <AnimatedLines
+            lines={["Key Features & Benefits"]}
+            className="font-serif text-2xl mb-12 uppercase tracking-wide"
+            delay={0.2}
+            duration={0.7}
+            lineStagger={0.15}
+            as="h2"
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="flex flex-col items-center">
+            <motion.div
+              className="flex flex-col items-center"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+              viewport={{ once: true, amount: 0.3 }}
+            >
               <div className="w-16 h-16 mb-4 flex items-center justify-center">
                 <Image
                   src="/images/shop/travel-case/icons/elegant.png"
@@ -351,9 +448,15 @@ export default function TravelCasePage() {
                 Matte black finish with subtle gold accents—designed to
                 complement any style confidently.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="flex flex-col items-center">
+            <motion.div
+              className="flex flex-col items-center"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+              viewport={{ once: true, amount: 0.3 }}
+            >
               <div className="w-16 h-16 mb-4 flex items-center justify-center">
                 <Image
                   src="/images/shop/travel-case/icons/secure.png"
@@ -367,9 +470,15 @@ export default function TravelCasePage() {
                 Luxury magnetic closure keeps your fragrance vials secure within
                 a velvet-lined interior.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="flex flex-col items-center">
+            <motion.div
+              className="flex flex-col items-center"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+              viewport={{ once: true, amount: 0.3 }}
+            >
               <div className="w-16 h-16 mb-4 flex items-center justify-center">
                 <Image
                   src="/images/shop/travel-case/icons/portable.png"
@@ -383,7 +492,7 @@ export default function TravelCasePage() {
                 Fits perfectly in handbags, pockets, or travel bags—your
                 signature scent goes wherever you go.
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -391,12 +500,23 @@ export default function TravelCasePage() {
       {/* How It Works Section */}
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="font-serif text-2xl mb-12 uppercase tracking-wide">
-            How It Works
-          </h2>
+          <AnimatedLines
+            lines={["How It Works"]}
+            className="font-serif text-2xl mb-12 uppercase tracking-wide"
+            delay={0.2}
+            duration={0.7}
+            lineStagger={0.15}
+            as="h2"
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="flex flex-col items-center">
+            <motion.div
+              className="flex flex-col items-center"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+              viewport={{ once: true, amount: 0.3 }}
+            >
               <div className="w-8 h-8 rounded-full border border-[#a0001e] text-[#a0001e] flex items-center justify-center font-serif mb-4">
                 1
               </div>
@@ -404,9 +524,15 @@ export default function TravelCasePage() {
               <p className="text-gray-700 text-sm">
                 Gently pull open the luxury travel case.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="flex flex-col items-center">
+            <motion.div
+              className="flex flex-col items-center"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+              viewport={{ once: true, amount: 0.3 }}
+            >
               <div className="w-8 h-8 rounded-full border border-[#a0001e] text-[#a0001e] flex items-center justify-center font-serif mb-4">
                 2
               </div>
@@ -414,9 +540,15 @@ export default function TravelCasePage() {
               <p className="text-gray-700 text-sm">
                 Remove the lid of your ForvrMurr vial, place it inside.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="flex flex-col items-center">
+            <motion.div
+              className="flex flex-col items-center"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+              viewport={{ once: true, amount: 0.3 }}
+            >
               <div className="w-8 h-8 rounded-full border border-[#a0001e] text-[#a0001e] flex items-center justify-center font-serif mb-4">
                 3
               </div>
@@ -427,7 +559,7 @@ export default function TravelCasePage() {
                 Close the case securely with its magnetic snap—and you're ready
                 to indulge.
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>

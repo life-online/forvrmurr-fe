@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import productService, { Product, ProductAttribute } from "@/services/product";
@@ -9,10 +9,13 @@ import ProductBadge from "@/components/ui/ProductBadge";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import ProductCard from "@/components/ui/ProductCard";
 import QuantitySelector from "@/components/ui/QuantitySelector";
-import { findNotesImageLocally } from "@/utils/helpers";
 import { trackProductView } from "@/utils/analytics";
 import OutOfStockBadge from "@/components/ui/OutOfStockBadge";
 import NotifyMeModal from "@/components/ui/NotifyMeModal";
+import { FiHeart } from "react-icons/fi";
+import { FaHeart } from "react-icons/fa";
+import wishlistService from "@/services/wishlist";
+import { toastService } from "@/services/toast";
 
 // Fallback image paths
 const FALLBACK_IMAGE = "/images/hero/hero_image.png";
@@ -51,6 +54,7 @@ const formatConcentration = (concentration: string | null): string => {
 
 export default function ProductDetailsPage() {
   const params = useParams();
+  const router = useRouter();
   const slug = typeof params.slug === "string" ? params.slug : "";
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -69,6 +73,8 @@ export default function ProductDetailsPage() {
     Record<string, number>
   >({});
   const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
+  const [isInWishlist, setIsInWishlist] = useState(false);
+  const [isWishlistLoading, setIsWishlistLoading] = useState(false);
 
   // Fetch the product data
   useEffect(() => {
@@ -79,7 +85,10 @@ export default function ProductDetailsPage() {
         setLoading(true);
         const data = await productService.getProductBySlug(slug);
         setProduct(data);
-        
+
+        // Set initial wishlist state
+        setIsInWishlist(data.isInWishlist || false);
+
         // Track product view event for Google Analytics
         trackProductView(data);
         
@@ -128,6 +137,45 @@ export default function ProductDetailsPage() {
       [id]: Math.max(1, getFeaturedQty(id) - 1),
     }));
   };
+
+  // Handle wishlist toggle
+  const handleWishlistToggle = async () => {
+    if (!product) return;
+
+    setIsWishlistLoading(true);
+    try {
+      if (isInWishlist) {
+        // Remove from wishlist
+        await wishlistService.removeFromWishlist(product.id);
+        setIsInWishlist(false);
+        toastService.success("Removed from wishlist");
+      } else {
+        // Add to wishlist
+        await wishlistService.addToWishlist(product.id);
+        setIsInWishlist(true);
+        toastService.success("Added to wishlist");
+      }
+    } catch (error: any) {
+      console.error("Wishlist toggle failed:", error);
+
+      // Get error message
+      const errorMessage = error.response?.data?.message || error.message || "Failed to update wishlist";
+
+      // Check if this is the "need account" error and redirect to signup
+      if (errorMessage.includes("Let's get you an account") || errorMessage.includes("account so you can save")) {
+        toastService.error(errorMessage);
+        // Redirect to signup page after a short delay to let user see the message
+        setTimeout(() => {
+          router.push('/auth/register');
+        }, 2000);
+      } else {
+        toastService.error(errorMessage);
+      }
+    } finally {
+      setIsWishlistLoading(false);
+    }
+  };
+
   // Handle thumbnail click
   const handleThumbnailClick = (index: number) => {
     setSelectedImageIndex(index);
@@ -297,26 +345,48 @@ export default function ProductDetailsPage() {
                         />
                       </div>
 
-                      {/* Add to Cart Button or Notify Me Button */}
-                      {product.inventoryQuantity <= 0 ? (
+                      {/* Add to Cart Button or Notify Me Button + Wishlist Heart */}
+                      <div className="flex gap-3 sm:flex-row flex-col">
+                        {product.inventoryQuantity <= 0 ? (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setIsNotifyModalOpen(true);
+                              console.log('Opening notify modal');
+                            }}
+                            className="bg-gray-700 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium w-full sm:flex-1"
+                          >
+                            Notify Me
+                          </button>
+                        ) : (
+                          <AddToCartButton
+                            product={product}
+                            className="bg-[#a0001e] text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg hover:bg-[#800018] transition-colors font-medium w-full sm:flex-1"
+                            quantity={mainQuantity}
+                          />
+                        )}
+
+                        {/* Wishlist Heart Button */}
                         <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setIsNotifyModalOpen(true);
-                            console.log('Opening notify modal');
-                          }}
-                          className="bg-gray-700 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium w-full sm:w-auto"
+                          onClick={handleWishlistToggle}
+                          disabled={isWishlistLoading}
+                          className={`p-2.5 sm:p-3 rounded-lg transition-all duration-200 flex items-center justify-center ${
+                            isInWishlist
+                              ? "bg-[#a0001e] text-white hover:bg-[#800018]"
+                              : "bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300"
+                          } ${isWishlistLoading ? "opacity-75 cursor-not-allowed" : ""}`}
+                          aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
                         >
-                          Notify Me When Available
+                          {isWishlistLoading ? (
+                            <div className="w-6 h-6 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                          ) : isInWishlist ? (
+                            <FaHeart className="w-6 h-6" />
+                          ) : (
+                            <FiHeart className="w-6 h-6" />
+                          )}
                         </button>
-                      ) : (
-                        <AddToCartButton
-                          product={product}
-                          className="bg-[#a0001e] text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg hover:bg-[#800018] transition-colors font-medium w-full sm:w-auto"
-                          quantity={mainQuantity}
-                        />
-                      )}
+                      </div>
                     </div>
 
                     {/* Total Price (only show if quantity > 1) */}

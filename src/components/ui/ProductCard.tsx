@@ -3,6 +3,9 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { FiHeart } from "react-icons/fi";
+import { FaHeart } from "react-icons/fa";
 import { Product } from "@/services/product";
 import ProductBadge from "./ProductBadge";
 import NewArrivalBadge from "./NewArrivalBadge";
@@ -12,6 +15,10 @@ import { findNotesImageLocally } from "@/utils/helpers";
 import { useCart } from "@/context/CartContext";
 import { toastService } from "@/services/toast";
 import NotifyMeModal from "./NotifyMeModal";
+import wishlistService from "@/services/wishlist";
+import { useWishlist } from "@/context/WishlistContext";
+import { useRouter } from "next/navigation";
+import { cardHover, cardTap, buttonHover, buttonTap } from "@/utils/animations";
 const FALLBACK_NOTE_IMAGE = "/images/scent_notes/default.png";
 
 interface ProductCardProps {
@@ -24,9 +31,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
   priorityLoading = false,
 }) => {
   const { addToCart } = useCart();
+  const { refreshWishlist, removeItemOptimistically } = useWishlist();
+  const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
+  const [isInWishlist, setIsInWishlist] = useState(product.isInWishlist || false);
+  const [isWishlistLoading, setIsWishlistLoading] = useState(false);
   
   // Check if the product is out of stock
   const isOutOfStock = product.inventoryQuantity <= 0;
@@ -59,12 +70,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const checkIfMobile = () => {
       setIsMobile(window.innerWidth < 768); // 768px is typically where md: breakpoint starts
     };
-    
+
     checkIfMobile();
     window.addEventListener('resize', checkIfMobile);
-    
+
     return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
+
+  // Sync wishlist state when product prop changes
+  useEffect(() => {
+    setIsInWishlist(product.isInWishlist || false);
+  }, [product.isInWishlist]);
   // Smart algorithm to select notes for display
   const getDisplayNotes = (product: Product, maxNotes: number = 6) => {
     const allNotes: Array<{ note: any; type: "top" | "middle" | "base" }> = [];
@@ -154,6 +170,66 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   const displayNotes = getDisplayNotes(product, 6);
 
+  // Function to handle wishlist toggle
+  const handleWishlistToggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setIsWishlistLoading(true);
+    const wasInWishlist = isInWishlist;
+
+    try {
+      if (wasInWishlist) {
+        // Optimistically update UI first
+        setIsInWishlist(false);
+
+        // Remove from wishlist page immediately if we're on it
+        if (removeItemOptimistically) {
+          removeItemOptimistically(product.id);
+        }
+
+        // Then make API call
+        await wishlistService.removeFromWishlist(product.id);
+        toastService.success("Removed from wishlist");
+      } else {
+        // Add to wishlist
+        await wishlistService.addToWishlist(product.id);
+        setIsInWishlist(true);
+        toastService.success("Added to wishlist");
+      }
+    } catch (error: any) {
+      console.error("Wishlist toggle failed:", error);
+
+      // Revert optimistic update on error
+      if (wasInWishlist) {
+        // If removal failed, revert the heart state and refresh page to restore correct state
+        setIsInWishlist(true);
+        if (refreshWishlist) {
+          refreshWishlist();
+        }
+      } else {
+        // If add failed, revert the heart state
+        setIsInWishlist(false);
+      }
+
+      // Get error message
+      const errorMessage = error.response?.data?.message || error.message || "Failed to update wishlist";
+
+      // Check if this is the "need account" error and redirect to signup
+      if (errorMessage.includes("Let's get you an account") || errorMessage.includes("account so you can save")) {
+        toastService.error(errorMessage);
+        // Redirect to signup page after a short delay to let user see the message
+        setTimeout(() => {
+          router.push('/auth/register');
+        }, 2000);
+      } else {
+        toastService.error(errorMessage);
+      }
+    } finally {
+      setIsWishlistLoading(false);
+    }
+  };
+
   // Function to handle product click and navigation
   const handleProductClick = (e: React.MouseEvent) => {
     // Don't navigate if the modal is open
@@ -161,18 +237,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
       e.preventDefault();
       return;
     }
-    
+
     // Otherwise, default link behavior will happen
   };
 
   return (
     <div className="relative w-full"> {/* Wrapper div to position modal */}
-      <Link 
-        href={`/shop/${product?.slug}`} 
-        className="block w-full group" 
+      <Link
+        href={`/shop/${product?.slug}`}
+        className="block w-full group"
         onClick={handleProductClick}
       >
-        <div className="bg-[#f8f5f2] relative rounded-lg overflow-hidden p-4 transition-all duration-300 group-hover:shadow-xl pt-10 h-full flex flex-col">
+        <motion.div
+          className="bg-[#f8f5f2] relative rounded-lg overflow-hidden p-4 transition-all duration-300 group-hover:shadow-xl pt-10 h-full flex flex-col"
+          whileHover={cardHover}
+          whileTap={cardTap}
+        >
         {/* Product badges/tags */}
         <div className="absolute top-3 left-3">
           {product.type === "premium" ? (
@@ -224,44 +304,72 @@ const ProductCard: React.FC<ProductCardProps> = ({
           
           {/* Mobile-only Add to Cart or Notify Me Button */}
           <div className="mt-4 md:hidden">
-            {isOutOfStock ? (
-              <button 
-                onClick={(e) => {
-                  e.preventDefault(); // Stop link navigation
-                  e.stopPropagation(); // Stop event bubbling
-                  setIsNotifyModalOpen(true);
-                }}
-                className="bg-gray-700 hover:bg-gray-800 text-white py-2 px-4 rounded-lg text-sm font-medium w-full transition-colors duration-200"
+            <div className="flex gap-2">
+              {isOutOfStock ? (
+                <motion.button
+                  onClick={(e) => {
+                    e.preventDefault(); // Stop link navigation
+                    e.stopPropagation(); // Stop event bubbling
+                    setIsNotifyModalOpen(true);
+                  }}
+                  className="bg-gray-700 hover:bg-gray-800 text-white py-2 px-4 rounded-lg text-sm font-medium flex-1 transition-colors duration-200"
+                  whileHover={buttonHover}
+                  whileTap={buttonTap}
+                >
+                  Notify Me
+                </motion.button>
+              ) : (
+                <motion.button
+                  onClick={(e) => {
+                    e.preventDefault(); // Stop link navigation
+                    e.stopPropagation(); // Stop event bubbling
+
+                    setIsAdding(true);
+                    try {
+                      addToCart({
+                        id: product.id,
+                        name: product.name,
+                        brand: product.brand?.name || '',
+                        price: Number(product.nairaPrice),
+                        imageUrl: product.imageUrls?.[0] || "/images/products/fallback.png",
+                        productId: product.id,
+                        quantity: 1,
+                      });
+                    } finally {
+                      setIsAdding(false);
+                    }
+                  }}
+                  disabled={isAdding}
+                  className={`bg-[#a0001e] hover:bg-[#8B0000] text-white py-2 px-4 rounded-lg text-sm font-medium flex-1 transition-colors duration-200 ${isAdding ? "opacity-75 cursor-not-allowed" : ""}`}
+                  whileHover={!isAdding ? buttonHover : undefined}
+                  whileTap={!isAdding ? buttonTap : undefined}
+                >
+                  {isAdding ? "Adding..." : "Add to Cart"}
+                </motion.button>
+              )}
+
+              {/* Wishlist Heart Button */}
+              <motion.button
+                onClick={handleWishlistToggle}
+                disabled={isWishlistLoading}
+                className={`p-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  isInWishlist
+                    ? "bg-[#8B0000] text-white hover:bg-[#a0001e]"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                } ${isWishlistLoading ? "opacity-75 cursor-not-allowed" : ""}`}
+                aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                whileHover={!isWishlistLoading ? buttonHover : undefined}
+                whileTap={!isWishlistLoading ? buttonTap : undefined}
               >
-                Notify Me
-              </button>
-            ) : (
-              <button 
-                onClick={(e) => {
-                  e.preventDefault(); // Stop link navigation
-                  e.stopPropagation(); // Stop event bubbling
-                  
-                  setIsAdding(true);
-                  try {
-                    addToCart({
-                      id: product.id,
-                      name: product.name,
-                      brand: product.brand?.name || '',
-                      price: Number(product.nairaPrice),
-                      imageUrl: product.imageUrls?.[0] || "/images/products/fallback.png",
-                      productId: product.id,
-                      quantity: 1,
-                    });
-                  } finally {
-                    setIsAdding(false);
-                  }
-                }}
-                disabled={isAdding}
-                className={`bg-[#a0001e] hover:bg-[#8B0000] text-white py-2 px-4 rounded-lg text-sm font-medium w-full transition-colors duration-200 ${isAdding ? "opacity-75 cursor-not-allowed" : ""}`}
-              >
-                {isAdding ? "Adding..." : "Add to Cart"}
-              </button>
-            )}
+                {isWishlistLoading ? (
+                  <div className="w-5 h-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                ) : isInWishlist ? (
+                  <FaHeart className="w-5 h-5" />
+                ) : (
+                  <FiHeart className="w-5 h-5" />
+                )}
+              </motion.button>
+            </div>
           </div>
         </div>
 
@@ -317,27 +425,55 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 </span>
               </p>
             )}
-            {isOutOfStock ? (
-              <button
-                onClick={(e) => {
-                  e.preventDefault(); // Stop link navigation
-                  e.stopPropagation(); // Stop event bubbling
-                  
-                  // Set a small delay to ensure click event fully propagates
-                  setTimeout(() => {
-                    setIsNotifyModalOpen(true);
-                  }, 10);
-                }}
-                className="w-full bg-gray-700 hover:bg-gray-800 text-white py-2 rounded-lg transition-colors"
+            <div className="flex gap-2">
+              {isOutOfStock ? (
+                <motion.button
+                  onClick={(e) => {
+                    e.preventDefault(); // Stop link navigation
+                    e.stopPropagation(); // Stop event bubbling
+
+                    // Set a small delay to ensure click event fully propagates
+                    setTimeout(() => {
+                      setIsNotifyModalOpen(true);
+                    }, 10);
+                  }}
+                  className="flex-1 bg-gray-700 hover:bg-gray-800 text-white py-2 rounded-lg transition-colors"
+                  whileHover={buttonHover}
+                  whileTap={buttonTap}
+                >
+                  Notify Me
+                </motion.button>
+              ) : (
+                <div className="flex-1">
+                  <HoverAddToCartButton product={product} />
+                </div>
+              )}
+
+              {/* Wishlist Heart Button */}
+              <motion.button
+                onClick={handleWishlistToggle}
+                disabled={isWishlistLoading}
+                className={`p-2 rounded-lg transition-all duration-200 ${
+                  isInWishlist
+                    ? "bg-[#8B0000] text-white hover:bg-[#a0001e]"
+                    : "bg-white/20 text-white hover:bg-white/30"
+                } ${isWishlistLoading ? "opacity-75 cursor-not-allowed" : ""}`}
+                aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                whileHover={!isWishlistLoading ? buttonHover : undefined}
+                whileTap={!isWishlistLoading ? buttonTap : undefined}
               >
-                Notify Me
-              </button>
-            ) : (
-              <HoverAddToCartButton product={product} />
-            )}
+                {isWishlistLoading ? (
+                  <div className="w-5 h-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                ) : isInWishlist ? (
+                  <FaHeart className="w-5 h-5" />
+                ) : (
+                  <FiHeart className="w-5 h-5" />
+                )}
+              </motion.button>
+            </div>
           </div>
         </div>
-      </div>
+        </motion.div>
       </Link>
       
       {/* Notify Me Modal - moved outside the Link component */}
