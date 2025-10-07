@@ -50,7 +50,7 @@ export const trackProductView = (product: any): void => {
       ]
     };
     
-    window.gtag('event', 'view_item', params);
+    window.gtag?.('event', 'view_item', params);
     logAnalyticsEvent('view_item', params);
   } catch (error) {
     if (isDebugMode) console.error('Error tracking product view:', error);
@@ -76,7 +76,7 @@ export const trackAddToCart = (product: any, quantity: number): void => {
       ]
     };
     
-    window.gtag('event', 'add_to_cart', params);
+    window.gtag?.('event', 'add_to_cart', params);
     logAnalyticsEvent('add_to_cart', params);
   } catch (error) {
     if (isDebugMode) console.error('Error tracking add to cart:', error);
@@ -106,7 +106,7 @@ export const trackBeginCheckout = (
       items
     };
     
-    window.gtag('event', 'begin_checkout', params);
+    window.gtag?.('event', 'begin_checkout', params);
     logAnalyticsEvent('begin_checkout', params);
   } catch (error) {
     if (isDebugMode) console.error('Error tracking checkout start:', error);
@@ -134,7 +134,7 @@ export const trackPurchase = (
       items
     };
     
-    window.gtag('event', 'purchase', params);
+    window.gtag?.('event', 'purchase', params);
     logAnalyticsEvent('purchase', params);
   } catch (error) {
     if (isDebugMode) console.error('Error tracking purchase:', error);
@@ -147,7 +147,7 @@ export const trackSignUp = (method: string): void => {
     if (!isGaAvailable()) return;
     
     const params = { method };
-    window.gtag('event', 'sign_up', params);
+    window.gtag?.('event', 'sign_up', params);
     logAnalyticsEvent('sign_up', params);
   } catch (error) {
     if (isDebugMode) console.error('Error tracking sign-up:', error);
@@ -160,7 +160,7 @@ export const trackLogin = (method: string): void => {
     if (!isGaAvailable()) return;
     
     const params = { method };
-    window.gtag('event', 'login', params);
+    window.gtag?.('event', 'login', params);
     logAnalyticsEvent('login', params);
   } catch (error) {
     if (isDebugMode) console.error('Error tracking login:', error);
@@ -173,7 +173,7 @@ export const trackSearch = (searchTerm: string): void => {
     if (!isGaAvailable()) return;
     
     const params = { search_term: searchTerm };
-    window.gtag('event', 'search', params);
+    window.gtag?.('event', 'search', params);
     logAnalyticsEvent('search', params);
   } catch (error) {
     if (isDebugMode) console.error('Error tracking search:', error);
@@ -183,10 +183,6 @@ export const trackSearch = (searchTerm: string): void => {
 // Fix TypeScript errors for window.gtag
 declare global {
   interface Window {
-    gtag: (
-      command: string,
-      action: string,
-      params?: Record<string, any>
-    ) => void;
+    gtag?: (...args: any[]) => void;
   }
 }

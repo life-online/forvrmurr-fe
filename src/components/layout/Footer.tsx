@@ -48,7 +48,7 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-white">
+                <Link href="/about/contact" className="hover:text-white">
                   Contact Us
                 </Link>
               </li>
@@ -60,7 +60,7 @@ const Footer: React.FC = () => {
             <ul className="space-y-2 text-sm text-gray-300">
               {/* <li><Link href="/contact" className="hover:text-white">Contact Us</Link></li> */}
               <li>
-                <Link href="/coming-soon" className="hover:text-white">
+                <Link href="/discover/quiz" className="hover:text-white">
                   Take the Scent Quiz
                 </Link>
               </li>
@@ -108,7 +108,7 @@ const Footer: React.FC = () => {
                 href="https://www.tiktok.com/@forvrmurr?_t=ZM-8wiBQFH3OAY&_r=1"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Twitter"
+                aria-label="TikTok"
               >
                 <FaTiktok size={20} className="hover:text-gray-300" />
               </a>

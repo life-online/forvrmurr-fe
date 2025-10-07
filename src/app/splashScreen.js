@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, createContext, useContext } from "react";
+
+// Context to track splash screen completion
+const SplashContext = createContext({ isComplete: false });
+
+export const useSplashComplete = () => useContext(SplashContext);
 
 // This simplified approach forces the splash screen to show for exactly 4.5 seconds
 // on initial page load/refresh but not during client-side navigation
@@ -10,6 +15,7 @@ export default function SplashScreenWrapper({ children }) {
   const [showWelcome, setShowWelcome] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
     // This code only runs in the browser
@@ -36,6 +42,7 @@ export default function SplashScreenWrapper({ children }) {
             // Remove splash screen component after fade animation completes
             setTimeout(() => {
               setLoading(false);
+              setIsComplete(true); // Mark splash as complete
             }, 700); // Increased from 500ms to 700ms for a smoother transition
           }, 1500);
           
@@ -53,7 +60,7 @@ export default function SplashScreenWrapper({ children }) {
 
   // Render main content with splash screen overlay if needed
   return (
-    <>
+    <SplashContext.Provider value={{ isComplete }}>
       {loading && (
         <div 
           className={`fixed inset-0 flex flex-col items-center justify-center z-50 bg-[#faf5eb] transition-opacity duration-700 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}
@@ -97,6 +104,6 @@ export default function SplashScreenWrapper({ children }) {
       >
         {children}
       </div>
-    </>
+    </SplashContext.Provider>
   );
 }

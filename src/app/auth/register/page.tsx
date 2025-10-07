@@ -8,6 +8,7 @@ import AuthLayout from "@/components/auth/AuthLayout";
 import { useToast } from "@/context/ToastContext";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { parsePhoneNumberFromString, isValidPhoneNumber } from 'libphonenumber-js';
+import { authService } from "@/services/auth";
 
 interface RegisterFormData {
   firstName: string;
@@ -45,6 +46,18 @@ export default function Register() {
     const message = searchParams.get("message");
     if (message) {
       setDisplayMessage(decodeURIComponent(message));
+    }
+
+    // Prefill form with existing user data if available
+    const existingUser = authService.getUser();
+    if (existingUser) {
+      setFormData(prev => ({
+        ...prev,
+        firstName: existingUser.firstName || "",
+        lastName: existingUser.lastName || "",
+        email: existingUser.email || "",
+        phoneNumber: existingUser.phoneNumber || "",
+      }));
     }
   }, [searchParams]);
 

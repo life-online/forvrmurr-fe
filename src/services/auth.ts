@@ -12,6 +12,7 @@ export interface User {
   role: string;
   isEmailVerified?: boolean;
   isRegistered?: boolean; // Explicit registration tracking
+  activeSubscriptions?: number; // Number of active subscriptions
   createdAt: string;
 }
 
@@ -178,6 +179,29 @@ export const authService = {
     }
 
     return null;
+  },
+
+  /**
+   * Fetch the latest user profile from the server and update localStorage
+   */
+  async refreshUserProfile(): Promise<User | null> {
+    if (!this.getAccessToken()) {
+      console.log("No access token found for profile refresh");
+      return null;
+    }
+
+    try {
+      console.log("Fetching latest user profile from /users/profile...");
+      const user = await api.get<User>("users/profile", { requiresAuth: true });
+      console.log("Profile fetched successfully, updating localStorage:", user);
+      this.setUser(user);
+      return user;
+    } catch (error) {
+      console.error("Failed to refresh user profile:", error);
+      // Token might be invalid
+      this.clearTokens();
+      return null;
+    }
   },
 
   /**
