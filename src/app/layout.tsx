@@ -7,6 +7,7 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import Providers from "@/context/Providers";
 import SplashScreenWrapper from "./splashScreen";
 import { defaultSeo, siteConfig } from "@/config/seo";
+import PageTransition from "@/components/animations/PageTransition";
 
 
 const geistSans = Geist({
@@ -22,6 +23,7 @@ const geistMono = Geist_Mono({
 const playfairDisplay = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 
@@ -126,7 +128,9 @@ export default function RootLayout({
       >
         <Providers>
           <SplashScreenWrapper>
-            <Suspense fallback={<RootLoadingFallback />}>{children}</Suspense>
+            <Suspense fallback={<RootLoadingFallback />}>
+              <PageTransition>{children}</PageTransition>
+            </Suspense>
           </SplashScreenWrapper>
         </Providers>
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || ''} />
