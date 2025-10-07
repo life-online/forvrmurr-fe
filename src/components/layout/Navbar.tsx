@@ -11,6 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { authService } from "@/services/auth";
 import SearchPopup from "./SearchPopover";
+import { useRouter } from "next/navigation";
 
 interface NavItem {
   name: string;
@@ -38,10 +39,10 @@ const shopSubroutes = [
   { name: "Gifting", path: "/shop/gifting" },
 ];
 
-const subscriptionsSubroutes = [
+const getSubscriptionsSubroutes = (handleManageSubscription: () => void) => [
   { name: "Monthly Prime", path: "/subscriptions/prime" },
   { name: "Monthly Premium", path: "/subscriptions/premium" },
-  { name: "Manage Subscription", path: "/subscriptions/manage" },
+  { name: "Manage Subscription", path: "#", onClick: handleManageSubscription },
 ];
 
 const discoverSubroutes = [
@@ -114,7 +115,8 @@ const Navbar: React.FC = () => {
     itemCount,
   } = useCart();
   const { isAuthenticated, logout } = useAuth();
-  const { success } = useToast();
+  const { success, error } = useToast();
+  const router = useRouter();
 
   // Close dropdowns and mobile menu on outside click
   useEffect(() => {
@@ -207,6 +209,11 @@ const Navbar: React.FC = () => {
     await logout();
     success("Logged out successfully");
     window.location.href = "/auth/login";
+  };
+
+  const handleManageSubscription = () => {
+    // Redirect to subscription interest capture page
+    router.push('/subscriptions/manage');
   };
 
   return (
@@ -364,15 +371,28 @@ const Navbar: React.FC = () => {
                         {/* Subscriptions Dropdown */}
                         {showSubscriptionsDropdown && (
                           <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg z-50 text-black">
-                            {subscriptionsSubroutes.map((subroute) => (
-                              <Link
-                                key={subroute.path}
-                                href={subroute.path}
-                                className="block px-4 py-2 hover:bg-gray-100 text-sm"
-                                onClick={() => setShowSubscriptionsDropdown(false)}
-                              >
-                                {subroute.name}
-                              </Link>
+                            {getSubscriptionsSubroutes(handleManageSubscription).map((subroute) => (
+                              subroute.onClick ? (
+                                <button
+                                  key={subroute.name}
+                                  onClick={() => {
+                                    setShowSubscriptionsDropdown(false);
+                                    subroute.onClick?.();
+                                  }}
+                                  className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                                >
+                                  {subroute.name}
+                                </button>
+                              ) : (
+                                <Link
+                                  key={subroute.path}
+                                  href={subroute.path}
+                                  className="block px-4 py-2 hover:bg-gray-100 text-sm"
+                                  onClick={() => setShowSubscriptionsDropdown(false)}
+                                >
+                                  {subroute.name}
+                                </Link>
+                              )
                             ))}
                           </div>
                         )}
@@ -680,10 +700,21 @@ const Navbar: React.FC = () => {
 
                         {/* Mobile subscriptions subroutes */}
                         <div className="pl-6 border-l border-gray-700 ml-4 space-y-1">
-                          {subscriptionsSubroutes.map((subroute) => {
+                          {getSubscriptionsSubroutes(handleManageSubscription).map((subroute) => {
                             const isSubrouteActive = pathname === subroute.path;
 
-                            return (
+                            return subroute.onClick ? (
+                              <button
+                                key={subroute.name}
+                                onClick={() => {
+                                  setIsMobileMenuOpen(false);
+                                  subroute.onClick?.();
+                                }}
+                                className={`block py-2 px-4 text-sm text-left w-full ${isSubrouteActive ? "text-white font-medium" : "text-gray-400 hover:text-white"}`}
+                              >
+                                {subroute.name}
+                              </button>
+                            ) : (
                               <Link
                                 key={subroute.path}
                                 href={subroute.path}
