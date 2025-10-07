@@ -88,7 +88,7 @@ export default function UpcomingDeliveryCard() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await orderService.getmyorders();
+      const response = await orderService.getMyOrders();
       setOrders(response.data);
       // setCurrentPage(response.meta.page);
       // setTotalPages(response.meta.totalPages);

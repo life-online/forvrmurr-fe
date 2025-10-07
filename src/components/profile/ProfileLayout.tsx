@@ -8,13 +8,13 @@ import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import ProfileMobileSideBar from "./MobileSideBar";
 import { authService } from "@/services/auth";
+import { toastService } from "@/services/toast";
 
 const profileRoutes = [
   { label: "Profile", path: "/profile", icon: "👤" },
   { label: "My Orders", path: "/profile/orders", icon: "📦" },
   { label: "My Wishlist", path: "/profile/wishlist", icon: "❤️" },
   { label: "Quiz Results", path: "/profile/quiz-results", icon: "📋" },
-  { label: "Subscriptions", path: "/profile/subscriptions", icon: "🔄" },
 ];
 
 interface ProfileLayoutProps {
@@ -35,6 +35,50 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+
+  // Check if current route should be protected
+  const isProtectedRoute = () => {
+    // Allow access to order details page for email links
+    if (pathname.match(/^\/profile\/orders\/[^\/]+$/)) {
+      return false;
+    }
+    // All other profile routes are protected
+    return pathname.startsWith('/profile');
+  };
+
+  // Route protection effect
+  useEffect(() => {
+    if (isProtectedRoute()) {
+      const isRegisteredUser = authService.isAuthenticated() && authService.isRegistered();
+
+      if (!isRegisteredUser) {
+        toastService.error("Let's get you an account so you can begin managing your profile");
+        // Redirect to signup page after a short delay
+        setTimeout(() => {
+          router.push('/auth/register');
+        }, 2000);
+        return;
+      }
+    }
+  }, [pathname, router]);
+
+  // Prevent rendering protected content for unauthorized users
+  if (isProtectedRoute()) {
+    const isRegisteredUser = authService.isAuthenticated() && authService.isRegistered();
+
+    if (!isRegisteredUser) {
+      return (
+        <div className="min-h-screen bg-white flex flex-col">
+          <AnnouncementBar message="The wait is over. Shop Prime & Premium perfumes—now in 8ml!" />
+          <Navbar />
+          <div className="flex justify-center items-center min-h-[50vh] bg-[#f7ede1]">
+            <p className="text-xl text-gray-700">Redirecting you to create an account...</p>
+          </div>
+          <Footer />
+        </div>
+      );
+    }
+  }
 
   const onCloseSideBar = () => setIsSideBar(false);
 

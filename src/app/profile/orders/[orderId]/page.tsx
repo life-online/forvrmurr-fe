@@ -347,43 +347,39 @@ export default function OrderDetailsPage() {
 
   return (
     <ProfileLayout>
-      <div className="max-w-5xl mx-auto space-y-8">
-        {/* Back Button */}
-
+      <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 mb-4">
-          <div className="flex items-center gap-4">
+        <div className="border-b border-gray-200 pb-4">
+          <div className="flex items-center justify-between mb-3">
             <button
               onClick={() => router.back()}
-              className="flex items-center gap-2 bg-[#8B0000] text-white px-3 py-4 my-auto rounded-lg hover:bg-[#a0001e] transition-colors h-full"
+              className="flex items-center gap-2 text-[#8B0000] hover:text-[#a0001e] transition-colors"
             >
-              <FiArrowLeft size={16} />
+              <FiArrowLeft size={20} />
+              <span className="text-sm font-medium">Back to Orders</span>
             </button>
-            <div className="pb-4">
-              <h1 className="text-2xl font-serif text-black mb-2">
-                Order Details
-              </h1>
-              <p className="text-gray-600">
-                View your order details and manage your order
-              </p>
+            <div
+              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                order.status === "delivered"
+                  ? "bg-green-100 text-green-800"
+                  : order.status === "paid"
+                  ? "bg-green-100 text-green-800"
+                  : "bg-[#f0ebe5] text-[#8B0000]"
+              }`}
+            >
+              {order.status === "delivered"
+                ? "Delivered"
+                : statusConfig[order.status].label}
             </div>
           </div>
-          <div
-            className={`px-3 py-1 rounded-full text-sm font-medium ${
-              order.status === "delivered"
-                ? "bg-green-100 text-green-800"
-                : order.status === "paid"
-                ? "bg-green-100 text-green-800"
-                : "bg-[#f0ebe5] text-[#8B0000]"
-            }`}
-          >
-            {order.status === "delivered"
-              ? "Delivered"
-              : statusConfig[order.status].label}
-          </div>
+          <h1 className="text-2xl font-serif text-black mb-2">Order Details</h1>
+          <p className="text-gray-600">
+            View your order details and manage your order
+          </p>
         </div>
 
-        {/* Actions */}
+        <div className="max-w-5xl mx-auto space-y-8">
+          {/* Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {order.status === "paid" && (
             <>
@@ -759,7 +755,7 @@ export default function OrderDetailsPage() {
             </div>
           </div>
         </div>
-      </div>
+        </div>
 
       {/* Cancel Order Confirmation Modal */}
       {showCancelModal && (
@@ -789,6 +785,7 @@ export default function OrderDetailsPage() {
           </div>
         </div>
       )}
+      </div>
     </ProfileLayout>
   );
 }

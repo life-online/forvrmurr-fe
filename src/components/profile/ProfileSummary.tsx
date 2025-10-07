@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { FiEdit2, FiMail, FiUser, FiCalendar, FiPackage, FiHeart, FiCreditCard, FiPhone, FiShoppingCart, FiLogIn, FiLock, FiCheckCircle, FiUsers } from "react-icons/fi";
 import Link from "next/link";
 import { profileMgtService, UserProfile, UpdateProfileRequest } from "@/services/profilemgt";
@@ -134,13 +135,23 @@ export default function ProfileSummary() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="border-b border-gray-200 pb-4">
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="border-b border-gray-200 pb-4"
+      >
         <h1 className="text-2xl font-serif text-black mb-2">Profile Summary</h1>
         <p className="text-gray-600">Manage your account details and view your activity</p>
-      </div>
+      </motion.div>
 
       {/* Profile Information Card */}
-      <div className="bg-gradient-to-r from-[#f8f5f2] to-[#f0ebe5] rounded-lg p-6 border border-gray-200">
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.4 }}
+        className="bg-gradient-to-r from-[#f8f5f2] to-[#f0ebe5] rounded-lg p-6 border border-gray-200"
+      >
         <div className="flex items-start justify-between mb-4">
           <h2 className="text-xl font-medium text-black">Personal Information</h2>
           <button
@@ -247,10 +258,15 @@ export default function ProfileSummary() {
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.4 }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+      >
         <Link href="/profile/orders" className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
           <div className="flex items-center gap-3">
             <div className="bg-[#f0ebe5] p-2 rounded-lg">
@@ -275,7 +291,7 @@ export default function ProfileSummary() {
           </div>
         </Link>
 
-        <Link href="/profile/subscriptions" className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
           <div className="flex items-center gap-3">
             <div className="bg-[#f0ebe5] p-2 rounded-lg">
               <FiCreditCard className="text-[#8B0000]" size={20} />
@@ -285,29 +301,33 @@ export default function ProfileSummary() {
               <p className="text-sm text-gray-600">Active Subscriptions</p>
             </div>
           </div>
-        </Link>
-      </div>
+        </div>
+      </motion.div>
 
       {/* Next Delivery Card */}
       {userProfile.nextDelivery && (
-        <div className="bg-gradient-to-r from-[#8B0000] to-[#a0001e] text-white rounded-lg p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
+          className="bg-gradient-to-r from-[#8B0000] to-[#a0001e] text-white rounded-lg p-6"
+        >
           <h3 className="text-lg font-medium mb-2">Your Next Delivery</h3>
           <p className="text-white/90">Expected on {new Date(userProfile.nextDelivery).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
           })}</p>
-          <Link 
-            href="/profile/subscriptions"
-            className="inline-block mt-3 bg-white text-[#8B0000] px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition-colors"
-          >
-            Manage Subscription
-          </Link>
-        </div>
+        </motion.div>
       )}
 
       {/* Recent Activity */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.4 }}
+        className="bg-white border border-gray-200 rounded-lg p-6"
+      >
         <h3 className="text-lg font-medium text-black mb-4">Recent Activity</h3>
         <div className="space-y-3">
           {userProfile.recentActivity.map((activity, index) => (
@@ -328,7 +348,7 @@ export default function ProfileSummary() {
             </div>
           ))}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -1,35 +1,109 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/services/auth';
-import { FiHeart, FiShoppingCart, FiX, FiSearch } from 'react-icons/fi';
-import { useCart } from '@/context/CartContext';
-import { toastService } from '@/services/toast';
+import { FiHeart, FiSearch, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import ProfileLayout from '@/components/profile/ProfileLayout';
-
-interface WishlistItem {
-  id: string;
-  productId: string;
-  name: string;
-  brand: string;
-  price: number;
-  imageUrl: string;
-  slug: string;
-  inStock: boolean;
-  addedDate: string;
-}
+import ProductCard from '@/components/ui/ProductCard';
+import { Product } from '@/services/product';
+import wishlistService, { WishlistFilterParams, WishlistResponse } from '@/services/wishlist';
+import { WishlistProvider } from '@/context/WishlistContext';
 
 export default function WishlistPage() {
   const router = useRouter();
-  const { addToCart } = useCart();
-  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [removingItems, setRemovingItems] = useState<Set<string>>(new Set());
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [searchInput, setSearchInput] = useState('');
+  const [summary, setSummary] = useState({
+    itemsInWishlist: 0,
+    totalValue: '0',
+    availableItems: 0,
+  });
+  const [filters, setFilters] = useState<WishlistFilterParams>({
+    page: 1,
+    limit: 12,
+    search: '',
+  });
+  const [refreshKey, setRefreshKey] = useState(0);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitialLoad = useRef(true);
 
+  const fetchWishlist = useCallback(async (filterParams: WishlistFilterParams, isInitialLoad = false) => {
+    if (isInitialLoad) {
+      setLoading(true);
+    } else {
+      setSearchLoading(true);
+    }
+
+    try {
+      // Call actual wishlist API
+      const response = await wishlistService.getWishlist(filterParams);
+
+      // Extract products from wishlist items
+      const products = response.data.map(wishlistItem => wishlistItem.product);
+
+      // Use smooth transitions instead of immediate updates
+      if (!isInitialLoad) {
+        // Add a small delay to prevent jarring transitions
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      setProducts(products);
+      setCurrentPage(response.meta.currentPage);
+      setTotalPages(response.meta.totalPages);
+      setTotalItems(response.meta.totalItems);
+
+      // Only update summary on initial load to prevent stats from jumping around during search
+      if (isInitialLoad) {
+        setSummary(response.summary);
+      }
+    } catch (error) {
+      console.error('Failed to fetch wishlist:', error);
+      if (!isInitialLoad) {
+        // Don't clear products on search error, just show the error
+        console.error('Search failed, keeping current products visible');
+      } else {
+        setProducts([]);
+      }
+    } finally {
+      if (isInitialLoad) {
+        setLoading(false);
+      } else {
+        setSearchLoading(false);
+      }
+    }
+  }, []);
+
+  // Function to refresh wishlist data
+  const refreshWishlist = useCallback(() => {
+    setRefreshKey(prev => prev + 1);
+  }, []);
+
+  // Function to optimistically remove item from UI
+  const removeItemOptimistically = useCallback((productId: string) => {
+    setProducts(prevProducts => {
+      const filteredProducts = prevProducts.filter(product => product.id !== productId);
+      return filteredProducts;
+    });
+
+    // Update summary counts
+    setSummary(prevSummary => ({
+      ...prevSummary,
+      itemsInWishlist: Math.max(0, prevSummary.itemsInWishlist - 1),
+      availableItems: Math.max(0, prevSummary.availableItems - 1)
+    }));
+
+    // Update total items count
+    setTotalItems(prevTotal => Math.max(0, prevTotal - 1));
+  }, []);
+
+  // Initial load
   useEffect(() => {
     // Redirect guests to login page
     if (authService.isGuest()) {
@@ -37,103 +111,49 @@ export default function WishlistPage() {
       return;
     }
 
-    // Mock wishlist data - replace with actual API call
-    const mockWishlistItems: WishlistItem[] = [
-      {
-        id: '1',
-        productId: 'mfk-br540',
-        name: 'Baccarat Rouge 540',
-        brand: 'Maison Francis Kurkdjian',
-        price: 35000,
-        imageUrl: '/images/hero/hero_image.png',
-        slug: 'maison-francis-kurkdjian-baccarat-rouge-540',
-        inStock: true,
-        addedDate: '2025-07-20'
-      },
-      {
-        id: '2',
-        productId: 'creed-aventus',
-        name: 'Aventus',
-        brand: 'Creed',
-        price: 42000,
-        imageUrl: '/images/hero/hero_image.png',
-        slug: 'creed-aventus',
-        inStock: true,
-        addedDate: '2025-07-18'
-      },
-      {
-        id: '3',
-        productId: 'tom-ford-oud-wood',
-        name: 'Oud Wood',
-        brand: 'Tom Ford',
-        price: 38000,
-        imageUrl: '/images/hero/hero_image.png',
-        slug: 'tom-ford-oud-wood',
-        inStock: false,
-        addedDate: '2025-07-15'
-      },
-      {
-        id: '4',
-        productId: 'chanel-bleu',
-        name: 'Bleu de Chanel',
-        brand: 'Chanel',
-        price: 33000,
-        imageUrl: '/images/hero/hero_image.png',
-        slug: 'chanel-bleu-de-chanel',
-        inStock: true,
-        addedDate: '2025-07-12'
-      }
-    ];
+    fetchWishlist(filters, true);
+    isInitialLoad.current = false;
+  }, [router, fetchWishlist, refreshKey]);
 
-    setTimeout(() => {
-      setWishlistItems(mockWishlistItems);
-      setLoading(false);
-    }, 500);
-  }, [router]);
+  // Fetch data when filters change (not on initial load)
+  useEffect(() => {
+    if (!isInitialLoad.current) {
+      fetchWishlist(filters);
+    }
+  }, [filters, fetchWishlist]);
+
+  // Debounced search with reduced delay for smoother experience
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      setFilters(prev => ({
+        ...prev,
+        search: searchInput,
+        page: 1, // Reset to first page on search
+      }));
+    }, 300); // Reduced from 500ms to 300ms for faster response
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchInput]);
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setFilters(prev => ({ ...prev, page }));
+    }
+  };
 
   // Don't render the page content if user is a guest (will redirect)
   if (authService.isGuest()) {
     return null;
   }
-
-  const filteredItems = wishlistItems.filter(item =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.brand.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleAddToCart = (item: WishlistItem) => {
-    if (!item.inStock) return;
-
-    try {
-      addToCart({
-        id: item.id,
-        name: item.name,
-        brand: item.brand,
-        price: item.price,
-        imageUrl: item.imageUrl,
-        productId: item.productId,
-        quantity: 1,
-      });
-      
-      toastService.success(`${item.name} added to cart!`);
-    } catch (error) {
-      toastService.error('Failed to add item to cart');
-    }
-  };
-
-  const handleRemoveFromWishlist = (itemId: string) => {
-    setRemovingItems(prev => new Set(prev).add(itemId));
-    
-    setTimeout(() => {
-      setWishlistItems(prev => prev.filter(item => item.id !== itemId));
-      setRemovingItems(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(itemId);
-        return newSet;
-      });
-      toastService.success('Item removed from wishlist');
-    }, 300);
-  };
 
   if (loading) {
     return (
@@ -147,38 +167,79 @@ export default function WishlistPage() {
 
   return (
     <ProfileLayout>
-      <div className="space-y-6">
+      <WishlistProvider refreshWishlist={refreshWishlist} removeItemOptimistically={removeItemOptimistically}>
+        <div className="space-y-6">
         {/* Header */}
         <div className="border-b border-gray-200 pb-4">
           <h1 className="text-2xl font-serif text-black mb-2">My Wishlist</h1>
           <p className="text-gray-600">Your saved fragrances for future consideration</p>
         </div>
 
-        {/* Search */}
-        {wishlistItems.length > 0 && (
+        {/* Search - show if user has items in wishlist (even if current search has no results) */}
+        {summary.itemsInWishlist > 0 && (
           <div className="relative">
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <FiSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 transition-colors duration-200 ${searchLoading ? 'text-[#8B0000]' : 'text-gray-400'}`} size={20} />
+            {searchLoading && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <div className="w-5 h-5 animate-spin rounded-full border-2 border-[#8B0000] border-t-transparent" />
+              </div>
+            )}
             <input
               type="text"
               placeholder="Search your wishlist..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B0000]"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className={`w-full pl-10 pr-12 py-3 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#8B0000] focus:border-transparent ${searchLoading ? 'border-[#8B0000] bg-red-50' : 'border-gray-300'}`}
             />
           </div>
         )}
 
-        {/* Wishlist Items */}
-        {filteredItems.length === 0 ? (
+        {/* Stats */}
+        {summary.itemsInWishlist > 0 && (
+          <div className="bg-gradient-to-r from-[#f8f5f2] to-[#f0ebe5] rounded-lg p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+              <div>
+                <p className="text-2xl font-bold text-[#8B0000]">{summary.itemsInWishlist}</p>
+                <p className="text-sm text-gray-600">Items in Wishlist</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-[#8B0000]">
+                  ₦{parseInt(summary.totalValue).toLocaleString()}
+                </p>
+                <p className="text-sm text-gray-600">Total Value</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-[#8B0000]">
+                  {summary.availableItems}
+                </p>
+                <p className="text-sm text-gray-600">Available Items</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Search Results Indicator */}
+        {searchInput && !searchLoading && (
+          <div className="text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
+            {products.length > 0 ? (
+              <>Showing {products.length} result{products.length !== 1 ? 's' : ''} for "<span className="font-medium">{searchInput}</span>"</>
+            ) : (
+              <>No results found for "<span className="font-medium">{searchInput}</span>"</>
+            )}
+          </div>
+        )}
+
+        {/* Wishlist Content */}
+        {products.length === 0 ? (
           <div className="text-center py-12">
             <div className="mx-auto w-16 h-16 rounded-full bg-[#f7ede1] flex items-center justify-center mb-4">
               <FiHeart className="h-8 w-8 text-[#8b0000]" />
             </div>
             <h3 className="font-serif text-xl mb-2">
-              {wishlistItems.length === 0 ? "Your Wishlist is Empty" : "No Items Found"}
+              {summary.itemsInWishlist === 0 ? "Your Wishlist is Empty" : "No Items Found"}
             </h3>
             <p className="text-gray-600 mb-6">
-              {wishlistItems.length === 0 
+              {summary.itemsInWishlist === 0
                 ? "Add fragrances to your wishlist by clicking the heart icon on product pages."
                 : "Try adjusting your search to find what you're looking for."
               }
@@ -190,108 +251,123 @@ export default function WishlistPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredItems.map((item) => (
-              <div 
-                key={item.id} 
-                className={`bg-white border rounded-lg overflow-hidden hover:shadow-md transition-all duration-300 ${
-                  removingItems.has(item.id) ? 'opacity-50 scale-95' : ''
-                }`}
-              >
-                <div className="relative">
-                  <Link href={`/shop/${item.slug}`}>
-                    <div className="aspect-square relative bg-gray-50">
-                      <Image
-                        src={item.imageUrl}
-                        alt={item.name}
-                        fill
-                        className="object-cover hover:scale-105 transition-transform duration-300"
-                      />
-                      {!item.inStock && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                          <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-                            Out of Stock
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                  
-                  {/* Remove button */}
-                  <button
-                    onClick={() => handleRemoveFromWishlist(item.id)}
-                    className="absolute top-3 right-3 bg-white/80 hover:bg-white p-2 rounded-full transition-colors group"
-                    disabled={removingItems.has(item.id)}
-                  >
-                    <FiX size={16} className="text-gray-600 group-hover:text-red-600" />
-                  </button>
+          <>
+            {/* Products Grid */}
+            <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-300 ${searchLoading ? 'opacity-70' : 'opacity-100'}`}>
+              {products.map((product) => (
+                <div key={product.id} className="transition-all duration-300 ease-in-out">
+                  <ProductCard
+                    product={product}
+                    priorityLoading={false}
+                  />
                 </div>
-
-                <div className="p-4">
-                  <Link href={`/shop/${item.slug}`}>
-                    <div className="mb-3">
-                      <p className="text-sm text-gray-500 mb-1">{item.brand}</p>
-                      <h3 className="font-medium text-black line-clamp-2 hover:text-[#8B0000] transition-colors">
-                        {item.name}
-                      </h3>
-                      <p className="font-medium text-lg text-black mt-1">
-                        ₦{item.price.toLocaleString()}
-                      </p>
-                    </div>
-                  </Link>
-                  
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleAddToCart(item)}
-                      disabled={!item.inStock}
-                      className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                        item.inStock
-                          ? 'bg-[#8B0000] text-white hover:bg-[#a0001e]'
-                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                      }`}
-                    >
-                      <FiShoppingCart size={16} />
-                      {item.inStock ? 'Add to Cart' : 'Out of Stock'}
-                    </button>
-                  </div>
-                  
-                  <p className="text-xs text-gray-400 mt-2">
-                    Added {new Date(item.addedDate).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Stats */}
-        {wishlistItems.length > 0 && (
-          <div className="bg-gradient-to-r from-[#f8f5f2] to-[#f0ebe5] rounded-lg p-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-              <div>
-                <p className="text-2xl font-bold text-[#8B0000]">{wishlistItems.length}</p>
-                <p className="text-sm text-gray-600">Items in Wishlist</p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-[#8B0000]">
-                  ₦{wishlistItems.reduce((sum, item) => sum + item.price, 0).toLocaleString()}
-                </p>
-                <p className="text-sm text-gray-600">Total Value</p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-[#8B0000]">
-                  {wishlistItems.filter(item => item.inStock).length}
-                </p>
-                <p className="text-sm text-gray-600">Available Items</p>
-              </div>
+              ))}
             </div>
-          </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className={`flex justify-center items-center gap-2 sm:gap-4 md:gap-6 mt-8 pt-6 border-t border-gray-200 transition-opacity duration-300 ${searchLoading ? 'opacity-50' : 'opacity-100'}`}>
+                {/* Previous Button */}
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`transition-all duration-200 flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 border border-gray-300 rounded-full text-xs sm:text-sm font-medium flex-shrink-0 ${
+                    currentPage === 1
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                  }`}
+                >
+                  <FiChevronLeft size={16} className="sm:text-lg" />
+                  <span className="hidden sm:inline">Previous</span>
+                </button>
+
+                {/* Page Numbers */}
+                <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-center">
+                  {totalPages <= 5 ? (
+                    Array.from({ length: totalPages }, (_, i) => (
+                      <button
+                        key={i + 1}
+                        onClick={() => handlePageChange(i + 1)}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full text-xs sm:text-sm font-medium transition-all duration-200 flex-shrink-0 ${
+                          currentPage === i + 1
+                            ? 'bg-[#8B0000] text-white shadow-lg'
+                            : 'text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))
+                  ) : (
+                    <>
+                      {currentPage > 3 && (
+                        <>
+                          <button
+                            onClick={() => handlePageChange(1)}
+                            className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full text-xs sm:text-sm text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300 transition-colors flex-shrink-0"
+                          >
+                            1
+                          </button>
+                          {currentPage > 4 && (
+                            <span className="text-gray-400 px-1 sm:px-2 text-xs sm:text-sm flex-shrink-0">...</span>
+                          )}
+                        </>
+                      )}
+
+                      {Array.from({ length: 5 }, (_, i) => {
+                        const pageNumber = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
+                        if (pageNumber > totalPages) return null;
+
+                        return (
+                          <button
+                            key={pageNumber}
+                            onClick={() => handlePageChange(pageNumber)}
+                            className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full text-xs sm:text-sm font-medium transition-all duration-200 flex-shrink-0 ${
+                              currentPage === pageNumber
+                                ? 'bg-[#8B0000] text-white shadow-lg'
+                                : 'text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            {pageNumber}
+                          </button>
+                        );
+                      })}
+
+                      {currentPage < totalPages - 2 && (
+                        <>
+                          {currentPage < totalPages - 3 && (
+                            <span className="text-gray-400 px-1 sm:px-2 text-xs sm:text-sm flex-shrink-0">...</span>
+                          )}
+                          <button
+                            onClick={() => handlePageChange(totalPages)}
+                            className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full text-xs sm:text-sm text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300 transition-colors flex-shrink-0"
+                          >
+                            {totalPages}
+                          </button>
+                        </>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* Next Button */}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`transition-all duration-200 flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 border border-gray-300 rounded-full text-xs sm:text-sm font-medium flex-shrink-0 ${
+                    currentPage === totalPages
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                  }`}
+                >
+                  <span className="hidden sm:inline">Next</span>
+                  <FiChevronRight size={16} className="sm:text-lg" />
+                </button>
+              </div>
+            )}
+          </>
         )}
-      </div>
+        </div>
+      </WishlistProvider>
     </ProfileLayout>
   );
 }
