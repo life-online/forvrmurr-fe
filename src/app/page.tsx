@@ -6,6 +6,8 @@ import CategorySelection from "@/components/ui/CategorySelection";
 import ProductShowcase from "@/components/ui/ProductShowcase";
 import Newsletter from "@/components/ui/Newsletter";
 import CuratedExperiences from "@/components/ui/CuratedExperiences";
+import AnimatedSection from "@/components/animations/AnimatedSection";
+import StaggeredChildren from "@/components/animations/StaggeredChildren";
 
 export default function Home() {
   return (
@@ -15,13 +17,25 @@ export default function Home() {
 
       <main className="flex-grow bg-white">
         <HeroSection />
-        <CategorySelection />
-        <ProductShowcase
-          title="GET YOUR HANDS ON HIGHLY RATED HITS + FRESH PICKS."
-          limit={6}
-        />
-        <CuratedExperiences />
-        <Newsletter />
+
+        <AnimatedSection delay={0.2} direction="up">
+          <CategorySelection />
+        </AnimatedSection>
+
+        <AnimatedSection delay={0.3} direction="up">
+          <ProductShowcase
+            title="GET YOUR HANDS ON HIGHLY RATED HITS + FRESH PICKS."
+            limit={6}
+          />
+        </AnimatedSection>
+
+        <AnimatedSection delay={0.2} direction="up">
+          <CuratedExperiences />
+        </AnimatedSection>
+
+        {/* <AnimatedSection delay={0.2} direction="up">
+          <Newsletter />
+        </AnimatedSection> */}
       </main>
       <Footer />
     </div>
