@@ -516,10 +516,11 @@ export default function ProductDetailsPage() {
                     <div key={note.id} className="flex flex-col items-center text-center w-24">
                       <div className="relative w-16 h-16 md:w-20 md:h-20 mb-2">
                         <Image
-                          src={`/images${note?.iconUrl}` || FALLBACK_NOTE_IMAGE}
+                          src={note?.iconUrl ? `/images${note.iconUrl}` : FALLBACK_NOTE_IMAGE}
                           alt={note.name}
                           fill
                           className="object-contain"
+                          loading="eager"
                         />
                       </div>
                       <span className="font-serif text-sm md:text-base text-gray-700 break-words">
@@ -542,10 +543,11 @@ export default function ProductDetailsPage() {
                     <div key={note.id} className="flex flex-col items-center text-center w-24">
                       <div className="relative w-16 h-16 md:w-20 md:h-20 mb-2">
                         <Image
-                          src={`/images${note?.iconUrl}` || FALLBACK_NOTE_IMAGE}
+                          src={note?.iconUrl ? `/images${note.iconUrl}` : FALLBACK_NOTE_IMAGE}
                           alt={note.name}
                           fill
                           className="object-contain"
+                          loading="eager"
                         />
                       </div>
                       <span className="font-serif text-sm md:text-base text-gray-700 break-words">
@@ -568,10 +570,11 @@ export default function ProductDetailsPage() {
                     <div key={note.id} className="flex flex-col items-center text-center w-24">
                       <div className="relative w-16 h-16 md:w-20 md:h-20 mb-2">
                         <Image
-                          src={`/images${note?.iconUrl}` || FALLBACK_NOTE_IMAGE}
+                          src={note?.iconUrl ? `/images${note.iconUrl}` : FALLBACK_NOTE_IMAGE}
                           alt={note.name}
                           fill
                           className="object-contain"
+                          loading="eager"
                         />
                       </div>
                       <span className="font-serif text-sm md:text-base text-gray-700 break-words">
@@ -595,11 +598,12 @@ export default function ProductDetailsPage() {
               <div key={tag.id} className="flex flex-col items-center">
                 <div className="w-28 h-16 overflow-hidden bg-gray-100 rounded-xl flex items-center justify-center mb-2 font-serif text-lg">
                   <Image
-                    src={`/images${tag.iconUrl}` || FALLBACK_NOTE_IMAGE}
+                    src={tag.iconUrl ? `/images${tag.iconUrl}` : FALLBACK_NOTE_IMAGE}
                     alt="Description Tag"
                     width={1000}
                     height={1000}
                     className="h-full w-full object-contain"
+                    loading="eager"
                   />
                 </div>
                 <span className="text-base font-serif text-gray-700 text-center">

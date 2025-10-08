@@ -290,6 +290,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             style={{ objectFit: "contain" }}
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
             priority={priorityLoading}
+            loading={priorityLoading ? "eager" : "lazy"}
           />
           {/* New Arrival Badge - positioned at bottom left */}
           {isNewArrival() && (
@@ -405,10 +406,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   >
                     <div className="relative w-8 h-8">
                       <Image
-                        src={`/images${noteItem.note?.iconUrl}` || FALLBACK_NOTE_IMAGE}
-                        alt=""
+                        src={noteItem.note?.iconUrl ? `/images${noteItem.note.iconUrl}` : FALLBACK_NOTE_IMAGE}
+                        alt={noteItem.note?.name || "Scent note"}
                         fill
                         className="object-contain"
+                        loading="eager"
                       />
                     </div>
                     <p className="text-xs text-gray-200 leading-tight line-clamp-2 break-words">
