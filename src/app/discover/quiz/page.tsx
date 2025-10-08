@@ -107,7 +107,7 @@ export default function ScentQuizPage() {
                   opacity: 1,
                   y: 0,
                   scale: 1,
-                  transition: { duration: 0.45, delay: 1.4, ease: [0.25, 0.46, 0.45, 0.94] }
+                  transition: { duration: 0.45, delay: 1.4, ease: [0.25, 0.46, 0.45, 0.94] as any }
                 }}
                 whileHover={{
                   ...buttonHover,
@@ -129,7 +129,7 @@ export default function ScentQuizPage() {
           id="quiz-section"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as any }}
           className="mt-12"
         >
           <QuizWizard onComplete={handleQuizComplete} />

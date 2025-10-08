@@ -51,7 +51,7 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
         y: 0,
         transition: {
           duration: duration * 0.8,
-          ease: [0.25, 0.46, 0.45, 0.94],
+          ease: [0.25, 0.46, 0.45, 0.94] as any,
         },
       },
     };
@@ -85,7 +85,7 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
       transition={{
         duration,
         delay,
-        ease: [0.25, 0.46, 0.45, 0.94],
+        ease: [0.25, 0.46, 0.45, 0.94] as any,
       }}
       className={className}
       {...(Component !== 'div' && { as: Component })}

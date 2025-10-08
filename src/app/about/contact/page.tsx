@@ -217,7 +217,7 @@ export default function ContactPage() {
                   opacity: 1,
                   y: 0,
                   scale: 1,
-                  transition: { duration: 0.45, delay: 1.4, ease: [0.25, 0.46, 0.45, 0.94] }
+                  transition: { duration: 0.45, delay: 1.4, ease: [0.25, 0.46, 0.45, 0.94] as any }
                 }}
                 whileHover={{
                   ...buttonHover,
@@ -244,7 +244,7 @@ export default function ContactPage() {
                 className="w-full md:w-2/3 bg-white rounded-lg p-8 shadow-sm"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+                transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as any }}
                 viewport={{ once: true, amount: 0.3 }}
               >
                 <AnimatedLines
@@ -387,7 +387,7 @@ export default function ContactPage() {
                 className="w-full md:w-1/3 space-y-6"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+                transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] as any }}
                 viewport={{ once: true, amount: 0.3 }}
               >
                 <div className="bg-[#f8f9fa] p-6 rounded-lg">
@@ -486,7 +486,7 @@ export default function ContactPage() {
             <motion.div className="bg-white rounded-lg p-8 shadow-sm border-l-4 border-[#8b0000] max-w-2xl mx-auto text-center"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               <div className="flex items-center justify-center mb-4">

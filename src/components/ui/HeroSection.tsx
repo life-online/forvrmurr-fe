@@ -30,7 +30,7 @@ const HeroSection: React.FC = () => {
         animate={shouldAnimate ? { opacity: 1, scale: 1 } : { opacity: 0.8, scale: 1.1 }}
         transition={{
           duration: 1.2,
-          ease: [0.25, 0.46, 0.45, 0.94],
+          ease: [0.25, 0.46, 0.45, 0.94] as any,
         }}
       >
         <Image
@@ -79,7 +79,7 @@ const HeroSection: React.FC = () => {
                 animate={{
                   opacity: 1,
                   y: 0,
-                  transition: { duration: 0.6, delay: 1.8, ease: [0.25, 0.46, 0.45, 0.94] }
+                  transition: { duration: 0.6, delay: 1.8, ease: [0.25, 0.46, 0.45, 0.94] as any }
                 }}
                 whileInView={{
                   y: [0, -3, 0],
@@ -107,7 +107,7 @@ const HeroSection: React.FC = () => {
                   opacity: 1,
                   y: 0,
                   scale: 1,
-                  transition: { duration: 0.5, delay: 1.6, ease: [0.25, 0.46, 0.45, 0.94] }
+                  transition: { duration: 0.5, delay: 1.6, ease: [0.25, 0.46, 0.45, 0.94] as any }
                 }}
               >
                 <Link href="/shop">

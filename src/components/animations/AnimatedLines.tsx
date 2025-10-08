@@ -46,7 +46,7 @@ const AnimatedLines: React.FC<AnimatedLinesProps> = ({
       y: 0,
       transition: {
         duration: duration,
-        ease: [0.25, 0.46, 0.45, 0.94],
+        ease: [0.25, 0.46, 0.45, 0.94] as any,
       },
     },
   };

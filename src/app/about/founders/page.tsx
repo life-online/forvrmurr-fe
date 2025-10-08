@@ -73,7 +73,7 @@ export default function FoundersPage() {
                   opacity: 1,
                   y: 0,
                   scale: 1,
-                  transition: { duration: 0.45, delay: 1.4, ease: [0.25, 0.46, 0.45, 0.94] }
+                  transition: { duration: 0.45, delay: 1.4, ease: [0.25, 0.46, 0.45, 0.94] as any }
                 }}
                 whileHover={{
                   ...buttonHover,
@@ -107,7 +107,7 @@ export default function FoundersPage() {
                   className="w-full md:w-1/3"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as any }}
                   viewport={{ once: true, amount: 0.3 }}
                 >
                   <div className="relative aspect-[1080/1200] rounded-lg overflow-hidden">
@@ -123,7 +123,7 @@ export default function FoundersPage() {
                   className="w-full md:w-2/3"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] as any }}
                   viewport={{ once: true, amount: 0.3 }}
                 >
                   <h2 className="font-serif text-2xl md:text-3xl mb-2">
@@ -159,7 +159,7 @@ export default function FoundersPage() {
                   className="w-full md:w-1/3"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as any }}
                   viewport={{ once: true, amount: 0.3 }}
                 >
                   <div className="relative aspect-[1080/1200] rounded-lg overflow-hidden">
@@ -175,7 +175,7 @@ export default function FoundersPage() {
                   className="w-full md:w-2/3"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] as any }}
                   viewport={{ once: true, amount: 0.3 }}
                 >
                   <h2 className="font-serif text-2xl md:text-3xl mb-2">

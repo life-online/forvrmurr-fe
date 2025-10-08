@@ -105,7 +105,7 @@ export default function Faq() {
                   opacity: 1,
                   y: 0,
                   scale: 1,
-                  transition: { duration: 0.45, delay: 1.4, ease: [0.25, 0.46, 0.45, 0.94] }
+                  transition: { duration: 0.45, delay: 1.4, ease: [0.25, 0.46, 0.45, 0.94] as any }
                 }}
                 whileHover={{
                   ...buttonHover,
@@ -131,7 +131,7 @@ export default function Faq() {
               className="flex flex-wrap gap-2 md:gap-3 justify-center pb-2"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               <button 
@@ -175,7 +175,7 @@ export default function Faq() {
                       className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow"
                       initial={{ opacity: 0, y: 15 }}
                       whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                      transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as any }}
                       viewport={{ once: true, amount: 0.2 }}
                     >
                       <button
@@ -227,7 +227,7 @@ export default function Faq() {
             className="mt-8 pt-8 border-t border-gray-200 text-center w-full"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as any }}
             viewport={{ once: true, amount: 0.3 }}
           >
             <p className="text-base text-gray-700">

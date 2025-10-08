@@ -273,7 +273,7 @@ export default function GiftingPage() {
                   opacity: 1,
                   y: 0,
                   scale: 1,
-                  transition: { duration: 0.45, delay: 1.4, ease: [0.25, 0.46, 0.45, 0.94] }
+                  transition: { duration: 0.45, delay: 1.4, ease: [0.25, 0.46, 0.45, 0.94] as any }
                 }}
                 whileHover={{
                   ...buttonHover,
@@ -307,7 +307,7 @@ export default function GiftingPage() {
               className="text-center p-6"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center rounded-full bg-[#a0001e] bg-opacity-10">
@@ -338,7 +338,7 @@ export default function GiftingPage() {
               className="text-center p-6"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center rounded-full bg-[#a0001e] bg-opacity-10">
@@ -371,7 +371,7 @@ export default function GiftingPage() {
               className="text-center p-6"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center rounded-full bg-[#a0001e] bg-opacity-10">
@@ -420,7 +420,7 @@ export default function GiftingPage() {
               className="rounded-lg overflow-hidden shadow-md bg-white"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               <div className="relative h-64">
@@ -445,7 +445,7 @@ export default function GiftingPage() {
               className="rounded-lg overflow-hidden shadow-md bg-white"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               <div className="relative h-64">
@@ -470,7 +470,7 @@ export default function GiftingPage() {
               className="rounded-lg overflow-hidden shadow-md bg-white"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               <div className="relative h-64">
@@ -497,7 +497,7 @@ export default function GiftingPage() {
               className="px-8 py-3 bg-[#a0001e] text-white font-medium rounded inline-block"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.5, delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
               whileHover={{
                 ...buttonHover,
@@ -530,7 +530,7 @@ export default function GiftingPage() {
               className="bg-white p-6 md:p-10 rounded-lg shadow-md"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.2 }}
             >
               <div className="grid md:grid-cols-2 gap-6">

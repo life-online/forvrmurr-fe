@@ -227,7 +227,7 @@ export default function TravelCasePage() {
                   opacity: 1,
                   y: 0,
                   scale: 1,
-                  transition: { duration: 0.45, delay: 1.4, ease: [0.25, 0.46, 0.45, 0.94] }
+                  transition: { duration: 0.45, delay: 1.4, ease: [0.25, 0.46, 0.45, 0.94] as any }
                 }}
                 whileHover={{
                   ...buttonHover,
@@ -249,7 +249,7 @@ export default function TravelCasePage() {
           className="mb-8"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as any }}
           viewport={{ once: true, amount: 0.3 }}
         >
           <AnimatedLines
@@ -273,7 +273,7 @@ export default function TravelCasePage() {
               className="text-[#a0001e] text-xl font-medium"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.5, delay: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               ₦ {Number(product.nairaPrice).toLocaleString()}
@@ -286,7 +286,7 @@ export default function TravelCasePage() {
               className="flex-1 flex items-center justify-center"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               {/* Thumbnails */}
@@ -348,7 +348,7 @@ export default function TravelCasePage() {
               className="flex justify-center items-center gap-2 mb-6"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               <div className="w-4 h-4 bg-[#a0001e] rounded-sm"></div>
@@ -366,7 +366,7 @@ export default function TravelCasePage() {
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.5, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               <AddToCartButton
@@ -384,7 +384,7 @@ export default function TravelCasePage() {
             className="text-gray-700 mb-6"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as any }}
             viewport={{ once: true, amount: 0.3 }}
           >
             Elevate your fragrance experience with our signature perfume travel
@@ -396,7 +396,7 @@ export default function TravelCasePage() {
             className="text-gray-700 mb-8"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] as any }}
             viewport={{ once: true, amount: 0.3 }}
           >
             Slip it discreetly into your handbag, briefcase, or pocket for
@@ -407,7 +407,7 @@ export default function TravelCasePage() {
             className="text-[#a0001e] font-medium text-sm"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] as any }}
             viewport={{ once: true, amount: 0.3 }}
           >
             MORE COLORS COMING SOON—STAY TUNED
@@ -432,7 +432,7 @@ export default function TravelCasePage() {
               className="flex flex-col items-center"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               <div className="w-16 h-16 mb-4 flex items-center justify-center">
@@ -454,7 +454,7 @@ export default function TravelCasePage() {
               className="flex flex-col items-center"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               <div className="w-16 h-16 mb-4 flex items-center justify-center">
@@ -476,7 +476,7 @@ export default function TravelCasePage() {
               className="flex flex-col items-center"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               <div className="w-16 h-16 mb-4 flex items-center justify-center">
@@ -514,7 +514,7 @@ export default function TravelCasePage() {
               className="flex flex-col items-center"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               <div className="w-8 h-8 rounded-full border border-[#a0001e] text-[#a0001e] flex items-center justify-center font-serif mb-4">
@@ -530,7 +530,7 @@ export default function TravelCasePage() {
               className="flex flex-col items-center"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               <div className="w-8 h-8 rounded-full border border-[#a0001e] text-[#a0001e] flex items-center justify-center font-serif mb-4">
@@ -546,7 +546,7 @@ export default function TravelCasePage() {
               className="flex flex-col items-center"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] as any }}
               viewport={{ once: true, amount: 0.3 }}
             >
               <div className="w-8 h-8 rounded-full border border-[#a0001e] text-[#a0001e] flex items-center justify-center font-serif mb-4">
