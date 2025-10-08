@@ -39,15 +39,17 @@ const PaymentCompletePage: React.FC = () => {
           // Track purchase event for analytics
           if (data.order) {
             try {
-              const orderItems = data.order.items || [];
+              // Cast to any to handle the order type safely
+              const order = data.order as any;
+              const orderItems = order.items || [];
               trackPurchase(
-                data.order.orderNumber || data.order.id || reference,
-                data.order.total || 0,
-                data.order.tax || 0,
-                data.order.shipping || 0,
+                order.orderNumber || order.id || reference,
+                order.total || 0,
+                order.tax || 0,
+                order.shipping || 0,
                 orderItems,
                 'NGN',
-                data.order.email
+                order.email
               );
             } catch (analyticsError) {
               console.error("Failed to track purchase:", analyticsError);

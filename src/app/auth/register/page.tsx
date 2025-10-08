@@ -191,10 +191,10 @@ export default function Register() {
 
     try {
       setIsSubmitting(true);
-      const result = await register(registrationData);
+      await register(registrationData);
 
       // Track user registration
-      trackUserRegistration('email', result?.user?.id || result?.userId);
+      trackUserRegistration('email');
 
       success(
         "Account created successfully! Please check your email to verify your account."

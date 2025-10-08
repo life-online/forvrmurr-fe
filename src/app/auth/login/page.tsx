@@ -107,10 +107,10 @@ export default function Login() {
     
     setIsSubmitting(true);
     try {
-      const result = await login(formData);
+      await login(formData);
 
       // Track successful login
-      trackUserLogin('email', result?.user?.id || result?.userId);
+      trackUserLogin('email');
 
       // Check for redirect URL and redirect back to checkout if present
       const redirectUrl = searchParams.get('redirect');
