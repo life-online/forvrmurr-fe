@@ -8,6 +8,7 @@ import { FiSearch } from "react-icons/fi";
 import productService, { Product } from "@/services/product";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { trackSearchQuery } from "@/utils/analytics";
 
 export default function SearchPopover() {
   const [open, setOpen] = useState(false);
@@ -39,9 +40,15 @@ export default function SearchPopover() {
           search: searchQuery,
           limit: 6, // Limit to 6 products for dropdown
         });
-        setProducts(response?.data || []);
+        const foundProducts = response?.data || [];
+        setProducts(foundProducts);
+
+        // Track search query with results count
+        trackSearchQuery(searchQuery, foundProducts.length);
       } catch (error) {
         console.error("Error fetching products:", error);
+        // Track failed search (0 results)
+        trackSearchQuery(searchQuery, 0);
       } finally {
         setLoading(false);
       }

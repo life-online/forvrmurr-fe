@@ -9,6 +9,7 @@ import { useToast } from "@/context/ToastContext";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { parsePhoneNumberFromString, isValidPhoneNumber } from 'libphonenumber-js';
 import { authService } from "@/services/auth";
+import { trackUserRegistration } from "@/utils/analytics";
 
 interface RegisterFormData {
   firstName: string;
@@ -190,7 +191,11 @@ export default function Register() {
 
     try {
       setIsSubmitting(true);
-      await register(registrationData);
+      const result = await register(registrationData);
+
+      // Track user registration
+      trackUserRegistration('email', result?.user?.id || result?.userId);
+
       success(
         "Account created successfully! Please check your email to verify your account."
       );

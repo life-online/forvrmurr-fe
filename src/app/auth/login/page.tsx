@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import AuthLayout from "@/components/auth/AuthLayout";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { trackUserLogin } from "@/utils/analytics";
 
 interface LoginFormData {
   emailOrPhone: string;
@@ -106,8 +107,11 @@ export default function Login() {
     
     setIsSubmitting(true);
     try {
-      await login(formData);
-      
+      const result = await login(formData);
+
+      // Track successful login
+      trackUserLogin('email', result?.user?.id || result?.userId);
+
       // Check for redirect URL and redirect back to checkout if present
       const redirectUrl = searchParams.get('redirect');
       if (redirectUrl) {

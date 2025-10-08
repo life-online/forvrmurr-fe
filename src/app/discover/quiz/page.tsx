@@ -5,21 +5,19 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import QuizWizard from '@/components/quiz/QuizWizard';
 import AnimatedLines from '@/components/animations/AnimatedLines';
-import { useAnalyticsIntegration } from '@/hooks/useAnalyticsIntegration';
+import { trackQuizStarted, trackQuizCompleted, trackQuizResultsViewed } from '@/utils/analytics';
 import { buttonHover, buttonTap } from '@/utils/animations';
 
 export default function ScentQuizPage() {
   const [showQuiz, setShowQuiz] = useState(false);
-  const { trackQuizCompleted, trackCustomEvent } = useAnalyticsIntegration();
+  const [quizStartTime, setQuizStartTime] = useState<number>(0);
 
   const handleStartQuiz = async () => {
     setShowQuiz(true);
+    setQuizStartTime(Date.now());
 
     // Track quiz start
-    await trackCustomEvent('quiz_started', {
-      quiz_type: 'fragrance_preference',
-      start_time: new Date().toISOString(),
-    });
+    trackQuizStarted('fragrance_preference');
 
     // Scroll to quiz section after a brief delay to ensure it's rendered
     setTimeout(() => {
@@ -33,20 +31,21 @@ export default function ScentQuizPage() {
   const handleQuizComplete = async (results: any) => {
     console.log('Quiz completed with results:', results);
 
+    // Calculate completion time
+    const completionTime = Date.now() - quizStartTime;
+
     // Track quiz completion with analytics
-    await trackQuizCompleted({
-      completion_time: new Date().toISOString(),
-      quiz_type: 'fragrance_preference',
-      results: results,
-      gender_preference: results.answers?.genderPreference,
-      scent_vibes: results.answers?.scentVibes?.map((v: any) => v.name),
-      mood_intentions: results.answers?.moodIntentions?.map((m: any) => m.name),
-      fragrance_contexts: results.answers?.fragranceContexts?.map((c: any) => c.name),
-      risk_level: results.answers?.riskLevel,
-      budget_level: results.answers?.budgetLevel,
-      verdict: results.verdict?.scentEnergy,
-      recommended_tier: results.verdict?.recommendedTier,
+    trackQuizCompleted({
+      quizType: 'fragrance_preference',
+      answers: results.answers,
+      recommendationsCount: results.recommendedProducts?.length || 0,
+      completionTime: completionTime,
     });
+
+    // Track quiz results viewed if there are recommended products
+    if (results.recommendedProducts && results.recommendedProducts.length > 0) {
+      trackQuizResultsViewed(results.recommendedProducts.length, results.recommendedProducts);
+    }
 
     setShowQuiz(false);
   };
