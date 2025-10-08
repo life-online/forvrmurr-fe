@@ -153,9 +153,14 @@ export default function Faq() {
           </div>
         </AnimatedSection>
 
-        <div className="flex flex-col items-center w-full md:w-[80%] lg:w-[70%]">
+        <div className="flex flex-col items-center w-full max-w-3xl mx-auto px-0">
           {filteredFaq.map((item, index) => (
-            <AnimatedSection key={index} delay={0.05} direction="up">
+            <AnimatedSection
+              key={index}
+              delay={0.05}
+              direction="up"
+              className="w-full"
+            >
               <div
                 className="flex flex-col items-center w-full mb-10"
                 id={`category-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
@@ -172,7 +177,7 @@ export default function Faq() {
                   {item.questions.map((faq) => (
                     <motion.div
                       key={faq.id}
-                      className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow"
+                      className="w-full border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow"
                       initial={{ opacity: 0, y: 15 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as any }}
