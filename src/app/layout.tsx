@@ -8,6 +8,7 @@ import Providers from "@/context/Providers";
 import SplashScreenWrapper from "./splashScreen";
 import { defaultSeo, siteConfig } from "@/config/seo";
 import PageTransition from "@/components/animations/PageTransition";
+import PageViewTracker from "@/components/analytics/PageViewTracker";
 
 
 const geistSans = Geist({
@@ -129,6 +130,7 @@ export default function RootLayout({
         <Providers>
           <SplashScreenWrapper>
             <Suspense fallback={<RootLoadingFallback />}>
+              <PageViewTracker />
               <PageTransition>{children}</PageTransition>
             </Suspense>
           </SplashScreenWrapper>
