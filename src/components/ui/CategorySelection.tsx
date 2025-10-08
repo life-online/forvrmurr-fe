@@ -39,6 +39,7 @@ const CategorySelection: React.FC = () => {
                   alt="Prime Perfume Side"
                   fill
                   style={{ objectFit: 'contain' }}
+                  loading="eager"
                 />
               </div>
               {/* Central Bottle */}
@@ -48,6 +49,7 @@ const CategorySelection: React.FC = () => {
                   alt="Prime Perfume"
                   fill
                   style={{ objectFit: 'contain' }}
+                  priority
                 />
               </div>
               {/* Right Extra Bottle */}
@@ -57,6 +59,7 @@ const CategorySelection: React.FC = () => {
                   alt="Prime Perfume Side"
                   fill
                   style={{ objectFit: 'contain' }}
+                  loading="eager"
                 />
               </div>
             </div>
@@ -86,6 +89,7 @@ const CategorySelection: React.FC = () => {
                   alt="Premium Perfume Side"
                   fill
                   style={{ objectFit: 'contain' }}
+                  loading="eager"
                 />
               </div>
               {/* Central Bottle */}
@@ -95,6 +99,7 @@ const CategorySelection: React.FC = () => {
                   alt="Premium Perfume"
                   fill
                   style={{ objectFit: 'contain' }}
+                  priority
                 />
               </div>
               {/* Right Extra Bottle */}
@@ -104,6 +109,7 @@ const CategorySelection: React.FC = () => {
                   alt="Premium Perfume Side"
                   fill
                   style={{ objectFit: 'contain' }}
+                  loading="eager"
                 />
               </div>
             </div>
