@@ -19,6 +19,7 @@ import wishlistService from "@/services/wishlist";
 import { useWishlist } from "@/context/WishlistContext";
 import { useRouter } from "next/navigation";
 import { cardHover, cardTap, buttonHover, buttonTap } from "@/utils/animations";
+import { trackSelectItem } from "@/utils/analytics";
 const FALLBACK_NOTE_IMAGE = "/images/scent_notes/default.png";
 
 interface ProductCardProps {
@@ -237,6 +238,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
       e.preventDefault();
       return;
     }
+
+    // Track product selection for analytics
+    trackSelectItem(product, 'Shop');
 
     // Otherwise, default link behavior will happen
   };

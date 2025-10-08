@@ -20,6 +20,7 @@ import checkoutService, {
 import taxService, { TaxConfiguration } from "@/services/tax";
 import { isValidPhoneNumber, parsePhoneNumber } from 'libphonenumber-js';
 import { authService, RegisterData } from "@/services/auth";
+import { trackBeginCheckout } from "@/utils/analytics";
 
 interface Address {
   id?: string;
@@ -381,6 +382,14 @@ const CheckoutPage = () => {
       router.push("/shop");
     }
   }, [cartItems]);
+
+  // Track begin_checkout event when user lands on checkout page with items
+  useEffect(() => {
+    if (cartItems && cartItems.length > 0 && !isLoading) {
+      // Track checkout started
+      trackBeginCheckout(cartItems, subtotal);
+    }
+  }, [cartItems, subtotal, isLoading]);
   
   // Update shipping cost and total amount when relevant values change
   useEffect(() => {

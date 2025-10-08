@@ -14,6 +14,7 @@ import FragranceSelector from "@/components/shop/FragranceFilter";
 import FilterSortBar from "@/components/shop/FilterSortBar";
 import AnimatedSection from "@/components/animations/AnimatedSection";
 import StaggeredChildren from "@/components/animations/StaggeredChildren";
+import { trackViewItemList } from "@/utils/analytics";
 
 type FilterTabValue = "all" | ProductType;
 
@@ -269,6 +270,11 @@ export default function ShopContent() {
       setTotalProducts(response.meta.total);
       setCurrentPage(response.meta.page);
       setTotalPages(response.meta.totalPages);
+
+      // Track view_item_list event for analytics
+      if (response.data && response.data.length > 0) {
+        trackViewItemList(response.data, 'Shop');
+      }
     } catch (err) {
       console.error("Error fetching products:", err);
       showError("Failed to load products. Please try again.");

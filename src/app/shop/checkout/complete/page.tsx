@@ -7,6 +7,7 @@ import { useToast } from "@/context/ToastContext";
 import { paymentsService } from "@/services/payments";
 import { useCart } from "@/context/CartContext";
 import { authService } from "@/services/auth";
+import { trackPurchase } from "@/utils/analytics";
 
 const PaymentCompletePage: React.FC = () => {
   const router = useRouter();
@@ -34,6 +35,25 @@ const PaymentCompletePage: React.FC = () => {
         if (data.status === "successful") {
           setStatus("success");
           clearCart();
+
+          // Track purchase event for analytics
+          if (data.order) {
+            try {
+              const orderItems = data.order.items || [];
+              trackPurchase(
+                data.order.orderNumber || data.order.id || reference,
+                data.order.total || 0,
+                data.order.tax || 0,
+                data.order.shipping || 0,
+                orderItems,
+                'NGN',
+                data.order.email
+              );
+            } catch (analyticsError) {
+              console.error("Failed to track purchase:", analyticsError);
+              // Don't block the success flow if analytics fails
+            }
+          }
 
           // Refresh user profile after successful payment to get latest details
           try {
