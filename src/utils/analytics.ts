@@ -372,6 +372,467 @@ export const trackPageView = (url: string, title: string): void => {
   }
 };
 
+// ==================== WISHLIST TRACKING ====================
+
+// Track add to wishlist
+export const trackAddToWishlist = (product: any): void => {
+  try {
+    // Google Analytics 4
+    if (isGaAvailable()) {
+      const params = {
+        currency: 'NGN',
+        value: product.price || product.nairaPrice,
+        items: [{
+          item_id: product.id || product.productId,
+          item_name: product.name,
+          item_brand: product.brand?.name || product.brand,
+          item_category: product.categories?.[0]?.name || product.category || 'Fragrance',
+          price: product.price || product.nairaPrice,
+        }]
+      };
+      window.gtag?.('event', 'add_to_wishlist', params);
+      logAnalyticsEvent('add_to_wishlist', params, 'GA4');
+    }
+
+    // Shopify Analytics
+    shopifyAnalytics.trackWishlistAction('add', {
+      productId: product.id || product.productId,
+      variantId: product.variantId || product.id,
+      sku: product.sku || product.slug,
+      name: product.name,
+      price: Number(product.price || product.nairaPrice),
+      category: product.categories?.[0]?.name || product.category || 'Fragrance',
+    }).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify wishlist tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking add to wishlist:', error);
+  }
+};
+
+// Track remove from wishlist
+export const trackRemoveFromWishlist = (product: any): void => {
+  try {
+    // Google Analytics 4
+    if (isGaAvailable()) {
+      const params = {
+        currency: 'NGN',
+        value: product.price || product.nairaPrice,
+        items: [{
+          item_id: product.id || product.productId,
+          item_name: product.name,
+          item_brand: product.brand?.name || product.brand,
+          item_category: product.categories?.[0]?.name || product.category || 'Fragrance',
+          price: product.price || product.nairaPrice,
+        }]
+      };
+      window.gtag?.('event', 'remove_from_wishlist', params);
+      logAnalyticsEvent('remove_from_wishlist', params, 'GA4');
+    }
+
+    // Shopify Analytics
+    shopifyAnalytics.trackWishlistAction('remove', {
+      productId: product.id || product.productId,
+      variantId: product.variantId || product.id,
+      sku: product.sku || product.slug,
+      name: product.name,
+      price: Number(product.price || product.nairaPrice),
+      category: product.categories?.[0]?.name || product.category || 'Fragrance',
+    }).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify wishlist tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking remove from wishlist:', error);
+  }
+};
+
+// Track wishlist viewed
+export const trackViewWishlist = (totalValue: number, itemCount: number): void => {
+  try {
+    if (isGaAvailable()) {
+      window.gtag?.('event', 'view_wishlist', {
+        currency: 'NGN',
+        value: totalValue,
+        item_count: itemCount
+      });
+      logAnalyticsEvent('view_wishlist', { totalValue, itemCount }, 'GA4');
+    }
+
+    shopifyAnalytics.trackEvent('wishlist_viewed', {
+      total_value: totalValue,
+      item_count: itemCount,
+      currency: 'NGN'
+    }).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify wishlist view tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking wishlist view:', error);
+  }
+};
+
+// ==================== SEARCH TRACKING ====================
+
+// Track search
+export const trackSearchQuery = (searchTerm: string, resultsCount?: number): void => {
+  try {
+    // Google Analytics 4
+    if (isGaAvailable()) {
+      const params = {
+        search_term: searchTerm,
+        results_count: resultsCount
+      };
+      window.gtag?.('event', 'search', params);
+      logAnalyticsEvent('search', params, 'GA4');
+    }
+
+    // Shopify Analytics
+    shopifyAnalytics.trackSearch(searchTerm, resultsCount).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify search tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking search:', error);
+  }
+};
+
+// ==================== QUIZ TRACKING ====================
+
+// Track quiz started
+export const trackQuizStarted = (quizType: string = 'fragrance_finder'): void => {
+  try {
+    if (isGaAvailable()) {
+      window.gtag?.('event', 'quiz_started', {
+        quiz_type: quizType
+      });
+      logAnalyticsEvent('quiz_started', { quizType }, 'GA4');
+    }
+
+    shopifyAnalytics.trackEvent('quiz_started', {
+      quiz_type: quizType,
+      timestamp: new Date().toISOString()
+    }).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify quiz started tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking quiz started:', error);
+  }
+};
+
+// Track quiz completed
+export const trackQuizCompleted = (quizData: {
+  quizType?: string;
+  answers?: any;
+  recommendationsCount?: number;
+  completionTime?: number;
+}): void => {
+  try {
+    if (isGaAvailable()) {
+      window.gtag?.('event', 'quiz_completed', {
+        quiz_type: quizData.quizType || 'fragrance_finder',
+        recommendations_count: quizData.recommendationsCount,
+        engagement_time_msec: quizData.completionTime
+      });
+      logAnalyticsEvent('quiz_completed', quizData, 'GA4');
+    }
+
+    shopifyAnalytics.trackQuizCompleted(quizData).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify quiz completed tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking quiz completed:', error);
+  }
+};
+
+// Track quiz results viewed
+export const trackQuizResultsViewed = (resultsCount: number, products: any[]): void => {
+  try {
+    if (isGaAvailable()) {
+      window.gtag?.('event', 'quiz_results_viewed', {
+        results_count: resultsCount,
+        products_shown: products.length
+      });
+      logAnalyticsEvent('quiz_results_viewed', { resultsCount }, 'GA4');
+    }
+
+    shopifyAnalytics.trackEvent('quiz_results_viewed', {
+      results_count: resultsCount,
+      products_shown: products.length
+    }).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify quiz results tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking quiz results:', error);
+  }
+};
+
+// ==================== COUPON/DISCOUNT TRACKING ====================
+
+// Track coupon applied
+export const trackCouponApplied = (couponCode: string, discountAmount: number, cartTotal: number): void => {
+  try {
+    if (isGaAvailable()) {
+      window.gtag?.('event', 'coupon_applied', {
+        coupon_code: couponCode,
+        discount_amount: discountAmount,
+        cart_total: cartTotal,
+        currency: 'NGN'
+      });
+      logAnalyticsEvent('coupon_applied', { couponCode, discountAmount }, 'GA4');
+    }
+
+    shopifyAnalytics.trackEvent('coupon_applied', {
+      coupon_code: couponCode,
+      discount_amount: discountAmount,
+      cart_total: cartTotal,
+      currency: 'NGN'
+    }).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify coupon tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking coupon applied:', error);
+  }
+};
+
+// Track coupon removed
+export const trackCouponRemoved = (couponCode: string): void => {
+  try {
+    if (isGaAvailable()) {
+      window.gtag?.('event', 'coupon_removed', {
+        coupon_code: couponCode
+      });
+      logAnalyticsEvent('coupon_removed', { couponCode }, 'GA4');
+    }
+
+    shopifyAnalytics.trackEvent('coupon_removed', {
+      coupon_code: couponCode
+    }).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify coupon removed tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking coupon removed:', error);
+  }
+};
+
+// ==================== USER ACCOUNT TRACKING ====================
+
+// Track user registration
+export const trackUserRegistration = (method: string = 'email', userId?: string): void => {
+  try {
+    if (isGaAvailable()) {
+      window.gtag?.('event', 'sign_up', {
+        method: method,
+        user_id: userId
+      });
+      logAnalyticsEvent('sign_up', { method }, 'GA4');
+    }
+
+    shopifyAnalytics.trackUserAuth('register', userId).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify registration tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking registration:', error);
+  }
+};
+
+// Track user login
+export const trackUserLogin = (method: string = 'email', userId?: string): void => {
+  try {
+    if (isGaAvailable()) {
+      window.gtag?.('event', 'login', {
+        method: method,
+        user_id: userId
+      });
+
+      // Set user ID for session tracking
+      if (userId) {
+        window.gtag?.('config', process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '', {
+          user_id: userId
+        });
+      }
+
+      logAnalyticsEvent('login', { method }, 'GA4');
+    }
+
+    shopifyAnalytics.trackUserAuth('login', userId).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify login tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking login:', error);
+  }
+};
+
+// Track user logout
+export const trackUserLogout = (): void => {
+  try {
+    if (isGaAvailable()) {
+      window.gtag?.('event', 'logout');
+      logAnalyticsEvent('logout', {}, 'GA4');
+    }
+
+    shopifyAnalytics.trackUserAuth('logout').catch(err => {
+      if (isDebugMode) console.error('❌ Shopify logout tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking logout:', error);
+  }
+};
+
+// ==================== NEWSLETTER/EMAIL TRACKING ====================
+
+// Track newsletter signup
+export const trackNewsletterSignup = (email: string, source?: string): void => {
+  try {
+    if (isGaAvailable()) {
+      window.gtag?.('event', 'newsletter_signup', {
+        source: source || 'website'
+      });
+      logAnalyticsEvent('newsletter_signup', { source }, 'GA4');
+    }
+
+    shopifyAnalytics.trackEvent('newsletter_signup', {
+      email: email,
+      source: source || 'website',
+      timestamp: new Date().toISOString()
+    }).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify newsletter tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking newsletter signup:', error);
+  }
+};
+
+// ==================== CHECKOUT FLOW TRACKING ====================
+
+// Track shipping method selected
+export const trackShippingMethodSelected = (shippingMethod: string, cost: number): void => {
+  try {
+    if (isGaAvailable()) {
+      window.gtag?.('event', 'add_shipping_info', {
+        shipping_tier: shippingMethod,
+        value: cost,
+        currency: 'NGN'
+      });
+      logAnalyticsEvent('add_shipping_info', { shippingMethod, cost }, 'GA4');
+    }
+
+    shopifyAnalytics.trackEvent('shipping_method_selected', {
+      shipping_method: shippingMethod,
+      shipping_cost: cost,
+      currency: 'NGN'
+    }).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify shipping tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking shipping method:', error);
+  }
+};
+
+// Track payment method selected
+export const trackPaymentMethodSelected = (paymentMethod: string): void => {
+  try {
+    if (isGaAvailable()) {
+      window.gtag?.('event', 'add_payment_info', {
+        payment_type: paymentMethod
+      });
+      logAnalyticsEvent('add_payment_info', { paymentMethod }, 'GA4');
+    }
+
+    shopifyAnalytics.trackEvent('payment_method_selected', {
+      payment_method: paymentMethod
+    }).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify payment tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking payment method:', error);
+  }
+};
+
+// ==================== CONTENT ENGAGEMENT TRACKING ====================
+
+// Track contact form submission
+export const trackContactFormSubmit = (subject: string): void => {
+  try {
+    if (isGaAvailable()) {
+      window.gtag?.('event', 'contact_form_submit', {
+        subject: subject
+      });
+      logAnalyticsEvent('contact_form_submit', { subject }, 'GA4');
+    }
+
+    shopifyAnalytics.trackEvent('contact_form_submitted', {
+      subject: subject,
+      timestamp: new Date().toISOString()
+    }).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify contact form tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking contact form:', error);
+  }
+};
+
+// Track FAQ interaction
+export const trackFAQInteraction = (question: string, action: 'expand' | 'collapse'): void => {
+  try {
+    if (isGaAvailable()) {
+      window.gtag?.('event', 'faq_interaction', {
+        question: question,
+        action: action
+      });
+      logAnalyticsEvent('faq_interaction', { question, action }, 'GA4');
+    }
+
+    shopifyAnalytics.trackEvent('faq_interaction', {
+      question: question,
+      action: action
+    }).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify FAQ tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking FAQ interaction:', error);
+  }
+};
+
+// Track product filter usage
+export const trackFilterUsed = (filterType: string, filterValue: string): void => {
+  try {
+    if (isGaAvailable()) {
+      window.gtag?.('event', 'filter_used', {
+        filter_type: filterType,
+        filter_value: filterValue
+      });
+      logAnalyticsEvent('filter_used', { filterType, filterValue }, 'GA4');
+    }
+
+    shopifyAnalytics.trackEvent('filter_applied', {
+      filter_type: filterType,
+      filter_value: filterValue
+    }).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify filter tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking filter usage:', error);
+  }
+};
+
+// Track product sort usage
+export const trackSortUsed = (sortType: string): void => {
+  try {
+    if (isGaAvailable()) {
+      window.gtag?.('event', 'sort_used', {
+        sort_type: sortType
+      });
+      logAnalyticsEvent('sort_used', { sortType }, 'GA4');
+    }
+
+    shopifyAnalytics.trackEvent('sort_applied', {
+      sort_type: sortType
+    }).catch(err => {
+      if (isDebugMode) console.error('❌ Shopify sort tracking error:', err);
+    });
+  } catch (error) {
+    if (isDebugMode) console.error('❌ Error tracking sort usage:', error);
+  }
+};
+
 // Fix TypeScript errors for window.gtag
 declare global {
   interface Window {

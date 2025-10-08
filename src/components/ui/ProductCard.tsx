@@ -19,7 +19,7 @@ import wishlistService from "@/services/wishlist";
 import { useWishlist } from "@/context/WishlistContext";
 import { useRouter } from "next/navigation";
 import { cardHover, cardTap, buttonHover, buttonTap } from "@/utils/animations";
-import { trackSelectItem } from "@/utils/analytics";
+import { trackSelectItem, trackAddToWishlist, trackRemoveFromWishlist } from "@/utils/analytics";
 const FALLBACK_NOTE_IMAGE = "/images/scent_notes/default.png";
 
 interface ProductCardProps {
@@ -192,11 +192,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
         // Then make API call
         await wishlistService.removeFromWishlist(product.id);
         toastService.success("Removed from wishlist");
+
+        // Track remove from wishlist
+        trackRemoveFromWishlist(product);
       } else {
         // Add to wishlist
         await wishlistService.addToWishlist(product.id);
         setIsInWishlist(true);
         toastService.success("Added to wishlist");
+
+        // Track add to wishlist
+        trackAddToWishlist(product);
       }
     } catch (error: any) {
       console.error("Wishlist toggle failed:", error);

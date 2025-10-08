@@ -14,7 +14,7 @@ import FragranceSelector from "@/components/shop/FragranceFilter";
 import FilterSortBar from "@/components/shop/FilterSortBar";
 import AnimatedSection from "@/components/animations/AnimatedSection";
 import StaggeredChildren from "@/components/animations/StaggeredChildren";
-import { trackViewItemList } from "@/utils/analytics";
+import { trackViewItemList, trackFilterUsed, trackSortUsed } from "@/utils/analytics";
 
 type FilterTabValue = "all" | ProductType;
 
@@ -90,6 +90,9 @@ export default function ShopContent() {
   const handleSortChange = (sortBy: string, sortOrder: string) => {
     // Validate to prevent unnecessary re-renders
     if (sortBy === currentSortBy && sortOrder === currentSortOrder) return;
+
+    // Track sort usage
+    trackSortUsed(`${sortBy}_${sortOrder}`);
 
     // Update the sort state
     setCurrentSortBy(sortBy);
