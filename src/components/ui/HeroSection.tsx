@@ -81,15 +81,6 @@ const HeroSection: React.FC = () => {
                   y: 0,
                   transition: { duration: 0.6, delay: 1.8, ease: [0.25, 0.46, 0.45, 0.94] as any }
                 }}
-                whileInView={{
-                  y: [0, -3, 0],
-                  transition: {
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 3
-                  }
-                }}
               >
                 <AnimatedLines
                   lines={["Smell rich. Explore more. No full bottle pressure."]}
