@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { apiRequest } from "./api";
+import { optimizedRequest, clearCache as clearOptimizationCache } from "@/utils/apiOptimization";
 
 // In-memory cache for API responses
 interface ApiCache {
@@ -267,10 +268,18 @@ const productService = {
     // Send auth headers for registered users to get wishlist status
     const isRegisteredUser = authService.isAuthenticated() && !authService.isGuest();
 
-    return apiRequest<ProductsResponse>("/products/filter/comprehensive", {
-      params,
-      requiresAuth: isRegisteredUser,
-    });
+    // Create cache key from params for deduplication
+    const cacheKey = `products:comprehensive:${JSON.stringify(params)}:${isRegisteredUser}`;
+
+    // Use optimizedRequest for deduplication and caching
+    return optimizedRequest(
+      cacheKey,
+      () => apiRequest<ProductsResponse>("/products/filter/comprehensive", {
+        params,
+        requiresAuth: isRegisteredUser,
+      }),
+      { cache: true, ttl: 30000 } // Cache for 30 seconds
+    );
   },
   async getBestSellingProducts(
     filters: ProductFilterParams = {}

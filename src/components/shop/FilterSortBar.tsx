@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { FiFilter, FiChevronDown, FiX } from 'react-icons/fi';
 import SortDrawer from './SortDrawer';
-import FilterDrawer from './FilterDrawer';
 import productService, { Brand, Note } from '@/services/product';
+
+// Lazy load FilterDrawer - only loaded when filter button is clicked
+const FilterDrawer = lazy(() => import('./FilterDrawer'));
 
 interface FilterSortBarProps {
   totalProducts: number;
@@ -321,15 +323,19 @@ export default function FilterSortBar({
         onSortChange={onSortChange}
       />
 
-      {/* Filter Drawer */}
-      <FilterDrawer
-        isOpen={filterDrawerOpen}
-        onClose={() => setFilterDrawerOpen(false)}
-        filters={filters}
-        onFiltersChange={onFiltersChange}
-        totalProducts={totalProducts}
-        isLoading={isLoading}
-      />
+      {/* Filter Drawer - Lazy loaded */}
+      {filterDrawerOpen && (
+        <Suspense fallback={<div />}>
+          <FilterDrawer
+            isOpen={filterDrawerOpen}
+            onClose={() => setFilterDrawerOpen(false)}
+            filters={filters}
+            onFiltersChange={onFiltersChange}
+            totalProducts={totalProducts}
+            isLoading={isLoading}
+          />
+        </Suspense>
+      )}
     </>
   );
 }
