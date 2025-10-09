@@ -24,8 +24,9 @@ const geistMono = Geist_Mono({
 const playfairDisplay = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
+  weight: ["400", "600", "700"], // Reduced from 6 to 3 weights for better performance
   display: "swap",
+  preload: true, // Preload for faster initial render
 });
 
 export const viewport: Viewport = {
@@ -124,6 +125,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-cursorstyle="true">
+      <head>
+        {/* Resource hints for faster external resource loading */}
+        <link rel="preconnect" href="https://api.forvrmurr.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.google-analytics.com" />
+        <link rel="dns-prefetch" href="https://cdn.shopify.com" />
+        <link rel="dns-prefetch" href="https://storage.googleapis.com" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} antialiased`}
       >

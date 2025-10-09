@@ -2,10 +2,21 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
+  // Performance optimizations
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'], // Keep error and warn logs
+    } : false,
+  },
+
   images: {
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    formats: ['image/webp', 'image/avif'], // Modern image formats for better compression
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840], // Responsive image sizes
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384], // Icon sizes
+    minimumCacheTTL: 60, // Cache optimized images for 60 seconds
     remotePatterns: [
       {
         protocol: 'https',
@@ -54,6 +65,15 @@ const nextConfig: NextConfig = {
     };
     return config;
   },
+
+  // Enable experimental features for better performance
+  experimental: {
+    optimizePackageImports: ['react-icons', 'framer-motion', 'lodash'], // Tree-shake these packages
+  },
+
+  // Production optimizations
+  productionBrowserSourceMaps: false, // Disable source maps in production for smaller bundles
+  poweredByHeader: false, // Remove X-Powered-By header for security
 };
 
 export default nextConfig;
