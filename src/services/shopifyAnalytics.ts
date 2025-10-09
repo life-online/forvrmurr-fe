@@ -88,24 +88,42 @@ class ShopifyAnalyticsService {
   }
 
   /**
-   * Initialize Shopify Analytics stub for headless stores
-   * Note: Direct pixel tracking doesn't work with headless stores
-   * Events are logged locally and tracked via Google Analytics instead
+   * Initialize Shopify Analytics for headless stores
+   * Sends events to backend API which forwards to Shopify
    */
   private async initializeWebPixels(): Promise<void> {
-    // Initialize Shopify analytics stub for compatibility
+    // Initialize Shopify analytics object
     const script = document.createElement('script');
     script.innerHTML = `
       window.Shopify = window.Shopify || {};
       window.Shopify.analytics = window.Shopify.analytics || {};
       window.Shopify.analytics.replayQueue = [];
       window.Shopify.analytics.publish = function(eventName, payload) {
-        // Queue events for debugging
+        // Queue events
         if (window.Shopify.analytics.replayQueue) {
           window.Shopify.analytics.replayQueue.push([eventName, payload]);
         }
 
-        // Log to console in development
+        // Send to backend API for Shopify forwarding
+        fetch('${process.env.NEXT_PUBLIC_API_URL || 'https://api.forvrmurr.com'}/analytics/shopify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            event: eventName,
+            payload: payload,
+            client_id: '${this.clientId}',
+            session_id: '${this.sessionId}',
+            timestamp: new Date().toISOString(),
+          }),
+          keepalive: true, // Ensures request completes even if page unloads
+        }).catch(err => {
+          if (process.env.NODE_ENV !== 'production') {
+            console.warn('Failed to send Shopify analytics:', err);
+          }
+        });
+
         if (process.env.NODE_ENV !== 'production') {
           console.log('📊 [Shopify Analytics] Event:', eventName, payload);
         }
