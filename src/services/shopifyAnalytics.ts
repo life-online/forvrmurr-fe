@@ -88,38 +88,27 @@ class ShopifyAnalyticsService {
   }
 
   /**
-   * Initialize Shopify Analytics via Customer Privacy API
-   * This is the proper way for headless stores
+   * Initialize Shopify Analytics stub for headless stores
+   * Note: Direct pixel tracking doesn't work with headless stores
+   * Events are logged locally and tracked via Google Analytics instead
    */
   private async initializeWebPixels(): Promise<void> {
-    // Initialize Shopify analytics using analytics.publish method
+    // Initialize Shopify analytics stub for compatibility
     const script = document.createElement('script');
     script.innerHTML = `
       window.Shopify = window.Shopify || {};
       window.Shopify.analytics = window.Shopify.analytics || {};
       window.Shopify.analytics.replayQueue = [];
       window.Shopify.analytics.publish = function(eventName, payload) {
+        // Queue events for debugging
         if (window.Shopify.analytics.replayQueue) {
           window.Shopify.analytics.replayQueue.push([eventName, payload]);
         }
 
-        // Send to Shopify pixel endpoint
-        if (navigator.sendBeacon) {
-          const pixelData = {
-            event: eventName,
-            payload: payload,
-            pixelId: '${this.config.pixelId}',
-            shopDomain: '${this.config.shopDomain}',
-            timestamp: new Date().toISOString()
-          };
-
-          navigator.sendBeacon(
-            'https://${this.config.shopDomain}/cdn/pixels/${this.config.pixelId}/events',
-            JSON.stringify(pixelData)
-          );
+        // Log to console in development
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('📊 [Shopify Analytics] Event:', eventName, payload);
         }
-
-        console.log('📊 [Shopify Analytics] Event:', eventName, payload);
       };
     `;
     document.head.appendChild(script);
