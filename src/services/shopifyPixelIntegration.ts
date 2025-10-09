@@ -14,12 +14,15 @@ declare global {
     Shopify?: {
       analytics?: {
         publish: (eventName: string, payload: any) => void;
-        replayQueue: Array<[string, any]>;
+        replayQueue?: Array<[string, any]>;
       };
     };
     ShopifyAnalytics?: {
       meta: any;
       lib: any;
+    };
+    webPixelsManager?: {
+      publishCustomEvent: (eventName: string, data: any) => void;
     };
   }
 }

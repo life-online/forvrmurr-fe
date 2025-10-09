@@ -88,21 +88,40 @@ class ShopifyAnalyticsService {
   }
 
   /**
-   * Initialize Shopify Web Pixels
+   * Initialize Shopify Analytics via Customer Privacy API
+   * This is the proper way for headless stores
    */
   private async initializeWebPixels(): Promise<void> {
-    // Load Shopify Web Pixels script
+    // Initialize Shopify analytics using analytics.publish method
     const script = document.createElement('script');
-    script.src = `https://cdn.shopify.com/shopifycloud/web-pixels-manager/webpixels-manager-latest.en.js`;
-    script.async = true;
-    script.onload = () => {
-      if (window.webPixelsManager) {
-        window.webPixelsManager.init({
-          shopId: this.config.shopDomain,
-          storefrontAccessToken: this.config.storefrontAccessToken,
-        });
-      }
-    };
+    script.innerHTML = `
+      window.Shopify = window.Shopify || {};
+      window.Shopify.analytics = window.Shopify.analytics || {};
+      window.Shopify.analytics.replayQueue = [];
+      window.Shopify.analytics.publish = function(eventName, payload) {
+        if (window.Shopify.analytics.replayQueue) {
+          window.Shopify.analytics.replayQueue.push([eventName, payload]);
+        }
+
+        // Send to Shopify pixel endpoint
+        if (navigator.sendBeacon) {
+          const pixelData = {
+            event: eventName,
+            payload: payload,
+            pixelId: '${this.config.pixelId}',
+            shopDomain: '${this.config.shopDomain}',
+            timestamp: new Date().toISOString()
+          };
+
+          navigator.sendBeacon(
+            'https://${this.config.shopDomain}/cdn/pixels/${this.config.pixelId}/events',
+            JSON.stringify(pixelData)
+          );
+        }
+
+        console.log('📊 [Shopify Analytics] Event:', eventName, payload);
+      };
+    `;
     document.head.appendChild(script);
   }
 
@@ -123,13 +142,8 @@ class ShopifyAnalyticsService {
         },
       };
 
-      // Send to Shopify Customer Events API
+      // Send to Shopify Analytics
       await this.sendToShopify(event);
-
-      // Send to Web Pixels if available
-      if (typeof window !== 'undefined' && window.webPixelsManager) {
-        window.webPixelsManager.publishCustomEvent(eventName, data);
-      }
 
       console.log(`📊 Tracked event: ${eventName}`, data);
     } catch (error) {
@@ -307,80 +321,25 @@ class ShopifyAnalyticsService {
   }
 
   /**
-   * Send event to Shopify Customer Events API
+   * Send event to Shopify Analytics using window.Shopify.analytics.publish
+   * This is the standard method for headless stores
    */
   private async sendToShopify(event: CustomerEvent): Promise<void> {
+    if (typeof window === 'undefined') return;
+
     try {
-      // For Customer Events API (requires Admin API access)
-      if (this.config.adminAccessToken) {
-        const response = await fetch(`https://${this.config.shopDomain}/admin/api/2024-01/events.json`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Shopify-Access-Token': this.config.adminAccessToken,
-          },
-          body: JSON.stringify({
-            event: {
-              verb: event.name,
-              subject_id: event.customerId || event.clientId,
-              subject_type: event.customerId ? 'Customer' : 'Session',
-              created_at: event.timestamp,
-              arguments: event.data,
-            },
-          }),
+      // Use Shopify analytics publish method
+      if (window.Shopify?.analytics?.publish) {
+        window.Shopify.analytics.publish(event.name, {
+          ...event.data,
+          clientId: event.clientId,
+          timestamp: event.timestamp,
         });
-
-        if (!response.ok) {
-          throw new Error(`Shopify API error: ${response.status}`);
-        }
-      }
-
-      // For Storefront API (limited analytics)
-      if (this.config.storefrontAccessToken) {
-        await this.sendToStorefront(event);
       }
     } catch (error) {
-      console.error('Failed to send to Shopify:', error);
-    }
-  }
-
-  /**
-   * Send event to Shopify Storefront API
-   */
-  private async sendToStorefront(event: CustomerEvent): Promise<void> {
-    try {
-      const response = await fetch(`https://${this.config.shopDomain}/api/2024-01/graphql.json`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Shopify-Storefront-Access-Token': this.config.storefrontAccessToken,
-        },
-        body: JSON.stringify({
-          query: `
-            mutation trackingEvent($input: TrackingEventInput!) {
-              trackingEventCreate(input: $input) {
-                userErrors {
-                  field
-                  message
-                }
-              }
-            }
-          `,
-          variables: {
-            input: {
-              eventName: event.name,
-              payload: JSON.stringify(event.data),
-              timestamp: event.timestamp,
-            },
-          },
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Storefront API error: ${response.status}`);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Failed to send to Shopify:', error);
       }
-    } catch (error) {
-      console.warn('Storefront tracking failed:', error);
     }
   }
 
@@ -453,12 +412,14 @@ class ShopifyAnalyticsService {
   }
 }
 
-// Global types for Shopify Web Pixels
+// Global types for Shopify Analytics
 declare global {
   interface Window {
-    webPixelsManager?: {
-      init: (config: any) => void;
-      publishCustomEvent: (eventName: string, data: any) => void;
+    Shopify?: {
+      analytics?: {
+        publish: (eventName: string, payload: any) => void;
+        replayQueue?: Array<[string, any]>;
+      };
     };
   }
 }
