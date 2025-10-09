@@ -1,19 +1,17 @@
 "use client";
 
-import React, { useState, useRef, useEffect, lazy, Suspense } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiShoppingBag, FiMenu, FiX, FiUser } from "react-icons/fi";
+import CartOverlay from "@/components/cart/CartOverlay";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { authService } from "@/services/auth";
 import SearchPopup from "./SearchPopover";
 import { useRouter } from "next/navigation";
-
-// Lazy load CartOverlay - only loaded when cart is opened
-const CartOverlay = lazy(() => import("@/components/cart/CartOverlay"));
 
 interface NavItem {
   name: string;
@@ -849,19 +847,15 @@ const Navbar: React.FC = () => {
         )}
       </nav>
 
-      {/* Cart Overlay - Lazy loaded */}
-      {isCartOpen && (
-        <Suspense fallback={<div />}>
-          <CartOverlay
-            isOpen={isCartOpen}
-            onClose={closeCart}
-            cartItems={cartItems}
-            removeFromCart={removeFromCart}
-            updateItemQuantity={updateItemQuantity}
-            addToCart={addToCart}
-          />
-        </Suspense>
-      )}
+      {/* Cart Overlay - Always loaded for instant access */}
+      <CartOverlay
+        isOpen={isCartOpen}
+        onClose={closeCart}
+        cartItems={cartItems}
+        removeFromCart={removeFromCart}
+        updateItemQuantity={updateItemQuantity}
+        addToCart={addToCart}
+      />
     </>
   );
 };

@@ -130,6 +130,8 @@ export default function FragranceSelector({
                 width={300}
                 height={200}
                 className="object-cover rounded-md h-full w-full transition-transform hover:scale-105 duration-300"
+                priority={idx < 4} // Load all 4 category images immediately
+                loading="eager" // Ensure eager loading for better UX
               />
             </div>
             <p className="text-sm text-gray-700 mt-1 font-medium">{cat.label}</p>
@@ -205,6 +207,8 @@ export default function FragranceSelector({
                             width={1000}
                             height={1000}
                             className="object-cover h-full rounded-md"
+                            loading="eager" // Load all subcategory images immediately for better UX
+                            priority // Prioritize these images in the drawer
                           />
                           <div className="absolute bottom-0 left-0 right-0 text-[10px] sm:text-xs text-white bg-black/60 text-center py-0.5 sm:py-1 line-clamp-1">
                             {item.slug
