@@ -76,6 +76,24 @@ export interface Note {
   updatedAt?: string;
 }
 
+export interface VariantSelectedOption {
+  name: string;
+  value: string;
+}
+
+export interface ProductVariant {
+  id: string;
+  shopifyVariantId: string;
+  title: string;
+  price: number;
+  compareAtPrice?: number | null;
+  sku?: string | null;
+  inventoryQuantity: number;
+  position: number;
+  selectedOptions?: VariantSelectedOption[] | null;
+  isActive: boolean;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -102,6 +120,10 @@ export interface Product {
   createdAt?: string;
   updatedAt?: string;
   isInWishlist?: boolean;
+  // Variant support
+  variantEntities?: ProductVariant[];
+  minPrice?: number;
+  maxPrice?: number | null;
 }
 
 export interface ProductsResponse {

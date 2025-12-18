@@ -4,11 +4,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import productService, { Product, ProductAttribute } from "@/services/product";
+import productService, { Product, ProductAttribute, ProductVariant } from "@/services/product";
 import ProductBadge from "@/components/ui/ProductBadge";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import ProductCard from "@/components/ui/ProductCard";
 import QuantitySelector from "@/components/ui/QuantitySelector";
+import VariantSelector from "@/components/shop/VariantSelector";
 import { trackProductView } from "@/utils/analytics";
 import OutOfStockBadge from "@/components/ui/OutOfStockBadge";
 import NotifyMeModal from "@/components/ui/NotifyMeModal";
@@ -75,6 +76,7 @@ export default function ProductDetailsPage() {
   const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isWishlistLoading, setIsWishlistLoading] = useState(false);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
 
   // Fetch the product data
   useEffect(() => {
@@ -85,6 +87,14 @@ export default function ProductDetailsPage() {
         setLoading(true);
         const data = await productService.getProductBySlug(slug);
         setProduct(data);
+
+        // Auto-select the first variant if product has variants
+        if (data.variantEntities && data.variantEntities.length > 0) {
+          // Sort by position and select first in-stock variant, or first variant if all out of stock
+          const sortedVariants = [...data.variantEntities].sort((a, b) => a.position - b.position);
+          const inStockVariant = sortedVariants.find(v => v.inventoryQuantity > 0);
+          setSelectedVariant(inStockVariant || sortedVariants[0]);
+        }
 
         // Set initial wishlist state
         setIsInWishlist(data.isInWishlist || false);
@@ -307,6 +317,18 @@ export default function ProductDetailsPage() {
                 <div className="text-gray-700 mb-8 leading-relaxed">
                   {product.description}
                 </div>
+
+                {/* Variant Selector (only show if product has multiple variants) */}
+                {product.variantEntities && product.variantEntities.length > 1 && (
+                  <div className="mb-6">
+                    <VariantSelector
+                      variants={product.variantEntities}
+                      selectedVariant={selectedVariant}
+                      onSelect={setSelectedVariant}
+                    />
+                  </div>
+                )}
+
                 {/* Quantity and Price Row */}
                 <div className="mt-8 space-y-8">
                   {/* Main Product Section */}
@@ -322,7 +344,7 @@ export default function ProductDetailsPage() {
                       </div>
                       <div>
                         <h3 className="font-serif text-lg font-semibold text-gray-900">
-                          8ml Bottle
+                          {selectedVariant?.title || "8ml Bottle"}
                         </h3>
                         <p className="text-sm text-gray-600">
                           Forvr Murr Pricing
@@ -332,11 +354,11 @@ export default function ProductDetailsPage() {
 
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
                       <div className="flex items-center gap-6">
-                        {/* Price Display */}
+                        {/* Price Display - use variant price if available */}
                         <div className="text-xl sm:text-2xl font-bold text-gray-900">
-                          ₦{Number(product.nairaPrice).toLocaleString()}
+                          ₦{Number(selectedVariant?.price ?? product.nairaPrice).toLocaleString()}
                         </div>
-                        
+
                         {/* Quantity Selector */}
                         <QuantitySelector
                           quantity={mainQuantity}
@@ -347,7 +369,8 @@ export default function ProductDetailsPage() {
 
                       {/* Add to Cart Button or Notify Me Button + Wishlist Heart */}
                       <div className="flex gap-3 sm:flex-row flex-col">
-                        {product.inventoryQuantity <= 0 ? (
+                        {/* Check variant inventory if variant selected, otherwise product inventory */}
+                        {(selectedVariant ? selectedVariant.inventoryQuantity <= 0 : product.inventoryQuantity <= 0) ? (
                           <button
                             onClick={(e) => {
                               e.preventDefault();
@@ -364,6 +387,7 @@ export default function ProductDetailsPage() {
                             product={product}
                             className="bg-[#a0001e] text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg hover:bg-[#800018] transition-colors font-medium w-full sm:flex-1"
                             quantity={mainQuantity}
+                            selectedVariant={selectedVariant}
                           />
                         )}
 
@@ -394,7 +418,7 @@ export default function ProductDetailsPage() {
                       <div className="mt-4 text-right">
                         <p className="text-sm text-gray-600">
                           Total: <span className="font-semibold text-gray-900">
-                            ₦{(Number(product.nairaPrice) * mainQuantity).toLocaleString()}
+                            ₦{(Number(selectedVariant?.price ?? product.nairaPrice) * mainQuantity).toLocaleString()}
                           </span>
                         </p>
                       </div>
@@ -588,31 +612,33 @@ export default function ProductDetailsPage() {
           </div>
         </div>
 
-        {/* User Description Tags */}
-        <div className="max-w-7xl mx-auto md:mt-16 mt-12 md:pt-16 md:mb-32 md:pb-12 mb-16 px-4">
-          <h3 className="text-2xl md:text-3xl font-serif text-[#a0001e] text-center md:mb-16 mb-8">
-            Here&apos;s How Others Described the Scent
-          </h3>
-          <div className="flex flex-wrap justify-center gap-4 mb-4">
-            {prodDescriptions.map((tag) => (
-              <div key={tag.id} className="flex flex-col items-center">
-                <div className="w-28 h-16 overflow-hidden bg-gray-100 rounded-xl flex items-center justify-center mb-2 font-serif text-lg">
-                  <Image
-                    src={tag.iconUrl ? `/images${tag.iconUrl}` : FALLBACK_NOTE_IMAGE}
-                    alt="Description Tag"
-                    width={1000}
-                    height={1000}
-                    className="h-full w-full object-contain"
-                    loading="eager"
-                  />
+        {/* User Description Tags - only show if there are descriptions */}
+        {prodDescriptions && prodDescriptions.length > 0 && (
+          <div className="max-w-7xl mx-auto md:mt-16 mt-12 md:pt-16 md:mb-32 md:pb-12 mb-16 px-4">
+            <h3 className="text-2xl md:text-3xl font-serif text-[#a0001e] text-center md:mb-16 mb-8">
+              Here&apos;s How Others Described the Scent
+            </h3>
+            <div className="flex flex-wrap justify-center gap-4 mb-4">
+              {prodDescriptions.map((tag) => (
+                <div key={tag.id} className="flex flex-col items-center">
+                  <div className="w-28 h-16 overflow-hidden bg-gray-100 rounded-xl flex items-center justify-center mb-2 font-serif text-lg">
+                    <Image
+                      src={tag.iconUrl ? `/images${tag.iconUrl}` : FALLBACK_NOTE_IMAGE}
+                      alt="Description Tag"
+                      width={1000}
+                      height={1000}
+                      className="h-full w-full object-contain"
+                      loading="eager"
+                    />
+                  </div>
+                  <span className="text-base font-serif text-gray-700 text-center">
+                    {tag.name}
+                  </span>
                 </div>
-                <span className="text-base font-serif text-gray-700 text-center">
-                  {tag.name}
-                </span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* People Also Loved */}
         {relatedProducts.length > 0 && (

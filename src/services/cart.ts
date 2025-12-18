@@ -14,6 +14,8 @@ export interface CartItemDto {
   };
   price: string;
   subtotal: number;
+  variantId?: string;
+  variantTitle?: string;
 }
 
 export interface CartDiscountDto {
@@ -43,6 +45,7 @@ export interface CartResponseDto {
 export interface AddItemDto {
   productId: string;
   quantity: number;
+  variantId?: string;
 }
 
 const cartService = {
@@ -89,6 +92,7 @@ const cartService = {
 
   // Keep existing coupon methods as they are
   applycoupon: async (code: string): Promise<any> => {
+    await authService.ensureAuthentication();
     return apiRequest<any>(`/cart/apply-coupon`, {
       method: "POST",
       body: JSON.stringify({ couponCode: code }),
@@ -97,6 +101,7 @@ const cartService = {
   },
 
   removecoupon: async (): Promise<any> => {
+    await authService.ensureAuthentication();
     return apiRequest<any>(`/cart/remove-coupon`, {
       method: "DELETE",
       requiresAuth: true,
@@ -105,6 +110,7 @@ const cartService = {
 
   // Initiate checkout process (marks cart as checked out)
   initiateCheckout: async (): Promise<CartResponseDto> => {
+    await authService.ensureAuthentication();
     return apiRequest<CartResponseDto>("/cart/initiate-checkout", {
       method: "POST",
       requiresAuth: true,

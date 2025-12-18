@@ -20,6 +20,8 @@ export interface CartItem {
   imageUrl: string | null;
   quantity: number;
   productId: string;
+  variantId?: string;
+  variantTitle?: string;
 }
 
 interface CartOverlayProps {
@@ -329,6 +331,9 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
                           <div>
                             <h4 className="font-medium text-gray-900">{item.brand}</h4>
                             <p className="text-sm text-gray-600 truncate">{item.name}</p>
+                            {item.variantTitle && (
+                              <p className="text-xs text-gray-500">{item.variantTitle}</p>
+                            )}
                           </div>
                           
                           <div className="flex items-center justify-between">

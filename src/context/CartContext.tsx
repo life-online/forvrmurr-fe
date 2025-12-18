@@ -55,6 +55,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
             imageUrl: item.product.imageUrl || null,
             quantity: item.quantity,
             productId: item.product.id,
+            variantId: item.variantId,
+            variantTitle: item.variantTitle,
           })
         );
 
@@ -93,6 +95,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
           imageUrl: item.product.imageUrl || null,
           quantity: item.quantity,
           productId: item.product.id,
+          variantId: item.variantId,
+          variantTitle: item.variantTitle,
         })
       );
 
@@ -110,8 +114,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       // Simplified - cart service handles authentication
       const response = await cartService.addItemToCart({
-        productId: newItem.id,
+        productId: newItem.productId,
         quantity: newItem.quantity,
+        variantId: newItem.variantId,
       });
 
       setCart(response);
@@ -128,6 +133,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
             `/images/products/${item.product.slug}.png`,
           quantity: item.quantity,
           productId: item.product.id,
+          variantId: item.variantId,
+          variantTitle: item.variantTitle,
         })
       );
 
@@ -163,6 +170,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
             `/images/products/${item.product.slug}.png`,
           quantity: item.quantity,
           productId: item.product.id,
+          variantId: item.variantId,
+          variantTitle: item.variantTitle,
         })
       );
 
@@ -197,6 +206,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
             `/images/products/${item.product.slug}.png`,
           quantity: item.quantity,
           productId: item.product.id,
+          variantId: item.variantId,
+          variantTitle: item.variantTitle,
         })
       );
 
