@@ -1,4 +1,5 @@
 import { apiRequest } from './api';
+import posthog from 'posthog-js';
 
 export interface ContactFormData {
   fullName: string;
@@ -21,8 +22,8 @@ const contactService = {
   /**
    * Submit contact form data
    */
-  submitContactForm(formData: ContactFormData): Promise<ContactResponse> {
-    return apiRequest<ContactResponse>('/contact', {
+  async submitContactForm(formData: ContactFormData): Promise<ContactResponse> {
+    const response = await apiRequest<ContactResponse>('/contact', {
       method: 'POST',
       body: JSON.stringify(formData),
       headers: {
@@ -30,6 +31,14 @@ const contactService = {
       },
       requiresAuth: false
     });
+
+    // PostHog: Track contact form submission event
+    posthog.capture('contact_form_submitted', {
+      subject: formData.subject,
+      email: formData.email,
+    });
+
+    return response;
   }
 };
 

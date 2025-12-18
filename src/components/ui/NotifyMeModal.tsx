@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import productService, { Product } from "@/services/product";
 import { toastService } from "@/services/toast";
+import posthog from "posthog-js";
 
 interface NotifyMeModalProps {
   isOpen: boolean;
@@ -69,7 +70,14 @@ const NotifyMeModal: React.FC<NotifyMeModalProps> = ({
     
     try {
       await productService.notifyWhenInStock(product.id, formData);
-      
+
+      // PostHog: Track notify me submission event
+      posthog.capture("notify_me_submitted", {
+        product_id: product.id,
+        product_name: product.name,
+        email: formData.email,
+      });
+
       console.log('Notify request successful');
       toastService.success(
         "Thank you! We'll notify you when this product is back in stock."
@@ -80,6 +88,9 @@ const NotifyMeModal: React.FC<NotifyMeModalProps> = ({
       toastService.error(
         "Could not process your request. Please try again later."
       );
+
+      // PostHog: Capture error
+      posthog.captureException(error);
     } finally {
       setIsSubmitting(false);
     }

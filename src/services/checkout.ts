@@ -1,5 +1,6 @@
 import { apiRequest } from "./api";
 import { authService } from "./auth";
+import posthog from "posthog-js";
 
 export interface Address {
   id?: string;
@@ -156,11 +157,24 @@ const checkoutService = {
       };
     }
 
-    return apiRequest<CheckoutResponse>("/orders", {
+    const response = await apiRequest<CheckoutResponse>("/orders", {
       method: "POST",
       body: JSON.stringify(apiPayload),
       requiresAuth: true, // We always have auth now (guest or registered)
     });
+
+    // PostHog: Track order created event
+    posthog.capture("order_created", {
+      order_id: response.id,
+      order_number: response.orderNumber,
+      total: response.total,
+      item_count: response.items?.length || 0,
+      shipping_city: checkoutData.shippingAddress.city,
+      shipping_state: checkoutData.shippingAddress.state,
+      shipping_country: checkoutData.shippingAddress.country,
+    });
+
+    return response;
   },
 
   // Initiate payment with Paystack
@@ -168,7 +182,7 @@ const checkoutService = {
     orderId: string,
     paymentMethod: string = "PAYSTACK"
   ): Promise<PaymentResponse> => {
-    return apiRequest<PaymentResponse>("/payments/initialize", {
+    const response = await apiRequest<PaymentResponse>("/payments/initialize", {
       method: "POST",
       body: JSON.stringify({
         orderId,
@@ -176,6 +190,17 @@ const checkoutService = {
       }),
       requiresAuth: true,
     });
+
+    // PostHog: Track payment initiated event
+    posthog.capture("payment_initiated", {
+      order_id: orderId,
+      payment_method: paymentMethod,
+      payment_reference: response.reference,
+      amount: response.amount,
+      currency: response.currency,
+    });
+
+    return response;
   },
 };
 

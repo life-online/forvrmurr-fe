@@ -2,6 +2,22 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
+  // PostHog reverse proxy
+  async rewrites() {
+    return [
+      {
+        source: "/ingest/static/:path*",
+        destination: "https://us-assets.i.posthog.com/static/:path*",
+      },
+      {
+        source: "/ingest/:path*",
+        destination: "https://us.i.posthog.com/:path*",
+      },
+    ];
+  },
+  // This is required to support PostHog trailing slash API requests
+  skipTrailingSlashRedirect: true,
+
   // Performance optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
@@ -46,8 +62,8 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://cdn.shopify.com",
-              "connect-src 'self' http://localhost:3000 https://api.forvrmurr.com https://www.google-analytics.com https://analytics.google.com https://yi21n2-vf.myshopify.com https://cdn.shopify.com",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://cdn.shopify.com https://us-assets.i.posthog.com",
+              "connect-src 'self' http://localhost:3000 https://api.forvrmurr.com https://www.google-analytics.com https://analytics.google.com https://yi21n2-vf.myshopify.com https://cdn.shopify.com https://us.i.posthog.com",
               "img-src 'self' data: blob: https: http:",
               "font-src 'self' data:",
               "style-src 'self' 'unsafe-inline'",

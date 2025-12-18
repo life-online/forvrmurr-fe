@@ -17,6 +17,7 @@ import { FiHeart } from "react-icons/fi";
 import { FaHeart } from "react-icons/fa";
 import wishlistService from "@/services/wishlist";
 import { toastService } from "@/services/toast";
+import posthog from "posthog-js";
 
 // Fallback image paths
 const FALLBACK_IMAGE = "/images/hero/hero_image.png";
@@ -159,14 +160,33 @@ export default function ProductDetailsPage() {
         await wishlistService.removeFromWishlist(product.id);
         setIsInWishlist(false);
         toastService.success("Removed from wishlist");
+
+        // PostHog: Track remove from wishlist event
+        posthog.capture("product_removed_from_wishlist", {
+          product_id: product.id,
+          product_name: product.name,
+          brand: product.brand?.name,
+          price: product.nairaPrice,
+        });
       } else {
         // Add to wishlist
         await wishlistService.addToWishlist(product.id);
         setIsInWishlist(true);
         toastService.success("Added to wishlist");
+
+        // PostHog: Track add to wishlist event
+        posthog.capture("product_added_to_wishlist", {
+          product_id: product.id,
+          product_name: product.name,
+          brand: product.brand?.name,
+          price: product.nairaPrice,
+        });
       }
     } catch (error: any) {
       console.error("Wishlist toggle failed:", error);
+
+      // PostHog: Capture error
+      posthog.captureException(error);
 
       // Get error message
       const errorMessage = error.response?.data?.message || error.message || "Failed to update wishlist";

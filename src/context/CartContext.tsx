@@ -5,6 +5,7 @@ import { CartItem } from "@/components/cart/CartOverlay";
 import { useAuth } from "./AuthContext";
 import cartService, { CartResponseDto, CartItemDto } from "@/services/cart";
 import { useToast } from "./ToastContext";
+import posthog from "posthog-js";
 
 interface CartContextType {
   cartItems: CartItem[] | null;
@@ -140,11 +141,27 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setCartItems(mappedItems);
 
+      // PostHog: Track add to cart event
+      posthog.capture("product_added_to_cart", {
+        product_id: newItem.productId,
+        product_name: newItem.name,
+        brand: newItem.brand,
+        price: newItem.price,
+        quantity: newItem.quantity,
+        variant_id: newItem.variantId,
+        variant_title: newItem.variantTitle,
+        cart_total: response.total,
+        cart_item_count: response.items.length,
+      });
+
       // Open cart when adding an item
       openCart();
     } catch (err) {
       console.error("Failed to add item to cart:", err);
       error?.("Could not add item to cart. Please try again.");
+
+      // PostHog: Capture error
+      posthog.captureException(err);
     } finally {
       setIsLoading(false);
     }
@@ -176,9 +193,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       );
 
       setCartItems(mappedItems);
+
+      // PostHog: Track remove from cart event
+      posthog.capture("product_removed_from_cart", {
+        item_id: itemId,
+        cart_total: response.total,
+        cart_item_count: response.items.length,
+      });
     } catch (err) {
       console.error("Failed to remove item from cart:", err);
       error?.("Could not remove item from cart. Please try again.");
+
+      // PostHog: Capture error
+      posthog.captureException(err);
     } finally {
       setIsLoading(false);
     }
@@ -225,12 +252,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       // Simplified - cart service handles authentication
       const response = await cartService.clearCart();
-      
+
       setCart(response);
       setCartItems(null);
+
+      // PostHog: Track cart cleared event
+      posthog.capture("cart_cleared");
     } catch (err) {
       console.error("Failed to clear cart:", err);
       error?.("Could not clear cart. Please try again.");
+
+      // PostHog: Capture error
+      posthog.captureException(err);
     } finally {
       setIsLoading(false);
     }

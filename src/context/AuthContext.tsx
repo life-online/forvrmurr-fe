@@ -15,6 +15,7 @@ import {
   RegisterData,
 } from "@/services/auth";
 import { useToast } from "./ToastContext";
+import posthog from "posthog-js";
 
 interface AuthContextType {
   user: User | null;
@@ -71,6 +72,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       const loggedInUser = await authService.login(credentials);
       setUser(loggedInUser.user);
       success("Welcome back!");
+
+      // PostHog: Identify user and capture login event
+      posthog.identify(loggedInUser.user.id, {
+        email: loggedInUser.user.email,
+        name: loggedInUser.user.firstName
+          ? `${loggedInUser.user.firstName} ${loggedInUser.user.lastName || ""}`.trim()
+          : undefined,
+      });
+      posthog.capture("user_logged_in", {
+        user_id: loggedInUser.user.id,
+        email: loggedInUser.user.email,
+      });
+
       router.push("/");
     } catch (err) {
       error("Login failed. Please check your credentials.");
@@ -89,6 +103,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       const registeredUser = await authService.register(data);
       console.log("Registration successful:", registeredUser);
       setUser(registeredUser.user);
+
+      // PostHog: Identify user and capture signup event
+      posthog.identify(registeredUser.user.id, {
+        email: registeredUser.user.email,
+        name: registeredUser.user.firstName
+          ? `${registeredUser.user.firstName} ${registeredUser.user.lastName || ""}`.trim()
+          : undefined,
+        created_at: new Date().toISOString(),
+      });
+      posthog.capture("user_signed_up", {
+        user_id: registeredUser.user.id,
+        email: registeredUser.user.email,
+      });
+
       // success("Account created successfully!");
       router.push("/");
     } catch (err: any) {
@@ -115,8 +143,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const logout = async (): Promise<void> => {
     setIsLoading(true);
     try {
+      // PostHog: Capture logout event before resetting
+      posthog.capture("user_logged_out");
+
       await authService.logout();
       setUser(null);
+
+      // PostHog: Reset user identity after logout
+      posthog.reset();
+
       success("You have been logged out");
 
       // Redirect to login page if on protected route
@@ -139,6 +174,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     setIsLoading(true);
     try {
       await authService.requestPasswordReset(email);
+
+      // PostHog: Capture password reset request event
+      posthog.capture("password_reset_requested", {
+        email: email,
+      });
+
       success("Password reset instructions sent. Please check your email.");
     } catch (err: any) {
       error(err.message || "Failed to send reset instructions");

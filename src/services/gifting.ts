@@ -1,4 +1,5 @@
 import { apiRequest } from './api';
+import posthog from 'posthog-js';
 
 export interface GiftRequestData {
   fullName: string;
@@ -31,8 +32,8 @@ const giftingService = {
   /**
    * Submit gift request form data
    */
-  submitGiftRequest(formData: GiftRequestData): Promise<GiftRequestResponse> {
-    return apiRequest<GiftRequestResponse>('/gifts/request', {
+  async submitGiftRequest(formData: GiftRequestData): Promise<GiftRequestResponse> {
+    const response = await apiRequest<GiftRequestResponse>('/gifts/request', {
       method: 'POST',
       body: JSON.stringify(formData),
       headers: {
@@ -40,6 +41,16 @@ const giftingService = {
       },
       requiresAuth: false
     });
+
+    // PostHog: Track gift request submission event
+    posthog.capture('gift_request_submitted', {
+      occasion: formData.occasion,
+      quantity_needed: formData.quantityNeeded,
+      budget_range: formData.budgetRangePerPiece,
+      fragrance_tiers: formData.preferredFragranceTiers,
+    });
+
+    return response;
   }
 };
 

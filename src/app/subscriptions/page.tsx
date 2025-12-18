@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import posthog from 'posthog-js';
 
 // Plans data is defined within the component
 /*
@@ -57,6 +58,16 @@ export default function SubscriptionsPage() {
     router.push('/subscriptions/manage');
   }, [router]);
   const [openFaq, setOpenFaq] = React.useState<number | null>(null);
+
+  // PostHog: Track subscription plan click
+  const handleSubscriptionClick = (plan: 'prime' | 'premium', price: number, location: string) => {
+    posthog.capture('subscription_plan_clicked', {
+      plan_name: plan,
+      price: price,
+      click_location: location,
+    });
+  };
+
   return (
     <>
       {/* Hero Section */}
@@ -71,8 +82,8 @@ export default function SubscriptionsPage() {
           </div>
         </div>
         <div className="flex flex-col md:flex-row gap-4 justify-center my-10">
-          <button className="bg-[#a0001e] text-white px-6 py-2 rounded">Subscribe to Prime – ₦17,500/mo</button>
-          <button className="border border-white text-white px-6 py-2 rounded">Subscribe to Premium – ₦55,000/mo</button>
+          <button onClick={() => handleSubscriptionClick('prime', 17500, 'hero')} className="bg-[#a0001e] text-white px-6 py-2 rounded">Subscribe to Prime – ₦17,500/mo</button>
+          <button onClick={() => handleSubscriptionClick('premium', 55000, 'hero')} className="border border-white text-white px-6 py-2 rounded">Subscribe to Premium – ₦55,000/mo</button>
         </div>
       </div>
       {/* Compare Plans */}
@@ -90,11 +101,11 @@ export default function SubscriptionsPage() {
                 <td className="p-6 text-lg font-serif">Compare plans</td>
                 <td className="p-6 text-center align-top border-l border-gray-200">
                   <div className="text-4xl font-bold mb-1">₦17,500<span className="text-base font-normal">/Month</span></div>
-                  <button className="bg-[#a0001e] text-white px-6 py-3 rounded-lg mt-4 w-full max-w-xs mx-auto">Subscribe to Prime – ₦17,500/mo</button>
+                  <button onClick={() => handleSubscriptionClick('prime', 17500, 'compare_table')} className="bg-[#a0001e] text-white px-6 py-3 rounded-lg mt-4 w-full max-w-xs mx-auto">Subscribe to Prime – ₦17,500/mo</button>
                 </td>
                 <td className="p-6 text-center align-top border-l border-gray-200">
                   <div className="text-4xl font-bold mb-1">₦55,000<span className="text-base font-normal">/Month</span></div>
-                  <button className="bg-[#a0001e] text-white px-6 py-3 rounded-lg mt-4 w-full max-w-xs mx-auto">Subscribe to Premium – ₦55,000/mo</button>
+                  <button onClick={() => handleSubscriptionClick('premium', 55000, 'compare_table')} className="bg-[#a0001e] text-white px-6 py-3 rounded-lg mt-4 w-full max-w-xs mx-auto">Subscribe to Premium – ₦55,000/mo</button>
                 </td>
               </tr>
             </thead>
