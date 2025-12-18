@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_shared_list_items",
+  "info": {
+    "displayName": "List Item",
+    "description": "List item with optional icon"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "icon": {
+      "type": "component",
+      "component": "shared.media"
+    },
+    "badge": {
+      "type": "string"
+    }
+  }
+}

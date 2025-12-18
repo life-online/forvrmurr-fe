@@ -1,0 +1,36 @@
+{
+  "collectionName": "components_sections_banners",
+  "info": {
+    "displayName": "Banner",
+    "description": "Simple banner for global announcements"
+  },
+  "options": {},
+  "attributes": {
+    "key": {
+      "type": "string",
+      "required": true
+    },
+    "message": {
+      "type": "string",
+      "required": true
+    },
+    "variant": {
+      "type": "enumeration",
+      "enum": [
+        "default",
+        "warning",
+        "success",
+        "info"
+      ],
+      "default": "default"
+    },
+    "cta": {
+      "type": "component",
+      "component": "shared.link"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

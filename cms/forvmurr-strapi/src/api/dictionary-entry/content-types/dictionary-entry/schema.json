@@ -1,0 +1,42 @@
+{
+  "kind": "collectionType",
+  "collectionName": "dictionary_entries",
+  "info": {
+    "singularName": "dictionary-entry",
+    "pluralName": "dictionary-entries",
+    "displayName": "Dictionary Entry",
+    "description": "Key-value store for standalone copy and microcopy"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "key": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "text",
+        "richtext",
+        "json"
+      ],
+      "default": "text"
+    },
+    "textValue": {
+      "type": "text"
+    },
+    "richTextValue": {
+      "type": "richtext"
+    },
+    "jsonValue": {
+      "type": "json"
+    },
+    "description": {
+      "type": "text"
+    }
+  }
+}

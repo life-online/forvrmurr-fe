@@ -1,0 +1,47 @@
+{
+  "collectionName": "components_forms_form_fields",
+  "info": {
+    "displayName": "Form Field",
+    "description": "Reusable form field configuration"
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "label": {
+      "type": "string",
+      "required": true
+    },
+    "placeholder": {
+      "type": "string"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "text",
+        "email",
+        "tel",
+        "textarea",
+        "select",
+        "checkbox",
+        "date",
+        "number"
+      ],
+      "default": "text"
+    },
+    "helperText": {
+      "type": "string"
+    },
+    "required": {
+      "type": "boolean",
+      "default": true
+    },
+    "options": {
+      "type": "component",
+      "component": "shared.list-item",
+      "repeatable": true
+    }
+  }
+}

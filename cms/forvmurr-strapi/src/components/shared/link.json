@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_shared_links",
+  "info": {
+    "displayName": "Link",
+    "description": "Simple link with label and URL"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true
+    },
+    "url": {
+      "type": "string",
+      "required": true
+    },
+    "isExternal": {
+      "type": "boolean",
+      "default": false
+    },
+    "icon": {
+      "type": "component",
+      "component": "shared.media",
+      "repeatable": false
+    }
+  }
+}

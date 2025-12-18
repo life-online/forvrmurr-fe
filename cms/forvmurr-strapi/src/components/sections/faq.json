@@ -1,0 +1,31 @@
+{
+  "collectionName": "components_sections_faqs",
+  "info": {
+    "displayName": "FAQ",
+    "description": "Frequently asked questions section"
+  },
+  "options": {},
+  "attributes": {
+    "key": {
+      "type": "string",
+      "required": true
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "items": {
+      "type": "component",
+      "component": "shared.faq-item",
+      "repeatable": true,
+      "min": 1
+    },
+    "cta": {
+      "type": "component",
+      "component": "shared.link"
+    }
+  }
+}

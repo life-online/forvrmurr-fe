@@ -1,0 +1,20 @@
+{
+  "collectionName": "components_global_footer_link_groups",
+  "info": {
+    "displayName": "Footer Link Group",
+    "description": "Group of footer links under a heading"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "links": {
+      "type": "component",
+      "component": "shared.link",
+      "repeatable": true,
+      "min": 1
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "collectionName": "components_sections_heroes",
+  "info": {
+    "displayName": "Hero",
+    "description": "Hero section content"
+  },
+  "options": {},
+  "attributes": {
+    "key": {
+      "type": "string",
+      "required": true,
+      "unique": false
+    },
+    "eyebrow": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "tagline": {
+      "type": "text"
+    },
+    "background": {
+      "type": "component",
+      "component": "shared.media"
+    },
+    "cta": {
+      "type": "component",
+      "component": "shared.link"
+    },
+    "secondaryCta": {
+      "type": "component",
+      "component": "shared.link"
+    }
+  }
+}

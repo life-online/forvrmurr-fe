@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_sections_testimonial_grids",
+  "info": {
+    "displayName": "Testimonial Grid",
+    "description": "Testimonials with optional media"
+  },
+  "options": {},
+  "attributes": {
+    "key": {
+      "type": "string",
+      "required": true
+    },
+    "title": {
+      "type": "string"
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "testimonials": {
+      "type": "component",
+      "component": "shared.card",
+      "repeatable": true
+    }
+  }
+}

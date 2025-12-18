@@ -1,0 +1,32 @@
+{
+  "collectionName": "components_global_nav_items",
+  "info": {
+    "displayName": "Navigation Item",
+    "description": "Primary navigation item with optional submenu"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true
+    },
+    "href": {
+      "type": "string"
+    },
+    "actionType": {
+      "type": "enumeration",
+      "enum": [
+        "link",
+        "manage-subscription",
+        "logout",
+        "login"
+      ],
+      "default": "link"
+    },
+    "subLinks": {
+      "type": "component",
+      "component": "shared.link",
+      "repeatable": true
+    }
+  }
+}

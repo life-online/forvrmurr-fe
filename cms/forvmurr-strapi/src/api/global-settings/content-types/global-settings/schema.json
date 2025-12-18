@@ -1,0 +1,73 @@
+{
+  "kind": "singleType",
+  "collectionName": "global_settings",
+  "info": {
+    "singularName": "global-setting",
+    "pluralName": "global-settings",
+    "displayName": "Global Settings",
+    "description": "Site-wide configuration shared across the frontend"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "siteName": {
+      "type": "string",
+      "required": true
+    },
+    "siteUrl": {
+      "type": "string",
+      "required": true
+    },
+    "tagline": {
+      "type": "string"
+    },
+    "defaultSeo": {
+      "type": "component",
+      "component": "shared.seo"
+    },
+    "announcement": {
+      "type": "component",
+      "component": "sections.banner"
+    },
+    "primaryNavigation": {
+      "type": "component",
+      "component": "global.nav-item",
+      "repeatable": true
+    },
+    "accountNavigation": {
+      "type": "component",
+      "component": "global.nav-item",
+      "repeatable": true
+    },
+    "footerDescription": {
+      "type": "text"
+    },
+    "footerLinkGroups": {
+      "type": "component",
+      "component": "global.footer-link-group",
+      "repeatable": true
+    },
+    "footerSocialLinks": {
+      "type": "component",
+      "component": "global.social-link",
+      "repeatable": true
+    },
+    "supportEmail": {
+      "type": "string"
+    },
+    "supportPhone": {
+      "type": "string"
+    },
+    "policyLinks": {
+      "type": "component",
+      "component": "shared.link",
+      "repeatable": true
+    },
+    "metadata": {
+      "type": "json",
+      "description": "Arbitrary JSON for additional configuration flags"
+    }
+  }
+}

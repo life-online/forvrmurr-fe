@@ -1,0 +1,63 @@
+{
+  "collectionName": "components_sections_generic_contents",
+  "info": {
+    "displayName": "Generic Content",
+    "description": "Flexible content section supporting media and lists"
+  },
+  "options": {},
+  "attributes": {
+    "key": {
+      "type": "string",
+      "required": true
+    },
+    "layout": {
+      "type": "enumeration",
+      "enum": [
+        "default",
+        "split",
+        "centered",
+        "media-left",
+        "media-right"
+      ],
+      "default": "default"
+    },
+    "eyebrow": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "body": {
+      "type": "richtext"
+    },
+    "media": {
+      "type": "component",
+      "component": "shared.media"
+    },
+    "gallery": {
+      "type": "component",
+      "component": "shared.media",
+      "repeatable": true
+    },
+    "cta": {
+      "type": "component",
+      "component": "shared.link"
+    },
+    "secondaryCta": {
+      "type": "component",
+      "component": "shared.link"
+    },
+    "listItems": {
+      "type": "component",
+      "component": "shared.list-item",
+      "repeatable": true
+    },
+    "notes": {
+      "type": "text",
+      "description": "Editor guidance on how this section maps to the front-end"
+    }
+  }
+}

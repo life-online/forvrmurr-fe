@@ -1,0 +1,39 @@
+{
+  "collectionName": "components_sections_card_grids",
+  "info": {
+    "displayName": "Card Grid",
+    "description": "Grid of cards for highlights or categories"
+  },
+  "options": {},
+  "attributes": {
+    "key": {
+      "type": "string",
+      "required": true
+    },
+    "eyebrow": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "cards": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.card",
+      "min": 1
+    },
+    "layout": {
+      "type": "enumeration",
+      "enum": [
+        "two-column",
+        "three-column",
+        "carousel"
+      ],
+      "default": "two-column"
+    }
+  }
+}

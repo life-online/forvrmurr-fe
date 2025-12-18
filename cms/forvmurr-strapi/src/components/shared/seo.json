@@ -1,0 +1,31 @@
+{
+  "collectionName": "components_shared_seo",
+  "info": {
+    "displayName": "SEO",
+    "description": "Search engine optimization metadata"
+  },
+  "options": {},
+  "attributes": {
+    "metaTitle": {
+      "type": "string",
+      "required": true
+    },
+    "metaDescription": {
+      "type": "text"
+    },
+    "keywords": {
+      "type": "json"
+    },
+    "canonicalUrl": {
+      "type": "string"
+    },
+    "ogImage": {
+      "type": "component",
+      "component": "shared.media"
+    },
+    "twitterImage": {
+      "type": "component",
+      "component": "shared.media"
+    }
+  }
+}

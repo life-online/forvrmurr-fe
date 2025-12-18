@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_global_social_links",
+  "info": {
+    "displayName": "Social Link",
+    "description": "Social media link with platform"
+  },
+  "options": {},
+  "attributes": {
+    "platform": {
+      "type": "string",
+      "required": true
+    },
+    "link": {
+      "type": "component",
+      "component": "shared.link",
+      "required": true
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "collectionName": "components_sections_forms",
+  "info": {
+    "displayName": "Form",
+    "description": "Form configuration for interactive pages"
+  },
+  "options": {},
+  "attributes": {
+    "key": {
+      "type": "string",
+      "required": true
+    },
+    "title": {
+      "type": "string"
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "fields": {
+      "type": "component",
+      "component": "forms.form-field",
+      "repeatable": true,
+      "min": 1
+    },
+    "successMessage": {
+      "type": "text"
+    },
+    "errorMessage": {
+      "type": "text"
+    },
+    "submitLabel": {
+      "type": "string",
+      "default": "Submit"
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "collectionName": "components_shared_cards",
+  "info": {
+    "displayName": "Card",
+    "description": "Card with content, media, and action"
+  },
+  "options": {},
+  "attributes": {
+    "key": {
+      "type": "string",
+      "required": false
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "media": {
+      "type": "component",
+      "component": "shared.media",
+      "repeatable": true
+    },
+    "cta": {
+      "type": "component",
+      "component": "shared.link"
+    },
+    "badge": {
+      "type": "string"
+    },
+    "backgroundColor": {
+      "type": "string"
+    },
+    "textColor": {
+      "type": "string"
+    }
+  }
+}
