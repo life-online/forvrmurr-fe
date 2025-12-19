@@ -135,6 +135,17 @@ export default function ProductDetailsPage() {
     setMainQuantity((prev) => (prev > 1 ? prev - 1 : 1));
   const getFeaturedQty = (id: string | number) => featuredQuantities[id] || 1;
 
+  // Helper function to get the first available variant for a product
+  const getFirstVariant = (item: Product): ProductVariant | null => {
+    if (!item.variantEntities || item.variantEntities.length === 0) {
+      return null;
+    }
+    // Sort by position and prefer in-stock variant
+    const sortedVariants = [...item.variantEntities].sort((a, b) => a.position - b.position);
+    const inStockVariant = sortedVariants.find(v => v.inventoryQuantity > 0);
+    return inStockVariant || sortedVariants[0];
+  };
+
   const increaseFeaturedQty = (id: string | number) => {
     setFeaturedQuantities((prev) => ({
       ...prev,
@@ -452,7 +463,14 @@ export default function ProductDetailsPage() {
                         Add-On Products
                       </h3>
                       <div className="space-y-6">
-                        {featuredProducts.map((item, index) => (
+                        {featuredProducts.map((item, index) => {
+                          const featuredVariant = getFirstVariant(item);
+                          const featuredPrice = featuredVariant ? Number(featuredVariant.price) : Number(item.nairaPrice);
+                          const isOutOfStock = featuredVariant
+                            ? featuredVariant.inventoryQuantity <= 0
+                            : item.inventoryQuantity <= 0;
+
+                          return (
                           <div key={index} className="border border-gray-200 rounded-lg p-4">
                             <div className="flex items-center gap-3 mb-4">
                               <div className="w-10 h-12 relative">
@@ -475,11 +493,11 @@ export default function ProductDetailsPage() {
 
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
                               <div className="flex items-center gap-4 sm:gap-6">
-                                {/* Price Display */}
+                                {/* Price Display - use variant price if available */}
                                 <div className="text-base sm:text-lg font-semibold text-gray-900">
-                                  ₦{Number(item.nairaPrice).toLocaleString()}
+                                  ₦{featuredPrice.toLocaleString()}
                                 </div>
-                                
+
                                 {/* Quantity Selector */}
                                 <QuantitySelector
                                   quantity={getFeaturedQty(item.id)}
@@ -489,7 +507,7 @@ export default function ProductDetailsPage() {
                               </div>
 
                               {/* Add to Cart Button or Notify Me Button for featured products */}
-                              {item.inventoryQuantity <= 0 ? (
+                              {isOutOfStock ? (
                                 <button
                                   onClick={(e) => {
                                     e.preventDefault();
@@ -507,6 +525,7 @@ export default function ProductDetailsPage() {
                                   product={item}
                                   className="bg-gray-100 text-gray-900 px-4 sm:px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium border border-gray-300 w-full sm:w-auto"
                                   quantity={getFeaturedQty(item.id)}
+                                  selectedVariant={featuredVariant}
                                 />
                               )}
                             </div>
@@ -516,13 +535,13 @@ export default function ProductDetailsPage() {
                               <div className="mt-3 text-right">
                                 <p className="text-sm text-gray-600">
                                   Total: <span className="font-semibold text-gray-900">
-                                    ₦{(Number(item.nairaPrice) * getFeaturedQty(item.id)).toLocaleString()}
+                                    ₦{(featuredPrice * getFeaturedQty(item.id)).toLocaleString()}
                                   </span>
                                 </p>
                               </div>
                             )}
                           </div>
-                        ))}
+                        );})}
                       </div>
                     </div>
                   )}
