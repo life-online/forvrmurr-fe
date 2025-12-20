@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, type Transition } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 
 interface PageTransitionProps {
@@ -26,9 +26,9 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
     },
   };
 
-  const pageTransition = {
+  const pageTransition: Transition = {
     type: "tween",
-    ease: [0.25, 0.46, 0.45, 0.94] as any,
+    ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number],
     duration: 0.5,
   };
 
