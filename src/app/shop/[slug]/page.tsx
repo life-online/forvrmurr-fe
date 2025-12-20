@@ -487,11 +487,15 @@ export default function ProductDetailsPage() {
                             ? featuredVariant.inventoryQuantity <= 0
                             : item.inventoryQuantity <= 0;
                           const hasVariants = item.variantEntities && item.variantEntities.length > 1;
+                          const sortedVariants = hasVariants
+                            ? [...item.variantEntities!].sort((a, b) => a.position - b.position)
+                            : [];
 
                           return (
                           <div key={index} className="border border-gray-200 rounded-lg p-4">
-                            <div className="flex items-center gap-3 mb-4">
-                              <div className="w-12 h-14 relative">
+                            <div className="flex items-start gap-3">
+                              {/* Product Image */}
+                              <div className="w-12 h-14 relative flex-shrink-0">
                                 <Image
                                   src={item.imageUrls?.[0] || FALLBACK_IMAGE}
                                   alt={item.name}
@@ -499,77 +503,93 @@ export default function ProductDetailsPage() {
                                   className="object-contain"
                                 />
                               </div>
-                              <div>
-                                <h4 className="font-medium text-gray-900">
-                                  {item.name}
-                                </h4>
-                                <p className="text-sm text-gray-600">
-                                  {item.brand?.name}
-                                </p>
-                              </div>
-                            </div>
 
-                            {/* Variant Selector for featured products with multiple variants */}
-                            {hasVariants && (
-                              <div className="mb-4">
-                                <VariantSelector
-                                  variants={item.variantEntities!}
-                                  selectedVariant={featuredVariant}
-                                  onSelect={(variant) => setFeaturedVariant(item.id, variant)}
-                                  compact
-                                />
-                              </div>
-                            )}
-
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
-                              <div className="flex items-center gap-4 sm:gap-6">
-                                {/* Price Display - use variant price if available */}
-                                <div className="text-base sm:text-lg font-semibold text-gray-900">
-                                  ₦{featuredPrice.toLocaleString()}
+                              {/* Product Info & Controls */}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div>
+                                    <h4 className="font-medium text-gray-900">
+                                      {item.name}
+                                    </h4>
+                                    <p className="text-sm text-gray-600">
+                                      {item.brand?.name}
+                                    </p>
+                                  </div>
+                                  <div className="text-base sm:text-lg font-semibold text-gray-900 flex-shrink-0">
+                                    ₦{featuredPrice.toLocaleString()}
+                                  </div>
                                 </div>
 
-                                {/* Quantity Selector */}
-                                <QuantitySelector
-                                  quantity={getFeaturedQty(item.id)}
-                                  onIncrease={() => increaseFeaturedQty(item.id)}
-                                  onDecrease={() => decreaseFeaturedQty(item.id)}
-                                />
-                              </div>
+                                {/* Variant Dropdown - separate row */}
+                                {hasVariants && (
+                                  <div className="mt-3">
+                                    <select
+                                      value={featuredVariant?.id || ''}
+                                      onChange={(e) => {
+                                        const variant = sortedVariants.find(v => v.id === e.target.value);
+                                        if (variant) setFeaturedVariant(item.id, variant);
+                                      }}
+                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-[#a0001e]/20 focus:border-[#a0001e]"
+                                    >
+                                      {sortedVariants.map((variant) => (
+                                        <option
+                                          key={variant.id}
+                                          value={variant.id}
+                                          disabled={variant.inventoryQuantity === 0}
+                                        >
+                                          {variant.title}{variant.inventoryQuantity === 0 ? ' (Out of Stock)' : ''}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                )}
 
-                              {/* Add to Cart Button or Notify Me Button for featured products */}
-                              {isOutOfStock ? (
-                                <button
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    setIsNotifyModalOpen(true);
-                                    setProduct(item);
-                                    console.log('Opening notify modal for featured product');
-                                  }}
-                                  className="bg-gray-700 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors font-medium w-full sm:w-auto text-sm"
-                                >
-                                  Notify Me
-                                </button>
-                              ) : (
-                                <AddToCartButton
-                                  product={item}
-                                  className="bg-gray-100 text-gray-900 px-4 sm:px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium border border-gray-300 w-full sm:w-auto"
-                                  quantity={getFeaturedQty(item.id)}
-                                  selectedVariant={featuredVariant}
-                                />
-                              )}
+                                {/* Quantity & Add to Cart row */}
+                                <div className="flex items-center gap-3 mt-3">
+                                  {/* Quantity Selector */}
+                                  <QuantitySelector
+                                    quantity={getFeaturedQty(item.id)}
+                                    onIncrease={() => increaseFeaturedQty(item.id)}
+                                    onDecrease={() => decreaseFeaturedQty(item.id)}
+                                  />
+
+                                  {/* Add to Cart Button */}
+                                  <div className="ml-auto">
+                                    {isOutOfStock ? (
+                                      <button
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          setIsNotifyModalOpen(true);
+                                          setProduct(item);
+                                        }}
+                                        className="bg-gray-700 text-white px-4 py-1.5 rounded-lg hover:bg-gray-800 transition-colors font-medium text-sm"
+                                      >
+                                        Notify Me
+                                      </button>
+                                    ) : (
+                                      <AddToCartButton
+                                        product={item}
+                                        className="bg-gray-100 text-gray-900 px-4 py-1.5 rounded-lg hover:bg-gray-200 transition-colors font-medium border border-gray-300 text-sm"
+                                        quantity={getFeaturedQty(item.id)}
+                                        selectedVariant={featuredVariant}
+                                      />
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Total Price (only show if quantity > 1) */}
+                                {getFeaturedQty(item.id) > 1 && (
+                                  <div className="mt-2 text-right">
+                                    <p className="text-sm text-gray-600">
+                                      Total: <span className="font-semibold text-gray-900">
+                                        ₦{(featuredPrice * getFeaturedQty(item.id)).toLocaleString()}
+                                      </span>
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-
-                            {/* Total Price (only show if quantity > 1) */}
-                            {getFeaturedQty(item.id) > 1 && (
-                              <div className="mt-3 text-right">
-                                <p className="text-sm text-gray-600">
-                                  Total: <span className="font-semibold text-gray-900">
-                                    ₦{(featuredPrice * getFeaturedQty(item.id)).toLocaleString()}
-                                  </span>
-                                </p>
-                              </div>
-                            )}
                           </div>
                         );})}
                       </div>
