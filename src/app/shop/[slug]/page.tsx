@@ -362,9 +362,10 @@ export default function ProductDetailsPage() {
                 <div className="text-base sm:text-lg font-serif mb-2">
                   {product.name} {formatConcentration(product.concentration)}
                 </div>
-                <div className="text-gray-700 mb-8 leading-relaxed">
-                  {product.description}
-                </div>
+                <div
+                  className="text-gray-700 mb-8 leading-relaxed [&_p]:mb-3 [&_strong]:font-semibold [&_b]:font-semibold [&_br]:block [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+                  dangerouslySetInnerHTML={{ __html: product.description || '' }}
+                />
 
                 {/* Variant Selector (only show if product has multiple variants) */}
                 {product.variantEntities && product.variantEntities.length > 1 && (
@@ -612,9 +613,10 @@ export default function ProductDetailsPage() {
           <h2 className="text-2xl md:text-3xl font-serif text-[#a0001e] mb-12">
             Fragrance Story
           </h2>
-          <div className="text-xl md:text-2xl font-serif text-black mb-8">
-            {product.fragranceStory || product.description}
-          </div>
+          <div
+            className="text-xl md:text-2xl font-serif text-black mb-8 text-center [&_p]:mb-4 [&_strong]:font-semibold [&_b]:font-semibold [&_br]:block"
+            dangerouslySetInnerHTML={{ __html: product.fragranceStory || product.description || '' }}
+          />
           <div className="text-gray-800 my-4">
             Learn more about the top, middle, and bottom notes in this
             fragrance.
