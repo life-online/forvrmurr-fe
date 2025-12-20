@@ -615,7 +615,14 @@ export default function ProductDetailsPage() {
           </h2>
           <div
             className="text-xl md:text-2xl font-serif text-black mb-8 text-center [&_p]:mb-4 [&_strong]:font-semibold [&_b]:font-semibold [&_br]:block"
-            dangerouslySetInnerHTML={{ __html: product.fragranceStory || product.description || '' }}
+            dangerouslySetInnerHTML={{
+              __html: (() => {
+                const content = product.fragranceStory || product.description || '';
+                // If content has HTML tags, use as-is; otherwise convert newlines to <br>
+                const hasHtmlTags = /<[a-z][\s\S]*>/i.test(content);
+                return hasHtmlTags ? content : content.replace(/\n/g, '<br>');
+              })()
+            }}
           />
           <div className="text-gray-800 my-4">
             Learn more about the top, middle, and bottom notes in this
