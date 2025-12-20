@@ -51,7 +51,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
           (item: CartItemDto) => ({
             id: item.id,
             name: item.product.name,
-            brand: item.product.name.split(" ")[0], // Just a guess, adjust based on your data
+            brand: item.product.brandName || "",
             price: parseFloat(item.price),
             imageUrl: item.product.imageUrl || null,
             quantity: item.quantity,
@@ -91,7 +91,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         (item: CartItemDto) => ({
           id: item.id,
           name: item.product.name,
-          brand: item.product.name.split(" ")[0], // Just a guess, adjust based on your data
+          brand: item.product.brandName || "",
           price: parseFloat(item.price),
           imageUrl: item.product.imageUrl || null,
           quantity: item.quantity,
@@ -127,7 +127,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         (item: CartItemDto) => ({
           id: item.id,
           name: item.product.name,
-          brand: item.product.name.split(" ")[0], // Adjust based on actual data
+          brand: item.product.brandName || "",
           price: parseFloat(item.price),
           imageUrl:
             item.product.imageUrl ||
@@ -180,7 +180,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         (item: CartItemDto) => ({
           id: item.id,
           name: item.product.name,
-          brand: item.product.name.split(" ")[0], // Adjust based on actual data
+          brand: item.product.brandName || "",
           price: parseFloat(item.price),
           imageUrl:
             item.product.imageUrl ||
@@ -226,7 +226,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         (item: CartItemDto) => ({
           id: item.id,
           name: item.product.name,
-          brand: item.product.name.split(" ")[0], // Adjust based on actual data
+          brand: item.product.brandName || "",
           price: parseFloat(item.price),
           imageUrl:
             item.product.imageUrl ||

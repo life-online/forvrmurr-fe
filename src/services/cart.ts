@@ -8,6 +8,7 @@ export interface CartItemDto {
   product: {
     id: string;
     name: string;
+    brandName: string | null;
     slug: string;
     nairaPrice: number;
     imageUrl?: string;
