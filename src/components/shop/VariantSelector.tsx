@@ -6,12 +6,14 @@ interface VariantSelectorProps {
   variants: ProductVariant[];
   selectedVariant: ProductVariant | null;
   onSelect: (variant: ProductVariant) => void;
+  compact?: boolean;
 }
 
 const VariantSelector: React.FC<VariantSelectorProps> = ({
   variants,
   selectedVariant,
   onSelect,
+  compact = false,
 }) => {
   // Don't render if there's only one variant or no variants
   if (!variants || variants.length <= 1) {
@@ -23,10 +25,12 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
 
   return (
     <div>
-      <h3 className="font-serif text-xl font-semibold text-gray-900 mb-4">
-        Select Size
-      </h3>
-      <div className="flex flex-wrap gap-3">
+      {!compact && (
+        <h3 className="font-serif text-xl font-semibold text-gray-900 mb-4">
+          Select Size
+        </h3>
+      )}
+      <div className={`flex flex-wrap ${compact ? "gap-2" : "gap-3"}`}>
         {sortedVariants.map((variant) => {
           const isSelected = selectedVariant?.id === variant.id;
           const isOutOfStock = variant.inventoryQuantity === 0;
@@ -37,7 +41,8 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
               onClick={() => !isOutOfStock && onSelect(variant)}
               disabled={isOutOfStock}
               className={`
-                px-5 md:px-8 py-2 rounded-xl border font-serif font-medium transition-colors
+                ${compact ? "px-3 py-1.5 text-sm rounded-lg" : "px-5 md:px-8 py-2 rounded-xl"}
+                border font-serif font-medium transition-colors
                 ${
                   isSelected
                     ? "border-[#a0001e] bg-[#a0001e] text-white"
@@ -49,7 +54,7 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
             >
               {variant.title}
               {isOutOfStock && (
-                <span className="ml-2 text-sm">(Out of Stock)</span>
+                <span className={`ml-1 ${compact ? "text-xs" : "text-sm"}`}>(Out of Stock)</span>
               )}
             </button>
           );

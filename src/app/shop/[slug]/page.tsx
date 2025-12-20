@@ -78,6 +78,7 @@ export default function ProductDetailsPage() {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isWishlistLoading, setIsWishlistLoading] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
+  const [featuredSelectedVariants, setFeaturedSelectedVariants] = useState<Record<string, ProductVariant | null>>({});
 
   // Fetch the product data
   useEffect(() => {
@@ -144,6 +145,22 @@ export default function ProductDetailsPage() {
     const sortedVariants = [...item.variantEntities].sort((a, b) => a.position - b.position);
     const inStockVariant = sortedVariants.find(v => v.inventoryQuantity > 0);
     return inStockVariant || sortedVariants[0];
+  };
+
+  // Get selected variant for a featured product (or default to first variant)
+  const getFeaturedVariant = (item: Product): ProductVariant | null => {
+    if (featuredSelectedVariants[item.id] !== undefined) {
+      return featuredSelectedVariants[item.id];
+    }
+    return getFirstVariant(item);
+  };
+
+  // Set selected variant for a featured product
+  const setFeaturedVariant = (productId: string, variant: ProductVariant | null) => {
+    setFeaturedSelectedVariants(prev => ({
+      ...prev,
+      [productId]: variant,
+    }));
   };
 
   const increaseFeaturedQty = (id: string | number) => {
@@ -464,18 +481,19 @@ export default function ProductDetailsPage() {
                       </h3>
                       <div className="space-y-6">
                         {featuredProducts.map((item, index) => {
-                          const featuredVariant = getFirstVariant(item);
+                          const featuredVariant = getFeaturedVariant(item);
                           const featuredPrice = featuredVariant ? Number(featuredVariant.price) : Number(item.nairaPrice);
                           const isOutOfStock = featuredVariant
                             ? featuredVariant.inventoryQuantity <= 0
                             : item.inventoryQuantity <= 0;
+                          const hasVariants = item.variantEntities && item.variantEntities.length > 1;
 
                           return (
                           <div key={index} className="border border-gray-200 rounded-lg p-4">
                             <div className="flex items-center gap-3 mb-4">
-                              <div className="w-10 h-12 relative">
+                              <div className="w-12 h-14 relative">
                                 <Image
-                                  src="/images/products/TVC_1.png"
+                                  src={item.imageUrls?.[0] || FALLBACK_IMAGE}
                                   alt={item.name}
                                   fill
                                   className="object-contain"
@@ -490,6 +508,18 @@ export default function ProductDetailsPage() {
                                 </p>
                               </div>
                             </div>
+
+                            {/* Variant Selector for featured products with multiple variants */}
+                            {hasVariants && (
+                              <div className="mb-4">
+                                <VariantSelector
+                                  variants={item.variantEntities!}
+                                  selectedVariant={featuredVariant}
+                                  onSelect={(variant) => setFeaturedVariant(item.id, variant)}
+                                  compact
+                                />
+                              </div>
+                            )}
 
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
                               <div className="flex items-center gap-4 sm:gap-6">
