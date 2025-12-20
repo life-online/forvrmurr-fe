@@ -329,9 +329,9 @@ const CartOverlay: React.FC<CartOverlayProps> = ({
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-col gap-2">
                           <div>
-                            <h4 className="font-medium text-gray-900">{item.brand}</h4>
-                            <p className="text-sm text-gray-600 truncate">{item.name}</p>
-                            {item.variantTitle && (
+                            <h4 className="font-medium text-gray-900">{item.name}</h4>
+                            <p className="text-sm text-gray-600 truncate">{item.brand}</p>
+                            {item.variantTitle && item.variantTitle.toLowerCase() !== 'default title' && (
                               <p className="text-xs text-gray-500">{item.variantTitle}</p>
                             )}
                           </div>
