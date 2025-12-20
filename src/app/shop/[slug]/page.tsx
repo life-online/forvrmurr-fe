@@ -381,24 +381,30 @@ export default function ProductDetailsPage() {
                 <div className="mt-8 space-y-8">
                   {/* Main Product Section */}
                   <div className="border-b border-gray-200 pb-8">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-12 h-16 relative">
-                        <Image
-                          src="/images/products/grand_soir.png"
-                          alt="8ml Bottle"
-                          fill
-                          className="object-contain"
-                        />
+                    {/* Only show variant info if there are multiple variants with meaningful titles */}
+                    {selectedVariant &&
+                     product.variantEntities &&
+                     product.variantEntities.length > 1 &&
+                     selectedVariant.title.toLowerCase() !== 'default title' && (
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="w-12 h-16 relative">
+                          <Image
+                            src={product.imageUrls?.[0] || FALLBACK_IMAGE}
+                            alt={selectedVariant.title}
+                            fill
+                            className="object-contain"
+                          />
+                        </div>
+                        <div>
+                          <h3 className="font-serif text-lg font-semibold text-gray-900">
+                            {selectedVariant.title}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {product.brand?.name || 'Selected Size'}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-serif text-lg font-semibold text-gray-900">
-                          {selectedVariant?.title || "8ml Bottle"}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          Forvr Murr Pricing
-                        </p>
-                      </div>
-                    </div>
+                    )}
 
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
                       <div className="flex items-center gap-6">
