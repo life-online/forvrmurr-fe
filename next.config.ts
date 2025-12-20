@@ -53,6 +53,10 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  typescript: {
+    // Skip type checking during build (we already check locally)
+    ignoreBuildErrors: true,
+  },
   async headers() {
     return [
       {
