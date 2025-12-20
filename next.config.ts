@@ -94,6 +94,16 @@ const nextConfig: NextConfig = {
   // Production optimizations
   productionBrowserSourceMaps: false, // Disable source maps in production for smaller bundles
   poweredByHeader: false, // Remove X-Powered-By header for security
+
+  // Disable output file tracing to reduce memory usage during build
+  outputFileTracingExcludes: {
+    '*': [
+      'node_modules/@swc/core-linux-x64-gnu',
+      'node_modules/@swc/core-linux-x64-musl',
+      'node_modules/@esbuild/linux-x64',
+      'node_modules/esbuild',
+    ],
+  }
 };
 
 export default nextConfig;
